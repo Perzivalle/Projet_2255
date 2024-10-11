@@ -1,0 +1,397 @@
+Scénarios
+CU : Consulter et rechercher des travaux en cours ou à venir
+But : Permettre aux résidents de consulter ou rechercher des travaux publics ou privés affectant leur région ou itinéraire, afin de planifier leurs déplacements et minimiser les désagréments.
+
+Acteurs
+Résident (Principal)
+Préconditions
+Le résident doit être inscrit et connecté à l'application MaVille.
+Les informations concernant les travaux à venir ou en cours doivent être à jour dans le système.
+Le résident doit disposer d'une connexion Internet pour accéder aux informations.
+
+### Scénario principal
+
+1. Le résident ouvre l'application MaVille.
+2. Le résident sélectionne l'option "Consulter les travaux en cours ou à venir" ou "Rechercher des travaux".
+3. L'application demande la permission d’accéder à la localisation actuelle du résident ou propose d'utiliser l'adresse enregistrée lors de l'inscription.
+4. Le résident accepte la localisation ou entre une adresse manuellement.
+5. L'application affiche une barre de recherche avec des filtres pour consulter ou rechercher des travaux.
+   - Filtres disponibles :
+     - Type de travaux : Travaux routiers, travaux de gaz, électricité, etc.
+     - Date : Période des travaux (jusqu'aux 3 prochains mois).
+     - Localisation : Quartier, rue ou zone géographique.
+     - Itinéraire : Possibilité d'entrer un itinéraire pour visualiser les travaux affectant ce parcours.
+6. Le résident sélectionne les filtres souhaités.
+7. Le résident soumet sa requête.
+8. L'application affiche les résultats correspondant aux critères du résident sur une carte ou une liste avec des détails (dates, localisation précise, impact sur la circulation, durée des travaux).
+9. Le résident peut cliquer sur un projet de travaux spécifique pour obtenir plus de détails.
+10. Le résident peut l'ajouter à sa liste de surveillance s'il souhaite recevoir des notifications.
+11. Le résident peut également rechercher des travaux à venir en entrant des critères spécifiques (itinéraire fréquent ou quartier) dans la barre de recherche.
+12. Le résident ferme l'application une fois les informations obtenues.
+
+---
+
+### Scénarios alternatifs
+
+- **4. Aucune adresse associée**
+   - 4a. Si aucune adresse n’est associée au compte du résident, l’application lui demande de la renseigner avant de continuer.
+
+- **5. Aucun travail trouvé**
+   - 5.a. Si aucun travail ne correspond aux critères de recherche, le système informe le résident qu’aucun chantier n’est prévu ou en cours dans cette zone. Il peut ajuster ses critères ou recevoir une alerte pour les travaux futurs.
+
+- **8. Erreur du système**
+   - 8.a. Si le système rencontre une erreur (par exemple, un problème avec la base de données), une notification d’erreur est envoyée au résident, lui suggérant de réessayer plus tard ou de contacter le support technique.
+
+- **10. Ignorer les notifications**
+   - 10.a. Si le résident ne souhaite pas recevoir de notifications, il peut ignorer cette option après avoir consulté les travaux.
+
+Postconditions
+Le résident consulte avec succès les informations sur les travaux affectant sa zone géographique ou son itinéraire, filtrées selon ses besoins.
+Le résident peut recevoir des notifications personnalisées si des changements surviennent dans les projets de travaux surveillés ou recherchés.
+
+
+
+
+
+---
+
+### CU : Soumettre une requête ou un nouveau projet de travaux  
+**But** : Permettre aux résidents et aux intervenants de soumettre une requête de travail ou un projet de travaux via l'application MaVille, afin de gérer les travaux publics ou privés affectant la ville.
+
+#### Acteurs
+- **Résident (Principal)**
+- **Intervenant (Principal)**
+- **Service de la ville (Secondaire)**
+
+#### Préconditions
+- Le résident ou l’intervenant doit être inscrit et connecté à l'application MaVille.
+- L’utilisateur doit disposer d'une connexion Internet et d’un appareil compatible avec l’application.
+- Les informations nécessaires pour la requête ou le projet doivent être prêtes, y compris la description, la localisation et les dates.
+
+#### Postconditions
+- La requête ou le projet est soumis avec succès, et le service de la ville en est informé pour une prise en charge ou validation ultérieure.
+- Les résidents ou les intervenants peuvent suivre l'évolution de la requête ou du projet via des notifications dans l'application MaVille.
+
+
+---
+
+### Scénario principal
+
+1. L'utilisateur ouvre l'application MaVille.
+2. L'utilisateur sélectionne l'option "Soumettre une requête" ou "Soumettre un nouveau projet de travaux" selon son profil (résident ou intervenant).
+3. L'application affiche un formulaire adapté selon le profil de l'utilisateur.
+   - **Pour les résidents** :
+     - Titre de la requête (par exemple, "Réparation d’un trottoir").
+     - Type de problème (chaussée, éclairage, mobilier urbain, etc.).
+     - Description détaillée du problème.
+     - Localisation exacte (GPS ou adresse manuelle).
+     - Date de début espérée.
+     - Option pour ajouter une photo du problème.
+   - **Pour les intervenants** :
+     - Titre du projet de travaux.
+     - Description du projet.
+     - Type de travaux (construction, réparation, etc.).
+     - Localisation exacte des travaux (rues, intersections concernées).
+     - Quartiers et rues affectés.
+     - Dates prévues de début et de fin des travaux.
+     - Horaires des travaux.
+     - Impacts potentiels sur la circulation et les résidents.
+     - Possibilité de soumettre des documents (plans, permis, etc.).
+4. L'utilisateur soumet le formulaire.
+5. L'application confirme la soumission.
+6. L'application génère un numéro de suivi pour la requête ou le projet.
+7. Le service de la ville reçoit la soumission.
+8. Le service de la ville envoie un accusé de réception.
+9. L'application envoie des notifications à l'utilisateur à chaque étape (validation, prise en charge, résolution).
+10. Pour les résidents, lorsqu’un intervenant pose sa candidature pour la requête, le résident reçoit une notification et peut accepter ou refuser la candidature.
+11. Pour les intervenants, une fois validé, le projet devient visible pour les résidents concernés qui reçoivent des notifications.
+
+---
+
+### Scénarios alternatifs
+
+- **4. Problème de localisation**
+   - 4.a. Si la localisation GPS est incorrecte ou inaccessible, l’application propose de renseigner manuellement l’adresse ou de situer le problème ou les travaux.
+  
+- **5. Informations manquantes ou rejet du projet**
+   - 5.a. Si l'utilisateur ne fournit pas toutes les informations nécessaires, le système demande de compléter le formulaire avant de pouvoir soumettre la requête ou le projet.
+   - 5.b. Si un projet soumis par un intervenant est rejeté par les autorités locales, une notification est envoyée expliquant les raisons du rejet et les étapes à suivre pour soumettre à nouveau.
+
+---
+
+### CU : S'inscrire sur MaVille  
+**But** : Permettre aux intervenants et aux résidents de s’inscrire sur l’application MaVille pour accéder aux fonctionnalités personnalisées selon leur profil.
+
+#### Acteurs
+- **Intervenant (Principal)**
+- **Résident (Principal)**
+
+#### Préconditions
+- L'utilisateur doit disposer d'une connexion Internet pour s'inscrire.
+
+#### Postconditions
+- L'utilisateur (intervenant ou résident) est maintenant enregistré et dispose d'un compte personnalisé sur MaVille, lui permettant d'accéder aux fonctionnalités adaptées à son profil.
+- Les informations des utilisateurs sont stockées en toute sécurité dans la base de données de l’application pour des consultations futures.
+
+#### Notes
+Les intervenants doivent être enregistrés auprès de la ville avant de soumettre des projets.
+
+---
+
+### Scénario principal
+
+1. L'utilisateur ouvre l'application MaVille.
+2. L'utilisateur sélectionne l'option "S'inscrire".
+3. Il sélectionne son profil : "Intervenant" ou "Résident".
+4. Le système présente un formulaire d'inscription adapté selon le profil choisi :
+   - **Pour les intervenants** :
+     - Nom complet.
+     - Adresse courriel unique (pour se connecter).
+     - Mot de passe.
+     - Type d’intervenant (Entreprise publique, entrepreneur privé, particulier).
+     - Identifiant de la ville (code à 8 chiffres).
+     - Soumission de documents requis (licences professionnelles, permis, etc.).
+   - **Pour les résidents** :
+     - Nom complet.
+     - Date de naissance (vérification de l'âge minimum de 16 ans).
+     - Adresse courriel unique (pour se connecter).
+     - Mot de passe.
+     - Numéro de téléphone (optionnel).
+     - Adresse résidentielle (pour lier le résident à un quartier de Montréal).
+5. L'utilisateur remplit le formulaire et soumet ses informations.
+6. Le système vérifie la validité des informations fournies (format de l’adresse, licence valide, etc.).
+7. Une fois les informations validées, l'utilisateur reçoit un courriel de confirmation avec un lien d'activation.
+8. L'utilisateur clique sur le lien d'activation pour finaliser son inscription.
+9. Le système confirme l'inscription et permet à l'utilisateur d'accéder à son tableau de bord personnalisé dans MaVille.
+10. L'intervenant peut désormais soumettre et gérer des projets de travaux, tandis que le résident peut consulter les travaux dans son quartier et recevoir des notifications personnalisées.
+
+---
+
+### Scénarios alternatifs
+
+- **5. Informations invalides**
+   - 5a. Si les informations fournies sont incorrectes ou incomplètes, le système envoie un message demandant de corriger les erreurs avant de soumettre à nouveau le formulaire.
+
+- **7. Non-réception du courriel de confirmation**
+   - 7a. Si l'utilisateur ne reçoit pas le courriel de confirmation, il peut utiliser l'option "Renvoyer le courriel de confirmation" disponible dans l'application. Si cela échoue à nouveau, un service d’assistance est disponible.
+
+---
+
+### CU : Consulter la liste des requêtes de travail  
+**But** : Permettre à un intervenant de consulter la liste des requêtes de travail et de soumettre sa candidature en précisant les dates de début et de fin des travaux.
+
+#### Acteurs
+- **Intervenant (Principal)**
+
+#### Préconditions
+- L’intervenant doit être inscrit et connecté à l’application MaVille avec un compte professionnel.
+- Les requêtes de travail doivent être à jour dans la base de données du système.
+- L’intervenant doit disposer d’une connexion Internet pour consulter et soumettre sa candidature.
+
+#### Postconditions
+- L’intervenant a consulté la liste des requêtes de travail et a pu soumettre sa candidature pour l'une des requêtes, en précisant les dates de début et de fin des travaux.
+- L’application enregistre la candidature de l’intervenant et l’informe de l’état de sa soumission (acceptée ou rejetée).
+
+
+### Scénario principal
+
+1. L’intervenant ouvre l’application MaVille.
+2. L’intervenant se connecte à son compte professionnel.
+3. L’intervenant accède à la section "Consulter les requêtes de travail" sur son tableau de bord.
+4. L’application affiche une liste des requêtes de travail disponibles.
+5. L’intervenant applique des filtres (type de requête, quartier, date de début) pour affiner sa recherche.
+6. L’intervenant sélectionne une requête de travail spécifique pour consulter les détails (nature des travaux, localisation, dates possibles, etc.).
+7. Si intéressé, l’intervenant soumet sa candidature en précisant les dates de début et de fin des travaux qu'il peut proposer.
+8. L’application confirme la soumission de la candidature et enregistre les informations.
+9. L’intervenant est informé de l’évolution de sa candidature (acceptation ou rejet) via des notifications.
+
+---
+
+### Scénarios alternatifs
+
+- **5. Aucune requête de travail disponible**
+   - 5a. Si aucune requête de travail ne correspond aux filtres appliqués, l’intervenant est informé qu’aucune requête n’est disponible dans cette catégorie ou cette zone.
+
+- **6. Requête déjà prise en charge**
+   - 6a. Si une requête de travail a déjà été prise en charge par un autre intervenant, l’intervenant est informé que la requête n’est plus disponible.
+
+
+---
+
+### CU : Mettre à jour les informations d'un chantier  
+**But** : Permettre à l’intervenant de mettre à jour les informations d’un chantier en cours ou à venir (changements dans les dates, les conditions de circulation, les étapes du chantier, etc.) afin d’informer les résidents et de maintenir la base de données à jour.
+
+#### Acteurs
+- **Intervenant (Principal)**
+
+#### Préconditions
+- L’intervenant doit être inscrit sur MaVille et avoir accès au chantier en question dans la base de données.
+- Le chantier doit déjà être enregistré dans la base de données des travaux.
+- Le système MaVille doit être accessible avec une connexion Internet fonctionnelle.
+
+#### Postconditions
+- Les résidents concernés sont notifiés des changements, réduisant ainsi les perturbations imprévues.
+- Le chantier est à jour dans la base de données et les résidents peuvent suivre l’évolution du chantier en temps réel.
+
+---
+
+### Scénario principal
+
+1. L’intervenant se connecte à l’application MaVille en utilisant son compte professionnel.
+2. L’intervenant accède à la section "Gestion des chantiers".
+3. Il sélectionne le chantier qu’il souhaite mettre à jour.
+4. Le système affiche les informations actuelles du chantier (par exemple : dates prévues, localisation, impact sur la circulation, progression).
+5. L’intervenant modifie les informations nécessaires, telles que :
+   - Mettre à jour la description du projet.
+   - Mettre à jour la date de fin prévue.
+   - Changer le statut du projet : En cours, Suspendu, Terminé.
+6. L’intervenant valide les changements et soumet les nouvelles informations.
+7. Le système enregistre les nouvelles informations dans la base de données des travaux et envoie une confirmation à l’intervenant indiquant que les mises à jour ont été prises en compte.
+8. Le système informe automatiquement les résidents concernés par le chantier via des notifications personnalisées sur l’application.
+
+---
+
+### Scénarios alternatifs
+
+- **5. Erreur dans la mise à jour**
+   - 5a. Si l’intervenant tente de soumettre une modification non valide (par exemple, une date dans le passé ou des informations incohérentes), le système génère un message d’erreur demandant de corriger les informations avant de soumettre à nouveau.
+
+- **7. Échec de la mise à jour**
+   - 7a. Si le système rencontre un problème technique lors de la soumission, il envoie un message d’erreur à l’intervenant et lui demande de réessayer plus tard. L’intervenant peut également contacter le support technique pour résoudre le problème.
+
+---
+
+### CU : Recevoir des notifications personnalisées  
+**But** : Permettre au résident de recevoir des notifications personnalisées en fonction de ses préférences (zone géographique, type de travaux, dates, etc.) afin d'être informé en temps réel des travaux qui pourraient l'affecter.
+
+#### Acteurs
+- **Résident (Principal)**
+
+#### Préconditions
+- Le résident doit être inscrit et connecté à l’application MaVille.
+- Le résident doit avoir configuré ses préférences de notifications (par exemple : localisation, type de travaux, impact sur la circulation).
+- Le résident doit avoir activé les notifications sur son appareil (smartphone ou email).
+
+#### Postconditions
+- Le résident est informé en temps réel des travaux affectant les zones ou itinéraires qu'il a spécifiés, lui permettant d'ajuster ses déplacements ou de prendre les précautions nécessaires.
+- Les notifications sont automatiquement envoyées lorsqu'il y a des mises à jour ou des changements dans les projets en cours ou à venir.
+
+---
+
+### Scénario principal
+
+1. Le résident se connecte à l’application MaVille avec son compte personnel.
+2. Le résident accède à la section "Paramètres de notifications" depuis le tableau de bord.
+3. Le résident configure ses préférences de notifications, par exemple :
+   - Adresse personnelle.
+   - Itinéraire quotidien.
+   - Type de travaux (réfection de la voirie, travaux électriques, etc.).
+4. Le résident s'assure que les notifications sont activées pour recevoir des alertes via son smartphone ou par email.
+5. Lorsqu'un intervenant met à jour ou soumet un nouveau projet de travaux dans la base de données, le système de notifications de MaVille identifie les résidents concernés en fonction de leurs préférences (par exemple, des projets dans leur quartier ou sur leur itinéraire).
+6. Le système envoie une notification personnalisée au résident, incluant des détails sur les travaux (dates, localisation précise, impact sur la circulation).
+7. Le résident reçoit la notification et, s'il le souhaite, peut cliquer dessus pour consulter davantage d’informations sur les travaux via l’application.
+
+---
+
+### Scénarios alternatifs
+
+- **4. Notifications désactivées sur l’appareil**
+   - 4a. Si les notifications sont désactivées sur le smartphone du résident ou qu’il a bloqué les notifications de l'application, il ne reçoit aucune alerte. Le système propose alors un message de rappel dans l'application pour activer les notifications.
+
+- **5. Aucun travail correspondant aux préférences**
+   - 5a. Si aucun travail ne correspond aux préférences de notification du résident (par exemple, aucun travail dans sa zone ou sur son itinéraire), le système ne génère aucune notification. Le résident peut ajuster ses préférences ou consulter manuellement les travaux via l’application.
+
+
+
+---
+
+### CU : Permettre une planification participative  
+**But** : Offrir aux résidents une plateforme pour participer à la planification des travaux en cours ou à venir dans leur quartier en soumettant des propositions, des suggestions, des idées ou en votant sur des projets spécifiques.
+
+#### Acteurs
+- **Résident (Principal)**
+- **Intervenant (Secondaire)**
+
+#### Préconditions
+- Le résident doit être inscrit et connecté à l’application MaVille.
+- Les autorités locales ou les intervenants doivent avoir soumis un projet à la consultation publique via l’application.
+- Le système doit avoir activé l’option de planification participative pour les travaux concernés.
+
+#### Postconditions
+- Les résidents ont participé à la planification des travaux, et leurs propositions et votes sont pris en compte par les intervenants.
+- La planification des travaux peut être ajustée en fonction des retours des citoyens, assurant une plus grande inclusion et acceptation des projets dans le quartier.
+
+---
+
+### Scénario principal
+
+1. Le résident se connecte à l’application MaVille avec son compte personnel.
+2. Le résident accède à la section "Planification participative" où les projets de travaux en cours ou à venir dans son quartier sont ouverts à la consultation.
+3. Le résident peut consulter les détails des projets soumis par les intervenants (ex : réaménagement de rues, installation de nouveaux équipements publics).
+4. Le résident peut soumettre des suggestions pour modifier le projet, telles que :
+   - Proposer un itinéraire alternatif pour limiter l’impact des travaux sur la circulation.
+   - Suggérer de maintenir certaines infrastructures comme des places de stationnement.
+5. Le résident peut également voter sur des propositions faites par d’autres résidents ou donner son avis sur plusieurs options de planification présentées par les intervenants.
+6. Le système recueille les contributions des résidents, compile les suggestions et votes, et les transmet aux intervenants concernés.
+7. Les autorités ou les entreprises prennent en compte les retours des résidents et ajustent potentiellement le plan de travail. Une mise à jour est effectuée sur l’application pour indiquer si les propositions des résidents ont été prises en compte.
+8. Le résident reçoit une notification l’informant des décisions finales prises par les intervenants concernant le projet et s’il y a eu des modifications suite à la planification participative.
+9. Une fois les travaux terminés, les résidents peuvent également partager leur avis sur les travaux réalisés et la performance de l’intervenant.
+
+---
+
+### Scénarios alternatifs
+
+- **4. Aucune suggestion soumise**
+   - 4a. Si aucun résident ne soumet de suggestion ou ne vote sur un projet, le système informe les intervenants qu'il n’y a pas eu de participation active. Le projet se poursuit alors sans changement basé sur les contributions citoyennes.
+
+- **5. Propositions non retenues**
+   - 5a. Si une suggestion soumise par le résident n'est pas retenue ou implémentée, le système peut notifier le résident en lui expliquant les raisons du rejet (par exemple : contrainte budgétaire, difficulté technique).
+
+
+---
+
+### CU : Signaler un problème à la ville  
+**But** : Permettre au résident de signaler un problème ou un incident lié aux travaux en cours ou à venir dans son quartier (par exemple, une entrave non signalée, un problème de sécurité, un retard non communiqué).
+
+#### Acteurs
+- **Résident (Principal)**
+- **Intervenants (Secondaire)**
+
+#### Préconditions
+- Le résident doit être inscrit et connecté à l’application MaVille.
+- Le problème signalé doit être lié aux travaux en cours ou à venir dans le secteur du résident.
+- Le résident doit disposer d’une connexion Internet pour soumettre le signalement.
+
+#### Postconditions
+- Le signalement est transmis aux autorités ou intervenants responsables, et le résident est informé du traitement de son signalement par d'autres canaux (email ou téléphone).
+
+---
+
+### Scénario principal
+
+1. Le résident se connecte à l’application MaVille avec son compte personnel.
+2. Le résident accède à la section « Signaler un problème » sur le tableau de bord de l’application.
+3. Le résident sélectionne le type de problème à signaler (par exemple : entrave non signalée, problème de sécurité, travaux bruyants en dehors des heures autorisées).
+4. Le résident précise la localisation du problème et ajoute une description détaillée. Les informations à fournir incluent :
+   - Nom du résident.
+   - Adresse courriel.
+   - Adresse de résidence.
+   - Type de problème.
+   - Description du problème.
+5. Le résident peut joindre des photos ou des vidéos du problème pour appuyer son signalement.
+6. Le résident valide et soumet le signalement via l’application.
+7. Le système de signalement de MaVille enregistre les informations et les transmet automatiquement aux autorités locales ou aux intervenants responsables.
+8. Le résident reçoit une notification confirmant que son signalement a bien été transmis et est en cours de traitement.
+9. Le suivi de la résolution du problème est fait en dehors de l'application pour éviter de la surcharger. Le résident sera informé des actions prises par un autre canal (ex : email ou téléphone).
+
+---
+
+### Scénarios alternatifs
+
+- **5. Signalement incomplet**
+   - 5a. Si le résident ne fournit pas suffisamment de détails ou oublie des informations critiques (comme la localisation), le système l’invite à compléter les informations manquantes avant de soumettre le signalement.
+
+- **6. Problème non pris en charge**
+   - 6a. Si le problème signalé ne relève pas des autorités locales ou des intervenants (par exemple, un problème hors de leur juridiction), le résident reçoit une notification lui indiquant à qui s’adresser ou comment reformuler le signalement.
+
+
