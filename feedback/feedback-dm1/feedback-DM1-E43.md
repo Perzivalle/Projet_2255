@@ -12,7 +12,6 @@ Disclaimer : Tout ce qui est mentionné dans le feedback sont les points et les 
 
 - Ce n'est pas dans le diagramme de CUs que vous décrivez avec détail les actions qu'il y a dans chaque CU. 
 - "Nom du résident", "Adresse courriel", "Horaire des travaux", etc... ne sont pas des cas d'utilisation.
-- Pourquoi il y a l'acteur "Résident" trois fois??
 - Le CU "Connexion" est commun au résident et à l'intervenant car ils se connectent de la même manière donc vous auriez pu faire une généralisation avec "Utilisateur" sur ce CU.
 - Le service de la ville devrait aussi vérifier l'inscription d'un intervenant car il doit vérifier que le code de la ville est valide.
 - Le service de la ville doit aussi être impliquée dans la signalisation de problèmes car c'est la ville qui s'en occupe en externe.
@@ -60,8 +59,7 @@ Bien!
 
 ## Prototype
 
-- Puisque la connexion en tant qu'intervenant et résident se fait de la même manière (courriel + mot de passe), on n'a pas besoin de distinguer les deux menus.
-- Pourquoi la page "Gestion des chantiers" du menu intervenant est le même que le menu principal des résidents ?
+- Puisque la connexion en tant qu'intervenant et résident se fait de la même manière (courriel + mot de passe), on n'a pas besoin de distinguer les deux menus. Mais c'est correct pareillement.
 - Il manque le fichier exécutable .jar.
 
 ## Git
