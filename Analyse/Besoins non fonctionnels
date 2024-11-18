@@ -5,6 +5,6 @@ Besoins non fonctionnels :
 
 3) Performance : Temps de réponse très rapide, inférieur à 3 secondes, pour la réception des notifications et des recherches des travaux.   
 
-4) Fiabilité : Système assure que 99% des intervenants ont des permis valide lié à leur entreprise.
+4) Maintenance : Système effectue les mises à jour de l'apllication
 
-5) Maintenance : Système est capable de se mettre à jour concernant les travaux grâce aux informations fiables des intervenants et des utilisateurs.
+5) Fiabilité : Système est capable de se mettre à jour concernant les travaux grâce aux informations fiables des intervenants et des utilisateurs.
