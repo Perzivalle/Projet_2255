@@ -1,1 +1,10 @@
-
+Pour notre implémentation, nous avons essayer de garantir au maximum que l’application puisse évoluer et s’intégrer 
+facilement à l’avenir. Par exemple, on a utilisé l’abstraction avec la classe Utilisateur pour gérer différents types 
+d’utilisateurs (comme les résidents et les intervenants), ce qui nous laisse de la flexibilité pour en ajouter d’autres
+si besoin. On a aussi veillé à bien organiser les responsabilités, avec des classes comme RequeteTravail pour tout ce 
+qui touche aux requêtes, et BaseDeDonnées pour centraliser la gestion des données. Pour limiter les dépendances entre 
+les modules, on a privilégié des méthodes bien définies, comme celles qui permettent à Menu de communiquer avec
+BaseDeDonnées,tout en gardant leurs détails internes cachés. La structure est modulaire, avec des entités séparées comme
+Projet, RequeteTravail et Calendrier, ce qui rend l’ajout ou la modification de fonctionnalités assez simple. Nous avons 
+aussi pensé à l’interopérabilité, en ajoutant des interfaces comme notifications et des énumérations standardisées 
+(TypeTravaux, Statut) pour faciliter la connexion avec d’autres systèmes.
