@@ -1,0 +1,43 @@
+import code.ApiResponse;
+import static org.junit.jupiter.api.Assertions.*;
+
+import code.HttpClientApi;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import java.io.ByteArrayInputStream;
+
+public class test {
+
+    // Il faut initialiser pour que les autres tests fonctionnent
+    @BeforeAll
+    public static void initialisation() {
+        String simulation = "1\nrobert@hotmail.com\nAllo2024\n";
+        System.setIn(new ByteArrayInputStream(simulation.getBytes()));    // Permet de simuler une entrée que l'utilisateur effectue
+
+        Main.initialisationTest();
+    }
+
+    // test pour valider le compte d'un résident
+    @Test
+    public void testComptesResidents() {
+        String courriel = "robert@hotmail.com";
+        String motDePasse = "Allo2024";
+        assertTrue(Resident.comptesResident.containsKey(courriel) && Resident.comptesResident.get(courriel).equals(motDePasse) );
+    }
+
+    // test pour confirmer que l'ajout d'un compte pour un résident soit fait sans erreur
+    @Test
+    public void testAjouterResident() {
+        Resident.comptesResident.put("jeantalon@hotmail.com", "Metro2024");
+        assertTrue(Resident.comptesResident.containsKey("jeantalon@hotmail.com"));
+    }
+
+    //test pour illustrer qu'un mot de passe qui ne correspond pas à son courriel n'est pas valide
+    @Test
+    public void testConnexionInvalide() {
+        String courriel = "robert@hotmail.com";
+        String motDePasse = "Allo1111";
+        assertFalse(Resident.comptesResident.containsKey(courriel) && Resident.comptesResident.get(courriel).equals(motDePasse) );
+
+    }
