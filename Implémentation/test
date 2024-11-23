@@ -67,3 +67,36 @@ public class test {
 
         assertEquals(200, testApiReponse.getStatusCode());
     }
+
+// test pour confirmer que le body d'un API ne soit pas vide/nulle
+    @Test
+    public void testAPIBody() {
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiBody = api.getData(resourceIdTravaux);
+
+        assertNotNull(testApiBody.getBody());
+    }
+
+    // test pour confirmer que le message pris de l'API est pas Null
+    @Test
+    public void testAPIMessage(){
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiMessage = api.getData(resourceIdTravaux);
+
+        assertNotNull(testApiMessage.getMessage());
+    }
+
+    // test pour confirmer qu'il y a 5 index dans informationRequete
+    @Test
+    public void testRequeteTravail(){
+        soumettreTravaux.informationRequete.add("Éclairage");
+        soumettreTravaux.informationRequete.add("2024");
+        soumettreTravaux.informationRequete.add("11");
+        soumettreTravaux.informationRequete.add("25");
+        soumettreTravaux.informationRequete.add("Réparation éclairage rue");
+
+        assertEquals(5, soumettreTravaux.informationRequete.size());
+    }
+}
