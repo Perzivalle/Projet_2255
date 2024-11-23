@@ -41,3 +41,29 @@ public class test {
         assertFalse(Resident.comptesResident.containsKey(courriel) && Resident.comptesResident.get(courriel).equals(motDePasse) );
 
     }
+
+// Valide que l'intervenant possède un courriel @intervenant.com
+    @Test
+    public void testCourrielValide() {
+        String courriel = "lucas@intervenant.com";
+        assertTrue(Intervenant.comptesIntervenant.containsKey(courriel));
+    }
+
+    // test pour confirmer que le compte d'un intervenant est valide
+    @Test
+    public void testComptesIntervenants() {
+        String courriel = "charles@intervenant.com";
+        String motDePasse = "After2024";
+        assertTrue(Intervenant.comptesIntervenant.containsKey(courriel) && Intervenant.comptesIntervenant.get(courriel).equals(motDePasse) );
+
+    }
+
+    //test pour confirmer que le statuscode de le API est valide (qui est egal a 200)
+    @Test
+    public void testAPIValidité() {
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiReponse = api.getData(resourceIdTravaux);
+
+        assertEquals(200, testApiReponse.getStatusCode());
+    }
