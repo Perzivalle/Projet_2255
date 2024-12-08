@@ -34,6 +34,7 @@ public class menu {
         mainPanel.add(createPageAccueil(), "Accueil");
         mainPanel.add(createPageInscription(), "Inscription");
         mainPanel.add(createPageConnexion(), "Connexion");
+        mainPanel.add(createPageMenuOptions(), "MenuOptions");
 
         // Afficher la page d'accueil par défaut
         cardLayout.show(mainPanel, "Accueil");
@@ -95,6 +96,7 @@ public class menu {
         panelMdp.add(inputMdp);
         panelForm.add(panelMdp);
 
+        // Champs spécifiques au Résident
         JPanel panelResidentDetails = new JPanel();
         panelResidentDetails.setLayout(new BoxLayout(panelResidentDetails, BoxLayout.Y_AXIS));
 
@@ -119,6 +121,7 @@ public class menu {
         panelAdresse.add(inputAdresse);
         panelResidentDetails.add(panelAdresse);
 
+        // Champs spécifiques à l'Intervenant
         JPanel panelIntervenantDetails = new JPanel();
         panelIntervenantDetails.setLayout(new BoxLayout(panelIntervenantDetails, BoxLayout.Y_AXIS));
 
@@ -148,12 +151,14 @@ public class menu {
         panelFooter.add(btnInscription);
         panelFooter.add(messageLabel);
 
+        // Mise à jour des champs affichés selon le type de compte sélectionné
         comboBoxTypeCompte.addActionListener(e -> {
             String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
             panelResidentDetails.setVisible("Résident".equals(typeCompte));
             panelIntervenantDetails.setVisible("Intervenant".equals(typeCompte));
         });
 
+        // Par défaut, afficher les champs pour Résident
         panelResidentDetails.setVisible(true);
         panelIntervenantDetails.setVisible(false);
 
@@ -164,13 +169,13 @@ public class menu {
             String motDePasse = new String(inputMdp.getPassword());
             String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
 
-            if (typeCompte.equals("Résident")) {
+            if ("Résident".equals(typeCompte)) {
                 String nom = inputNom.getText();
                 String dateNaissance = inputDateNaissance.getText();
                 String adresse = inputAdresse.getText();
 
                 if (courriel.isEmpty() || motDePasse.isEmpty() || nom.isEmpty() || dateNaissance.isEmpty() || adresse.isEmpty()) {
-                    messageLabel.setText("Tous les champs sont obligatoires.");
+                    messageLabel.setText("Tous les champs sont obligatoires pour un résident.");
                     return;
                 }
 
@@ -186,7 +191,7 @@ public class menu {
                 JOptionPane.showMessageDialog(frame, "Compte Résident créé avec succès !");
                 cardLayout.show(mainPanel, "Accueil");
 
-            } else if (typeCompte.equals("Intervenant")) {
+            } else if ("Intervenant".equals(typeCompte)) {
                 String typeIntervenant = inputTypeIntervenant.getText();
                 String ville = inputVille.getText();
 
@@ -259,7 +264,7 @@ public class menu {
 
             if (isValid) {
                 JOptionPane.showMessageDialog(frame, "Connexion réussie !");
-                cardLayout.show(mainPanel, "Accueil");
+                cardLayout.show(mainPanel, "MenuOptions");
             } else {
                 messageLabel.setText("Courriel ou mot de passe invalide.");
             }
@@ -269,6 +274,48 @@ public class menu {
         panelConnexion.add(panelFooter, BorderLayout.SOUTH);
 
         return panelConnexion;
+    }
+
+    private JPanel createPageMenuOptions() {
+        JPanel menuOptionsPanel = new JPanel(new BorderLayout());
+
+        JLabel titre = new JLabel("Menu Avancé", SwingConstants.CENTER);
+        titre.setFont(titre.getFont().deriveFont(30f));
+        menuOptionsPanel.add(titre, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+        JButton consulterTravauxBtn = new JButton("Consulter Travaux");
+        consulterTravauxBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Travaux"));
+        buttonPanel.add(consulterTravauxBtn);
+
+        JButton consulterEntravesBtn = new JButton("Consulter Entraves");
+        consulterEntravesBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Entraves"));
+        buttonPanel.add(consulterEntravesBtn);
+
+        JButton soumettreRequeteBtn = new JButton("Soumettre Requête");
+        soumettreRequeteBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Soumettre Requête"));
+        buttonPanel.add(soumettreRequeteBtn);
+
+        JButton consulterRequeteBtn = new JButton("Consulter Requêtes");
+        consulterRequeteBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Requêtes"));
+        buttonPanel.add(consulterRequeteBtn);
+
+        JButton soumettreProjetBtn = new JButton("Soumettre Nouveau Projet");
+        soumettreProjetBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Soumettre Nouveau Projet"));
+        buttonPanel.add(soumettreProjetBtn);
+
+        JButton modifierProfilBtn = new JButton("Modifier Profil");
+        modifierProfilBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Modifier Profil"));
+        buttonPanel.add(modifierProfilBtn);
+
+        JButton seDeconnecterBtn = new JButton("Se Déconnecter");
+        seDeconnecterBtn.addActionListener(e -> cardLayout.show(mainPanel, "Accueil"));
+        buttonPanel.add(seDeconnecterBtn);
+
+        menuOptionsPanel.add(buttonPanel, BorderLayout.CENTER);
+        return menuOptionsPanel;
     }
 
     private static void sauvegarderComptesCSV(String fichier, List<String[]> comptes) {
