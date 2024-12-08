@@ -1,1 +1,221 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
+public class InscriptionGUI {
+
+    private static final String RESIDENTS_FILE = "comptesResident.txt";
+    private static final String INTERVENANTS_FILE = "comptesIntervenant.txt";
+
+    // Regex pour valider une adresse email
+    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$";
+    private static final String DATE_REGEX = "^\\d{4}-\\d{2}-\\d{2}$";
+
+    private static final Map<String, String> comptesResident = new HashMap<>();
+    private static final Map<String, String> comptesIntervenant = new HashMap<>();
+
+    public static void showPageInscription() {
+        // Charger les comptes depuis les fichiers
+        chargerComptes(RESIDENTS_FILE, comptesResident);
+        chargerComptes(INTERVENANTS_FILE, comptesIntervenant);
+
+        JFrame frameInscription = new JFrame("MaVille: Inscription");
+        frameInscription.setSize(600, 500);
+        frameInscription.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JPanel panelMain = new JPanel(new BorderLayout());
+
+        // Header
+        JPanel panelHeader = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel titre = new JLabel("Page d'inscription");
+        titre.setFont(titre.getFont().deriveFont(30f));
+        panelHeader.add(titre);
+
+        // Formulaire
+        JPanel panelForm = new JPanel();
+        panelForm.setLayout(new BoxLayout(panelForm, BoxLayout.Y_AXIS));
+
+        JPanel panelTypeCompte = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelTypeCompte = new JLabel("Type de compte : ");
+        String[] typesCompte = {"Résident", "Intervenant"};
+        JComboBox<String> comboBoxTypeCompte = new JComboBox<>(typesCompte);
+        panelTypeCompte.add(labelTypeCompte);
+        panelTypeCompte.add(comboBoxTypeCompte);
+        panelForm.add(panelTypeCompte);
+
+        JPanel panelCourriel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelCourriel = new JLabel("Adresse courriel : ");
+        JTextField inputCourriel = new JTextField(20);
+        panelCourriel.add(labelCourriel);
+        panelCourriel.add(inputCourriel);
+        panelForm.add(panelCourriel);
+
+        JPanel panelMdp = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelMdp = new JLabel("Mot de passe : ");
+        JPasswordField inputMdp = new JPasswordField(20);
+        panelMdp.add(labelMdp);
+        panelMdp.add(inputMdp);
+        panelForm.add(panelMdp);
+
+        JPanel panelResidentDetails = new JPanel();
+        panelResidentDetails.setLayout(new BoxLayout(panelResidentDetails, BoxLayout.Y_AXIS));
+
+        JPanel panelNom = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelNom = new JLabel("Nom complet : ");
+        JTextField inputNom = new JTextField(20);
+        panelNom.add(labelNom);
+        panelNom.add(inputNom);
+        panelResidentDetails.add(panelNom);
+
+        JPanel panelDateNaissance = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelDateNaissance = new JLabel("Date de naissance : ");
+        JTextField inputDateNaissance = new JTextField(20);
+        panelDateNaissance.add(labelDateNaissance);
+        panelDateNaissance.add(inputDateNaissance);
+        panelResidentDetails.add(panelDateNaissance);
+
+        JPanel panelAdresse = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelAdresse = new JLabel("Adresse résidentielle : ");
+        JTextField inputAdresse = new JTextField(20);
+        panelAdresse.add(labelAdresse);
+        panelAdresse.add(inputAdresse);
+        panelResidentDetails.add(panelAdresse);
+
+        JPanel panelIntervenantDetails = new JPanel();
+        panelIntervenantDetails.setLayout(new BoxLayout(panelIntervenantDetails, BoxLayout.Y_AXIS));
+
+        JPanel panelTypeIntervenant = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelTypeIntervenant = new JLabel("Type d'intervenant : ");
+        JTextField inputTypeIntervenant = new JTextField(20);
+        panelTypeIntervenant.add(labelTypeIntervenant);
+        panelTypeIntervenant.add(inputTypeIntervenant);
+        panelIntervenantDetails.add(panelTypeIntervenant);
+
+        JPanel panelVille = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelVille = new JLabel("Identifiant de la ville (8 chiffres) : ");
+        JTextField inputVille = new JTextField(20);
+        panelVille.add(labelVille);
+        panelVille.add(inputVille);
+        panelIntervenantDetails.add(panelVille);
+
+        panelForm.add(panelResidentDetails);
+        panelForm.add(panelIntervenantDetails);
+
+        JPanel panelFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JButton btnInscription = new JButton("S'inscrire");
+        JButton btnRetour = new JButton("Retour");
+        JLabel messageLabel = new JLabel();
+        messageLabel.setForeground(Color.RED);
+        panelFooter.add(btnInscription);
+        panelFooter.add(btnRetour);
+        panelFooter.add(messageLabel);
+
+        comboBoxTypeCompte.addActionListener(e -> {
+            String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
+            panelResidentDetails.setVisible("Résident".equals(typeCompte));
+            panelIntervenantDetails.setVisible("Intervenant".equals(typeCompte));
+        });
+
+        panelResidentDetails.setVisible(true);
+        panelIntervenantDetails.setVisible(false);
+
+        btnInscription.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String courriel = inputCourriel.getText();
+                String motDePasse = new String(inputMdp.getPassword());
+                String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
+
+                if (!courriel.matches(EMAIL_REGEX)) {
+                    messageLabel.setText("Adresse courriel invalide.");
+                    return;
+                }
+
+                if ("Résident".equals(typeCompte)) {
+                    String nom = inputNom.getText();
+                    String dateNaissance = inputDateNaissance.getText();
+                    String adresse = inputAdresse.getText();
+
+                    if (nom.isEmpty() || dateNaissance.isEmpty() || adresse.isEmpty()) {
+                        messageLabel.setText("Veuillez remplir tous les champs pour un résident.");
+                        return;
+                    }
+
+                    if (!dateNaissance.matches(DATE_REGEX)) {
+                        messageLabel.setText("Date de naissance invalide (format : YYYY-MM-DD).");
+                        return;
+                    }
+
+                    if (comptesResident.containsKey(courriel)) {
+                        messageLabel.setText("Ce courriel est déjà utilisé.");
+                    } else {
+                        comptesResident.put(courriel, motDePasse);
+                        sauvegarderCompte(RESIDENTS_FILE, courriel, motDePasse);
+                        JOptionPane.showMessageDialog(frameInscription, "Compte Résident créé avec succès !");
+                        frameInscription.dispose();
+                    }
+                } else if ("Intervenant".equals(typeCompte)) {
+                    String typeIntervenant = inputTypeIntervenant.getText();
+                    String ville = inputVille.getText();
+
+                    if (typeIntervenant.isEmpty() || ville.isEmpty() || !ville.matches("\\d{8}")) {
+                        messageLabel.setText("Veuillez remplir tous les champs pour un intervenant.");
+                        return;
+                    }
+
+                    if (comptesIntervenant.containsKey(courriel)) {
+                        messageLabel.setText("Ce courriel est déjà utilisé.");
+                    } else {
+                        comptesIntervenant.put(courriel, motDePasse);
+                        sauvegarderCompte(INTERVENANTS_FILE, courriel, motDePasse);
+                        JOptionPane.showMessageDialog(frameInscription, "Compte Intervenant créé avec succès !");
+                        frameInscription.dispose();
+                    }
+                }
+            }
+        });
+
+        btnRetour.addActionListener(e -> {
+            frameInscription.dispose();
+            // Ajouter ici la méthode pour revenir à la fenêtre principale
+            System.out.println("Retour au menu principal.");
+        });
+
+        panelMain.add(panelHeader, BorderLayout.NORTH);
+        panelMain.add(panelForm, BorderLayout.CENTER);
+        panelMain.add(panelFooter, BorderLayout.SOUTH);
+
+        frameInscription.add(panelMain);
+        frameInscription.setVisible(true);
+    }
+
+    private static void sauvegarderCompte(String fichier, String email, String password) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier, true))) {
+            writer.write(email + "," + password);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void chargerComptes(String fichier, Map<String, String> comptes) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(fichier))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                String[] parts = ligne.split(",");
+                if (parts.length == 2) {
+                    comptes.put(parts[0], parts[1]);
+                }
+            }
+        } catch (IOException ignored) {
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(InscriptionGUI::showPageInscription);
+    }
+}
