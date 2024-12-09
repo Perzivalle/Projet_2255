@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,8 @@ public class menu {
         mainPanel.add(createPageAccueil(), "Accueil");
         mainPanel.add(createPageInscription(), "Inscription");
         mainPanel.add(createPageConnexion(), "Connexion");
-        mainPanel.add(createPageMenuOptions(), "MenuOptions");
+        mainPanel.add(createPageMenuOptionsResident(), "MenuResident");
+        mainPanel.add(createPageMenuOptionsIntervenant(), "MenuIntervenant");
 
         // Afficher la page d'accueil par défaut
         cardLayout.show(mainPanel, "Accueil");
@@ -96,52 +96,6 @@ public class menu {
         panelMdp.add(inputMdp);
         panelForm.add(panelMdp);
 
-        // Champs spécifiques au Résident
-        JPanel panelResidentDetails = new JPanel();
-        panelResidentDetails.setLayout(new BoxLayout(panelResidentDetails, BoxLayout.Y_AXIS));
-
-        JPanel panelNom = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel labelNom = new JLabel("Nom complet : ");
-        JTextField inputNom = new JTextField(20);
-        panelNom.add(labelNom);
-        panelNom.add(inputNom);
-        panelResidentDetails.add(panelNom);
-
-        JPanel panelDateNaissance = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel labelDateNaissance = new JLabel("Date de naissance : ");
-        JTextField inputDateNaissance = new JTextField(20);
-        panelDateNaissance.add(labelDateNaissance);
-        panelDateNaissance.add(inputDateNaissance);
-        panelResidentDetails.add(panelDateNaissance);
-
-        JPanel panelAdresse = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel labelAdresse = new JLabel("Adresse résidentielle : ");
-        JTextField inputAdresse = new JTextField(20);
-        panelAdresse.add(labelAdresse);
-        panelAdresse.add(inputAdresse);
-        panelResidentDetails.add(panelAdresse);
-
-        // Champs spécifiques à l'Intervenant
-        JPanel panelIntervenantDetails = new JPanel();
-        panelIntervenantDetails.setLayout(new BoxLayout(panelIntervenantDetails, BoxLayout.Y_AXIS));
-
-        JPanel panelTypeIntervenant = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel labelTypeIntervenant = new JLabel("Type d'intervenant : ");
-        JTextField inputTypeIntervenant = new JTextField(20);
-        panelTypeIntervenant.add(labelTypeIntervenant);
-        panelTypeIntervenant.add(inputTypeIntervenant);
-        panelIntervenantDetails.add(panelTypeIntervenant);
-
-        JPanel panelVille = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JLabel labelVille = new JLabel("Identifiant de la ville (8 chiffres) : ");
-        JTextField inputVille = new JTextField(20);
-        panelVille.add(labelVille);
-        panelVille.add(inputVille);
-        panelIntervenantDetails.add(panelVille);
-
-        panelForm.add(panelResidentDetails);
-        panelForm.add(panelIntervenantDetails);
-
         JPanel panelFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton btnRetour = new JButton("Retour");
         JButton btnInscription = new JButton("S'inscrire");
@@ -151,17 +105,6 @@ public class menu {
         panelFooter.add(btnInscription);
         panelFooter.add(messageLabel);
 
-        // Mise à jour des champs affichés selon le type de compte sélectionné
-        comboBoxTypeCompte.addActionListener(e -> {
-            String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
-            panelResidentDetails.setVisible("Résident".equals(typeCompte));
-            panelIntervenantDetails.setVisible("Intervenant".equals(typeCompte));
-        });
-
-        // Par défaut, afficher les champs pour Résident
-        panelResidentDetails.setVisible(true);
-        panelIntervenantDetails.setVisible(false);
-
         btnRetour.addActionListener(e -> cardLayout.show(mainPanel, "Accueil"));
 
         btnInscription.addActionListener(e -> {
@@ -170,48 +113,16 @@ public class menu {
             String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
 
             if ("Résident".equals(typeCompte)) {
-                String nom = inputNom.getText();
-                String dateNaissance = inputDateNaissance.getText();
-                String adresse = inputAdresse.getText();
-
-                if (courriel.isEmpty() || motDePasse.isEmpty() || nom.isEmpty() || dateNaissance.isEmpty() || adresse.isEmpty()) {
-                    messageLabel.setText("Tous les champs sont obligatoires pour un résident.");
-                    return;
-                }
-
-                for (String[] compte : comptesResident) {
-                    if (compte[0].equals(courriel)) {
-                        messageLabel.setText("Ce courriel est déjà utilisé.");
-                        return;
-                    }
-                }
-
-                comptesResident.add(new String[]{courriel, motDePasse, nom, dateNaissance, adresse});
+                comptesResident.add(new String[]{courriel, motDePasse});
                 sauvegarderComptesCSV(RESIDENTS_FILE, comptesResident);
                 JOptionPane.showMessageDialog(frame, "Compte Résident créé avec succès !");
-                cardLayout.show(mainPanel, "Accueil");
-
-            } else if ("Intervenant".equals(typeCompte)) {
-                String typeIntervenant = inputTypeIntervenant.getText();
-                String ville = inputVille.getText();
-
-                if (courriel.isEmpty() || motDePasse.isEmpty() || typeIntervenant.isEmpty() || ville.isEmpty() || !ville.matches("\\d{8}")) {
-                    messageLabel.setText("Tous les champs sont obligatoires pour un intervenant.");
-                    return;
-                }
-
-                for (String[] compte : comptesIntervenant) {
-                    if (compte[0].equals(courriel)) {
-                        messageLabel.setText("Ce courriel est déjà utilisé.");
-                        return;
-                    }
-                }
-
-                comptesIntervenant.add(new String[]{courriel, motDePasse, typeIntervenant, ville});
+            } else {
+                comptesIntervenant.add(new String[]{courriel, motDePasse});
                 sauvegarderComptesCSV(INTERVENANTS_FILE, comptesIntervenant);
                 JOptionPane.showMessageDialog(frame, "Compte Intervenant créé avec succès !");
-                cardLayout.show(mainPanel, "Accueil");
             }
+
+            cardLayout.show(mainPanel, "Accueil");
         });
 
         panelMain.add(panelForm, BorderLayout.CENTER);
@@ -230,6 +141,14 @@ public class menu {
         JPanel panelBody = new JPanel();
         panelBody.setLayout(new BoxLayout(panelBody, BoxLayout.Y_AXIS));
 
+        JPanel panelTypeCompte = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel labelTypeCompte = new JLabel("Type de compte : ");
+        String[] typesCompte = {"Résident", "Intervenant"};
+        JComboBox<String> comboBoxTypeCompte = new JComboBox<>(typesCompte);
+        panelTypeCompte.add(labelTypeCompte);
+        panelTypeCompte.add(comboBoxTypeCompte);
+        panelBody.add(panelTypeCompte);
+
         JPanel panelCourriel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JLabel labelCourriel = new JLabel("Adresse courriel : ");
         JTextField inputCourriel = new JTextField(20);
@@ -244,7 +163,7 @@ public class menu {
         panelMdp.add(inputMdp);
         panelBody.add(panelMdp);
 
-        JPanel panelFooter = new JPanel(new FlowLayout());
+        JPanel panelFooter = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton btnRetour = new JButton("Retour");
         JButton btnConnexion = new JButton("Se connecter");
         JLabel messageLabel = new JLabel();
@@ -258,14 +177,19 @@ public class menu {
         btnConnexion.addActionListener(e -> {
             String courriel = inputCourriel.getText();
             String motDePasse = new String(inputMdp.getPassword());
+            String typeCompte = (String) comboBoxTypeCompte.getSelectedItem();
 
-            boolean isValid = comptesResident.stream()
-                    .anyMatch(compte -> compte[0].equals(courriel) && compte[1].equals(motDePasse));
+            boolean isValid = false;
 
-            if (isValid) {
-                JOptionPane.showMessageDialog(frame, "Connexion réussie !");
-                cardLayout.show(mainPanel, "MenuOptions");
+            if ("Résident".equals(typeCompte)) {
+                isValid = comptesResident.stream().anyMatch(compte -> compte[0].equals(courriel) && compte[1].equals(motDePasse));
+                if (isValid) cardLayout.show(mainPanel, "MenuResident");
             } else {
+                isValid = comptesIntervenant.stream().anyMatch(compte -> compte[0].equals(courriel) && compte[1].equals(motDePasse));
+                if (isValid) cardLayout.show(mainPanel, "MenuIntervenant");
+            }
+
+            if (!isValid) {
                 messageLabel.setText("Courriel ou mot de passe invalide.");
             }
         });
@@ -276,46 +200,60 @@ public class menu {
         return panelConnexion;
     }
 
-    private JPanel createPageMenuOptions() {
-        JPanel menuOptionsPanel = new JPanel(new BorderLayout());
+    private JPanel createPageMenuOptionsResident() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Menu Avancé - Résident", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(label, BorderLayout.NORTH);
 
-        JLabel titre = new JLabel("Menu Avancé", SwingConstants.CENTER);
-        titre.setFont(titre.getFont().deriveFont(30f));
-        menuOptionsPanel.add(titre, BorderLayout.NORTH);
+        JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10));
+        buttonPanel.add(new JButton("Modifier ses horaires de préférence"));
+        buttonPanel.add(new JButton("Voir ses notifications"));
+        buttonPanel.add(new JButton("Consulter les travaux en cours"));
+        buttonPanel.add(new JButton("Consulter les travaux à venir (3 prochains mois)"));
+        buttonPanel.add(new JButton("Consulter les entraves"));
+        buttonPanel.add(new JButton("Soumettre une requête de travail"));
+        buttonPanel.add(new JButton("Faire le suivi d'une requête de travail"));
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+        JButton btnDeconnexion = new JButton("Se Déconnecter");
+        btnDeconnexion.addActionListener(e -> {
+            int response = JOptionPane.showConfirmDialog(frame, "Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if (response == JOptionPane.YES_OPTION) {
+                cardLayout.show(mainPanel, "Accueil");
+            }
+        });
+        buttonPanel.add(btnDeconnexion);
 
-        JButton consulterTravauxBtn = new JButton("Consulter Travaux");
-        consulterTravauxBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Travaux"));
-        buttonPanel.add(consulterTravauxBtn);
+        panel.add(buttonPanel, BorderLayout.CENTER);
 
-        JButton consulterEntravesBtn = new JButton("Consulter Entraves");
-        consulterEntravesBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Entraves"));
-        buttonPanel.add(consulterEntravesBtn);
+        return panel;
+    }
 
-        JButton soumettreRequeteBtn = new JButton("Soumettre Requête");
-        soumettreRequeteBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Soumettre Requête"));
-        buttonPanel.add(soumettreRequeteBtn);
+    private JPanel createPageMenuOptionsIntervenant() {
+        JPanel panel = new JPanel(new BorderLayout());
+        JLabel label = new JLabel("Menu Avancé - Intervenant", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(label, BorderLayout.NORTH);
 
-        JButton consulterRequeteBtn = new JButton("Consulter Requêtes");
-        consulterRequeteBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Consulter Requêtes"));
-        buttonPanel.add(consulterRequeteBtn);
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
+        buttonPanel.add(new JButton("Consulter les requêtes de travail"));
+        buttonPanel.add(new JButton("Soumettre/Soustraire sa candidature"));
+        buttonPanel.add(new JButton("Faire le suivi de sa candidature"));
+        buttonPanel.add(new JButton("Soumettre un projet"));
+        buttonPanel.add(new JButton("Modifier le statut d'un projet"));
 
-        JButton soumettreProjetBtn = new JButton("Soumettre Nouveau Projet");
-        soumettreProjetBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Soumettre Nouveau Projet"));
-        buttonPanel.add(soumettreProjetBtn);
+        JButton btnDeconnexion = new JButton("Se Déconnecter");
+        btnDeconnexion.addActionListener(e -> {
+            int response = JOptionPane.showConfirmDialog(frame, "Êtes-vous sûr de vouloir vous déconnecter ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+            if (response == JOptionPane.YES_OPTION) {
+                cardLayout.show(mainPanel, "Accueil");
+            }
+        });
+        buttonPanel.add(btnDeconnexion);
 
-        JButton modifierProfilBtn = new JButton("Modifier Profil");
-        modifierProfilBtn.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Modifier Profil"));
-        buttonPanel.add(modifierProfilBtn);
+        panel.add(buttonPanel, BorderLayout.CENTER);
 
-        JButton seDeconnecterBtn = new JButton("Se Déconnecter");
-        seDeconnecterBtn.addActionListener(e -> cardLayout.show(mainPanel, "Accueil"));
-        buttonPanel.add(seDeconnecterBtn);
-
-        menuOptionsPanel.add(buttonPanel, BorderLayout.CENTER);
-        return menuOptionsPanel;
+        return panel;
     }
 
     private static void sauvegarderComptesCSV(String fichier, List<String[]> comptes) {
