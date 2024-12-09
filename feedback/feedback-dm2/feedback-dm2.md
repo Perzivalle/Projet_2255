@@ -43,11 +43,18 @@ Bien!
 - Le menu des travaux consultés est un peu difficile à lire. On a du mal à distinguer les différents travaux entre
 eux car il n'y a aucune séparation visuelle. Pareil pour le menu des entraves et des requêtes de travail. L'idéal
 serait de mieux formatter tout ça.
-- ... Où est le code??
+- ~~... Où est le code??~~ Le code est là. Faire une classe par CU est une mauvaise pratique cependant. La répartition des responsabilités
+ne doit pas se faire comme ça, la logique d'affichage et la logique interne pour récupérer les travaux et les entraves doivent être
+séparées, pas mises dans la même classe pour le même CU (par exemple, une classe comme DataFetcher avec les méthodes pour récupérer la liste
+des travaux et des entraves, la classe EntravesView qui a une méthode pour afficher une liste d'entraves, et la classe DisplayController
+qui appelle la fetcher fonction dans DataFetcher et appelle la méthode display de EntravesView avec la liste d'entraves qu'elle a récupéré).
+Ce sont deux logiques et responsabilités complètement différentes (afficher vs récupérer) donc elles doivent être dans différentes classes.
+- L'implémentation est très éloignée du design que vous avez proposé dans votre diagramme de classes. Où est la base de données?
+- Il y a plusieurs `while(true)` imbriquées qui rendent le code difficile à comprendre.
 
 ## Tests
 
-- Je ne peux pas lancer vos tests unitaires car il n'y a aucun code avec lequel les tester. Ils sont cependant tous pertinents.
+- Tous les tests marchent et sont pertinents.
 
 ## Rapport et Git
 
