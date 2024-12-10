@@ -1,5 +1,3 @@
-import code.App;
-
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -7,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class menu {
-    private static JFrame frame;
-    private static CardLayout cardLayout;
-    private static JPanel mainPanel;
+    private JFrame frame;
+    private CardLayout cardLayout;
+    private JPanel mainPanel;
 
     private static final String RESIDENTS_FILE = "comptesResident.csv";
     private static final String INTERVENANTS_FILE = "comptesIntervenant.csv";
@@ -202,26 +200,24 @@ public class menu {
         return panelConnexion;
     }
 
-    public static JPanel createPageMenuOptionsResident() {
+    public JPanel createPageMenuOptionsResident() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Menu Avancé - Résident", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(label, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10));
+        JButton consulterTravauxBtn = new JButton("Consulter les travaux en cours");
+        consulterTravauxBtn.addActionListener(e -> new ConsulterTravauxGUI());
+        buttonPanel.add(consulterTravauxBtn);
 
-        JButton btnConsulterTravaux = new JButton("Consulter les travaux en cours");
-        btnConsulterTravaux.addActionListener(e -> new ConsulterTravauxGUI());
-        buttonPanel.add(btnConsulterTravaux);
-
-        JButton consulterEntravesBtn = new JButton("Consulter Entraves");
-        consulterEntravesBtn.addActionListener(e -> consulterEntraves.consulterEntraves());
-        buttonPanel.add(consulterEntravesBtn);
-
+        JButton soumettreRequeteBtn = new JButton("Soumettre une requête de travail");
+        soumettreRequeteBtn.addActionListener(e -> new soumettreTravaux());
+        buttonPanel.add(soumettreRequeteBtn);
         buttonPanel.add(new JButton("Modifier ses horaires de préférence"));
         buttonPanel.add(new JButton("Voir ses notifications"));
         buttonPanel.add(new JButton("Consulter les travaux à venir (3 prochains mois)"));
-        buttonPanel.add(new JButton("Soumettre une requête de travail"));
+        buttonPanel.add(new JButton("Consulter les entraves"));
         buttonPanel.add(new JButton("Faire le suivi d'une requête de travail"));
 
         JButton btnDeconnexion = new JButton("Se Déconnecter");
@@ -238,14 +234,18 @@ public class menu {
         return panel;
     }
 
-    public static JPanel createPageMenuOptionsIntervenant() {
+    public JPanel createPageMenuOptionsIntervenant() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Menu Avancé - Intervenant", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(label, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10));
-        buttonPanel.add(new JButton("Consulter les requêtes de travail"));
+        JButton consulterRequetesBtn = new JButton("Consulter les requêtes de travail");
+        consulterRequetesBtn.addActionListener(e -> new consulterRequete(this));
+        buttonPanel.add(consulterRequetesBtn);
+
+
         buttonPanel.add(new JButton("Soumettre/Soustraire sa candidature"));
         buttonPanel.add(new JButton("Faire le suivi de sa candidature"));
         buttonPanel.add(new JButton("Soumettre un projet"));
@@ -289,6 +289,6 @@ public class menu {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(menu::new);
-        App.main(args);
     }
 }
+
