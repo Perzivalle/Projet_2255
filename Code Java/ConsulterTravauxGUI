@@ -45,34 +45,15 @@ public class ConsulterTravauxGUI {
         loadTravauxFromAPI();
     }
 
-    private void loadTravauxFromAPI() {
-        try {
-            System.out.println("Connexion à l'API : " + API_URL);
-            URL url = new URL(API_URL);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-
-            if (conn.getResponseCode() == 200) {
-                System.out.println("Connexion réussie !");
-                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-
-                reader.close();
-                System.out.println("Réponse reçue : " + response.toString());
-                parseJsonResponse(response.toString());
-            } else {
-                System.out.println("Erreur HTTP : " + conn.getResponseCode());
-                textArea.setText("Erreur lors de la récupération des données : HTTP " + conn.getResponseCode());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            textArea.setText("Erreur lors de la connexion à l'API : " + e.getMessage());
+   private void loadTravauxFromAPI(){
+        if (App.responseTravaux == null || App.responseTravaux.getStatusCode() != 200) {
+            JOptionPane.showMessageDialog(null, "Erreur de données de travaux","Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        String jsonResponseTravaux = App.responseTravaux.getBody();  // on va chercher les donnees dans le body et le mettre en json pour faciliter le processus
+        parseJsonResponse(jsonResponseTravaux);
+
     }
 
     private void parseJsonResponse(String jsonResponse) {
