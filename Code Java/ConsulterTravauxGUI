@@ -1,94 +1,83 @@
+import code.App;
 import com.google.gson.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
 
 public class ConsulterTravauxGUI {
 
-    private static final String API_URL = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
-    private JFrame frame;
-    private JTextArea textArea;
-
-    public ConsulterTravauxGUI() {
-        frame = new JFrame("Consulter Travaux");
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel label = new JLabel("Liste des Travaux", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 24));
-        panel.add(label, BorderLayout.NORTH);
-
-        textArea = new JTextArea();
-        textArea.setEditable(false);
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton filterButton = new JButton("Filtrer par travail");
-        JButton backButton = new JButton("Retour au menu principal");
-
-        filterButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Fonctionnalité de filtrage à implémenter !"));
-        backButton.addActionListener(e -> frame.dispose());
-
-        buttonPanel.add(filterButton);
-        buttonPanel.add(backButton);
-
-        panel.add(buttonPanel, BorderLayout.SOUTH);
-
-        frame.add(panel);
-        frame.setVisible(true);
-
-        loadTravauxFromAPI();
-    }
-
-   private void loadTravauxFromAPI(){
+    public static void ConsulterTravauxGUI() {
         if (App.responseTravaux == null || App.responseTravaux.getStatusCode() != 200) {
             JOptionPane.showMessageDialog(null, "Erreur de données de travaux","Erreur", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
         String jsonResponseTravaux = App.responseTravaux.getBody();  // on va chercher les donnees dans le body et le mettre en json pour faciliter le processus
-        parseJsonResponse(jsonResponseTravaux);
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonResponseTravaux, JsonObject.class);
+        JsonArray records = jsonObject.getAsJsonObject("result").getAsJsonArray("records");
 
-    }
+        String[] nomColonnes = {"ID","BoroughId","CurrentStatus","ReasonCategory","SubmitterCategory","OrganizationName"};
+        Object[][] donnees = new Object[records.size()][6];
 
-    private void parseJsonResponse(String jsonResponse) {
-        try {
-            Gson gson = new Gson();
-            JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
-            JsonArray records = jsonObject.getAsJsonObject("result").getAsJsonArray("records");
-
-            StringBuilder builder = new StringBuilder();
-            for (JsonElement element : records) {
-                JsonObject record = element.getAsJsonObject();
-                String id = record.has("id") ? record.get("id").getAsString() : "Indisponible";
-                String boroughId = record.has("boroughid") ? record.get("boroughid").getAsString() : "Indisponible";
-                String currentStatus = record.has("currentstatus") ? record.get("currentstatus").getAsString() : "Indisponible";
-                String reasonCategory = record.has("reason_category") ? record.get("reason_category").getAsString() : "Indisponible";
-                String submitterCategory = record.has("submittercategory") ? record.get("submittercategory").getAsString() : "Indisponible";
-                String organizationName = record.has("organizationname") ? record.get("organizationname").getAsString() : "Indisponible";
-
-                builder.append("ID : ").append(id).append("\n")
-                        .append("Borough ID : ").append(boroughId).append("\n")
-                        .append("Statut : ").append(currentStatus).append("\n")
-                        .append("Catégorie : ").append(reasonCategory).append("\n")
-                        .append("Soumis par : ").append(submitterCategory).append("\n")
-                        .append("Organisation : ").append(organizationName).append("\n\n");
-            }
-
-            textArea.setText(builder.toString());
-        } catch (JsonSyntaxException e) {
-            e.printStackTrace();
-            System.out.println("Réponse brute de l'API : " + jsonResponse);
-            textArea.setText("Erreur lors de l'analyse des données JSON.");
+        int range = 0;
+        for (JsonElement record : records){
+            JsonObject obj = record.getAsJsonObject();
+            donnees[range][0] = obj.has("id") && !obj.get("id").isJsonNull() ? obj.get("id").getAsString() : "Indisponible";
+            donnees[range][1] = obj.has("boroughid") && !obj.get("boroughid").isJsonNull() ? obj.get("boroughid").getAsString() : "Indisponible";
+            donnees[range][2] = obj.has("currentstatus") && !obj.get("currentstatus").isJsonNull() ? obj.get("currentstatus").getAsString() : "Indisponible";
+            donnees[range][3] = obj.has("reason_category") && !obj.get("reason_category").isJsonNull() ? obj.get("reason_category").getAsString() : "Indisponible";
+            donnees[range][4] = obj.has("submittercategory") && !obj.get("submittercategory").isJsonNull() ? obj.get("submittercategory").getAsString() : "Indisponible";
+            donnees[range][5] = obj.has("organizationname") && !obj.get("organizationname").isJsonNull() ? obj.get("organizationname").getAsString() : "Indisponible";
+            range++;
         }
-    }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(ConsulterTravauxGUI::new);
+        JFrame frameConsulterTravaux = Frame.nouveauFrame("MaVille");
+        frameConsulterTravaux.setVisible(true);
+
+        JPanel panelConsulterTravaux = new JPanel(new BorderLayout());
+        JPanel panelEnTete = Panel.panelTitrePage("Consultation des travaux");
+        panelConsulterTravaux.add(panelEnTete, BorderLayout.NORTH);
+        JPanel bouton = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton retour = new JButton("Retour");
+        bouton.add(retour);
+        panelEnTete.add(retour, BorderLayout.WEST);
+        retour.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frameConsulterTravaux.dispose();
+                menu.createPageMenuOptionsResident();
+            }
+        });
+
+        //On va creer un JTable pour illustrer aux users les travaux
+        JTable tableTravaux = new JTable(donnees,nomColonnes);
+        tableTravaux.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        //On va creer un JScrollPane pour que le user puisse defiler et bien voir les informations
+        JScrollPane scrollPaneTravaux = new JScrollPane(tableTravaux);
+        scrollPaneTravaux.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        panelConsulterTravaux.add(scrollPaneTravaux,BorderLayout.CENTER);
+
+        //On va creer l'implémentation qui permet de filtrer les entraves à afficher
+        JPanel panelFiltreTravaux = new JPanel(new FlowLayout());
+        JTextField inputFiltre = new JTextField(15);
+        JButton filtrer = new JButton("Filtrer");
+        JButton reinitialiser = new JButton("Réinitialiser");
+        String[] typesFiltre = {"boroughid", "ID"};
+        JComboBox<String> comboBoxTypeFiltre = new JComboBox<>(typesFiltre);
+
+        panelFiltreTravaux.add(inputFiltre);
+        panelFiltreTravaux.add(comboBoxTypeFiltre);
+        panelFiltreTravaux.add(filtrer);
+        panelFiltreTravaux.add(reinitialiser);
+
+        panelConsulterTravaux.add(panelFiltreTravaux, BorderLayout.SOUTH);
+
+        frameConsulterTravaux.add(panelConsulterTravaux);
+        frameConsulterTravaux.setVisible(true);
+
     }
 }
