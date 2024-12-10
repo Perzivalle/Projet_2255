@@ -1,0 +1,57 @@
+import java.util.Scanner;
+
+public class consulterRequete {
+    public consulterRequete() {
+    }
+
+    public static void consulterRequete() {
+        if (soumettreTravaux.informationRequete.isEmpty()) {
+            System.out.println("Vous n'avez pas travaux !");
+            Intervenant.menu();
+        } else {
+            Scanner scanner = new Scanner(System.in);
+            String choixCandidature = "";
+            String candidatureIntervenant = "";
+
+            while(true) {
+                System.out.println("Requête de travail disponible");
+
+                int requete;
+                for(requete = 0; requete < soumettreTravaux.informationRequete.size(); ++requete) {
+                    System.out.println((String)soumettreTravaux.informationRequete.get(requete));
+                }
+
+                System.out.println("Veuillez choisir une requête, 0 étant la première");
+                System.out.println("Veuillez taper Retour pour revenir au menu");
+                choixCandidature = scanner.nextLine();
+                if (choixCandidature.equals("Retour")) {
+                    Intervenant.menu();
+                    return;
+                }
+
+                try {
+                    requete = Integer.parseInt(choixCandidature);
+                    if (requete >= 0 && requete < soumettreTravaux.informationRequete.size()) {
+                        candidatureIntervenant = (String)soumettreTravaux.informationRequete.get(requete);
+                        System.out.println("Requête acceptée : " + candidatureIntervenant);
+
+                        while(true) {
+                            System.out.println("Veuillez taper 1 pour sauvegarder et revenir au menu");
+                            String sauvegarder = scanner.nextLine();
+                            if (sauvegarder.equals("1")) {
+                                Intervenant.menu();
+                                break;
+                            }
+
+                            System.out.println("Veuillez taper correctement");
+                        }
+                    } else {
+                        System.out.println("Veuillez rentrer un numéro valide");
+                    }
+                } catch (NumberFormatException var5) {
+                    System.out.println("Veuillez rentrer une option valide");
+                }
+            }
+        }
+    }
+}
