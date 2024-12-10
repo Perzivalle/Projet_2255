@@ -3,8 +3,6 @@ import code.App;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Objects;
-import java.util.Scanner;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -36,10 +34,10 @@ public class consulterEntraves {
         for (JsonElement record : records){
             JsonObject obj = record.getAsJsonObject();
 
-            donnees[range][0] = obj.get("id_request").getAsString();
-            donnees[range][1] = obj.get("streetid").getAsString();
-            donnees[range][2] = obj.get("shortname").getAsString();
-            donnees[range][3] = obj.get("streetimpacttype").getAsString();
+            donnees[range][0] = obj.get("id_request").getAsString().trim().toLowerCase();
+            donnees[range][1] = obj.get("streetid").getAsString().trim().toLowerCase();
+            donnees[range][2] = obj.get("shortname").getAsString().trim().toLowerCase();
+            donnees[range][3] = obj.get("streetimpacttype").getAsString().trim().toLowerCase();
             range++;
         }
 
@@ -89,31 +87,31 @@ public class consulterEntraves {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String choixFiltre = (String) comboBoxTypeFiltre.getSelectedItem();
-                String inputDonneeFiltre = inputFiltre.getText();
+                String inputDonneeFiltre = inputFiltre.getText().trim().toLowerCase();
 
                 Object[][] donneesFiltrer = new Object[records.size()][4];
                 int i = 0;
                 if ("ID Request".equals(choixFiltre)){
                     for (JsonElement record : records){
                         JsonObject obj = record.getAsJsonObject();
-                        String idRequest = obj.get("id_request").getAsString();
+                        String idRequest = obj.get("id_request").getAsString().trim().toLowerCase();
                         if (idRequest.equals(inputDonneeFiltre)) {
                             donneesFiltrer[i][0] = idRequest;
-                            donneesFiltrer[i][1] = obj.get("streetid").getAsString();
-                            donneesFiltrer[i][2] = obj.get("shortname").getAsString();
-                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString();
+                            donneesFiltrer[i][1] = obj.get("streetid").getAsString().trim().toLowerCase();
+                            donneesFiltrer[i][2] = obj.get("shortname").getAsString().trim().toLowerCase();
+                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString().trim().toLowerCase();
                             i++;
                         }
                     }
                 } else if ("Street ID".equals(choixFiltre)) {
                     for (JsonElement record : records){
                         JsonObject obj = record.getAsJsonObject();
-                        String streetid = obj.get("streetid").getAsString();
+                        String streetid = obj.get("streetid").getAsString().trim().toLowerCase();
                         if (streetid.equals(inputDonneeFiltre)) {
-                            donneesFiltrer[i][0] = obj.get("id_request");
+                            donneesFiltrer[i][0] = obj.get("id_request").getAsString().trim().toLowerCase();
                             donneesFiltrer[i][1] = streetid;
-                            donneesFiltrer[i][2] = obj.get("shortname").getAsString();
-                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString();
+                            donneesFiltrer[i][2] = obj.get("shortname").getAsString().trim().toLowerCase();
+                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString().trim().toLowerCase();
                             i++;
                         }
                     }
