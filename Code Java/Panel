@@ -3,23 +3,12 @@ import java.awt.*;
 
 public class Panel {
 
-    public static JPanel panelTitrePage(String titrePage, boolean boutonRetour){
+    public static JPanel panelTitrePage(String titrePage){
         JPanel panelEnTete = new JPanel(new BorderLayout());
 
         JLabel titre = new JLabel(titrePage, SwingConstants.CENTER);
         titre.setFont(titre.getFont().deriveFont(30f));
         panelEnTete.add(titre, BorderLayout.CENTER);
-
-        JButton retour = null;
-        if (boutonRetour){
-            JPanel bouton = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            retour = new JButton("Retour");
-            bouton.add(retour);
-            panelEnTete.add(bouton, BorderLayout.WEST);
-
-            //ActionManager.actionRetour(retour,);
-        }
-
         return panelEnTete;
     }
 }
