@@ -1,160 +1,200 @@
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class soumettreTravaux {
-    public static ArrayList<String> informationRequete = new ArrayList();
+    private final JFrame frame;
+    public static ArrayList<String> informationRequete = new ArrayList<>();
 
     public soumettreTravaux() {
-    }
+        frame = new JFrame("Soumettre Travaux");
+        frame.setSize(600, 400);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-    public static void soumettreRequete() {
-        Scanner scanner = new Scanner(System.in);
-        String typeProbleme = "";
+        JPanel panel = new JPanel(new BorderLayout());
 
-        while(!typeProbleme.equals("1") && !typeProbleme.equals("2") && !typeProbleme.equals("3") && !typeProbleme.equals("4")) {
-            System.out.println("Veuillez choisir le type de problème");
-            System.out.println("1) Chaussée");
-            System.out.println("2) Éclairage");
-            System.out.println("3) Autre (Spécifiez après dans la description détaillée du problème)");
-            System.out.println("4) Revenir page principale");
-            typeProbleme = scanner.next();
-            if (!typeProbleme.equals("1") && !typeProbleme.equals("2") && !typeProbleme.equals("3") && !typeProbleme.equals("4")) {
-                System.out.println("Veuillez insérer une option valide");
-            }
-        }
+        JLabel label = new JLabel("Soumettre une Requête de Travaux", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(label, BorderLayout.NORTH);
 
-        if (typeProbleme.equals("1")) {
+        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+
+        JButton btnChaussee = new JButton("Chaussée");
+        btnChaussee.addActionListener(e -> {
             informationRequete.add("Chaussée");
             dateDebut();
-        } else if (typeProbleme.equals("2")) {
+        });
+
+        JButton btnEclairage = new JButton("Éclairage");
+        btnEclairage.addActionListener(e -> {
             informationRequete.add("Éclairage");
             dateDebut();
-        } else if (typeProbleme.equals("3")) {
-            informationRequete.add("Autre (voir description problème");
+        });
+
+        JButton btnAutre = new JButton("Autre (Spécifiez)");
+        btnAutre.addActionListener(e -> {
+            informationRequete.add("Autre");
             dateDebut();
-        } else if (typeProbleme.equals("4")) {
-            Resident.menu();
-        }
+        });
 
+        JButton btnRetour = new JButton("Retour au menu principal");
+        btnRetour.addActionListener(e -> frame.dispose());
+
+        buttonPanel.add(btnChaussee);
+        buttonPanel.add(btnEclairage);
+        buttonPanel.add(btnAutre);
+        buttonPanel.add(btnRetour);
+
+        panel.add(buttonPanel, BorderLayout.CENTER);
+
+        frame.add(panel);
+        frame.setVisible(true);
     }
 
-    public static void dateDebut() {
-        Scanner scanner = new Scanner(System.in);
-        String annee = "";
+    private void dateDebut() {
+        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
 
-        while(true) {
-            System.out.println("Veuillez indiquer l'année de debut espérée");
-            System.out.println("1) 2024");
-            System.out.println("2) 2025");
-            annee = scanner.next();
-            if (annee.equals("1")) {
-                informationRequete.add("2024");
-                break;
-            }
+        JFrame dateFrame = new JFrame("Sélectionner la Date de Début");
+        dateFrame.setSize(400, 300);
+        dateFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-            if (annee.equals("2")) {
-                informationRequete.add("2025");
-                break;
-            }
+        JLabel label = new JLabel("Veuillez indiquer l'année de début", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.PLAIN, 18));
+        panel.add(label);
 
-            System.out.println("Veuillez choisir une option valide");
-        }
+        JButton btn2024 = new JButton("2024");
+        btn2024.addActionListener(e -> {
+            informationRequete.add("2024");
+            moisSelection();
+            dateFrame.dispose();
+        });
 
-        while(true) {
-            while(true) {
-                int jourChoisi = true;
-                ArrayList<String> mois = new ArrayList();
-                mois.add("Janvier");
-                mois.add("Février");
-                mois.add("Mars");
-                mois.add("Avril");
-                mois.add("Mai");
-                mois.add("Juin");
-                mois.add("Juillet");
-                mois.add("Aout");
-                mois.add("Septembre");
-                mois.add("Octobre");
-                mois.add("Novembre");
-                mois.add("Décembre");
-                System.out.println("Veuillez insérer le mois (de 1 à 12");
-                System.out.println("Par exemple janvier = 1");
-                if (scanner.hasNextInt()) {
-                    int jourChoisi = scanner.nextInt();
-                    if (jourChoisi >= 1 && jourChoisi <= 12) {
-                        informationRequete.add((String)mois.get(jourChoisi - 1));
+        JButton btn2025 = new JButton("2025");
+        btn2025.addActionListener(e -> {
+            informationRequete.add("2025");
+            moisSelection();
+            dateFrame.dispose();
+        });
 
-                        while(true) {
-                            while(true) {
-                                while(true) {
-                                    jourChoisi = true;
-                                    System.out.println("Veuillez insérer un jour entre 1 et 28");
-                                    if (scanner.hasNextInt()) {
-                                        jourChoisi = scanner.nextInt();
-                                        if (jourChoisi >= 1 && jourChoisi <= 28) {
-                                            informationRequete.add(String.valueOf(jourChoisi));
-                                            System.out.println("Requete de travail effectué avec succées");
-                                            localisationExacte();
-                                        } else {
-                                            System.out.println("Veuillez choisir une option valide");
-                                        }
-                                    } else {
-                                        System.out.println("Veuillez choisir une option valide");
-                                        scanner.next();
-                                    }
-                                }
-                            }
-                        }
-                    }
+        panel.add(btn2024);
+        panel.add(btn2025);
 
-                    System.out.println("Veuillez choisir une option valide");
-                } else {
-                    System.out.println("Veuillez choisir une option valide");
-                    scanner.next();
-                }
-            }
-        }
+        dateFrame.add(panel);
+        dateFrame.setVisible(true);
     }
 
-    public static void localisationExacte() {
-        Scanner scanner = new Scanner(System.in);
-        String localisation = "";
+    private void moisSelection() {
+        JPanel panel = new JPanel(new GridLayout(12, 1, 5, 5));
+        JFrame moisFrame = new JFrame("Sélectionner le Mois");
+        moisFrame.setSize(400, 400);
+        moisFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        while(!localisation.equals("1") && !localisation.equals("2")) {
-            System.out.println("Veuillez insérer la localisation exacte");
-            System.out.println("1) Localisation actuelle");
-            System.out.println("2) Ajouter une adresse");
-            localisation = scanner.nextLine();
-            if (localisation.equals("1")) {
-                System.out.println("Localisation actuelle ajouter");
-                informationRequete.add(localisation);
+        String[] mois = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
+
+        for (String m : mois) {
+            JButton btnMois = new JButton(m);
+            btnMois.addActionListener(e -> {
+                informationRequete.add(m);
+                jourSelection();
+                moisFrame.dispose();
+            });
+            panel.add(btnMois);
+        }
+
+        moisFrame.add(new JScrollPane(panel));
+        moisFrame.setVisible(true);
+    }
+
+    private void jourSelection() {
+        JPanel panel = new JPanel(new GridLayout(7, 4, 5, 5));
+        JFrame jourFrame = new JFrame("Sélectionner le Jour");
+        jourFrame.setSize(400, 300);
+        jourFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        for (int i = 1; i <= 28; i++) {
+            int jour = i;
+            JButton btnJour = new JButton(String.valueOf(jour));
+            btnJour.addActionListener(e -> {
+                informationRequete.add(String.valueOf(jour));
+                localisationExacte();
+                jourFrame.dispose();
+            });
+            panel.add(btnJour);
+        }
+
+        jourFrame.add(panel);
+        jourFrame.setVisible(true);
+    }
+
+    private void localisationExacte() {
+        JFrame localisationFrame = new JFrame("Localisation");
+        localisationFrame.setSize(400, 200);
+        localisationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("Veuillez insérer la localisation exacte :", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        panel.add(label, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
+        JButton btnActuelle = new JButton("Localisation Actuelle");
+        btnActuelle.addActionListener(e -> {
+            informationRequete.add("Localisation actuelle");
+            titreDescription();
+            localisationFrame.dispose();
+        });
+
+        JButton btnAjouterAdresse = new JButton("Ajouter une Adresse");
+        btnAjouterAdresse.addActionListener(e -> {
+            String adresse = JOptionPane.showInputDialog(localisationFrame, "Veuillez entrer l'adresse (ex : numéro, rue, code postal) :");
+            if (adresse != null && !adresse.isEmpty()) {
+                informationRequete.add(adresse);
                 titreDescription();
-            } else if (localisation.equals("2")) {
-                System.out.println("Veuillez inscrire l'adresse comme suit : numéro, rue, code postal");
-                localisation = scanner.nextLine();
-                informationRequete.add(localisation);
-                titreDescription();
-            } else {
-                System.out.println("Veuillez entrer une option valide");
             }
-        }
+            localisationFrame.dispose();
+        });
 
+        buttonPanel.add(btnActuelle);
+        buttonPanel.add(btnAjouterAdresse);
+
+        panel.add(buttonPanel, BorderLayout.CENTER);
+        localisationFrame.add(panel);
+        localisationFrame.setVisible(true);
     }
 
-    public static void titreDescription() {
-        Scanner scanner = new Scanner(System.in);
-        String description = "";
+    private void titreDescription() {
+        JFrame descriptionFrame = new JFrame("Titre et Description");
+        descriptionFrame.setSize(400, 300);
+        descriptionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        while(true) {
-            System.out.println("Veuillez insérer le titre du travail et une description");
-            description = scanner.nextLine();
-            if (!description.equals("")) {
-                System.out.println("Requete de travail effectuer avec succees");
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("Veuillez insérer le titre et une description :", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.PLAIN, 16));
+        panel.add(label, BorderLayout.NORTH);
+
+        JTextArea textArea = new JTextArea();
+        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        JButton btnSoumettre = new JButton("Soumettre");
+        btnSoumettre.addActionListener(e -> {
+            String description = textArea.getText();
+            if (description != null && !description.isEmpty()) {
                 informationRequete.add(description);
-                soumettreRequete();
-                return;
+                JOptionPane.showMessageDialog(descriptionFrame, "Requête de travail soumise avec succès !");
+                descriptionFrame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(descriptionFrame, "Veuillez entrer une description valide.", "Erreur", JOptionPane.ERROR_MESSAGE);
             }
+        });
 
-            System.out.println("Veuillez entrer le titre du travail et une description");
-        }
+        panel.add(btnSoumettre, BorderLayout.SOUTH);
+        descriptionFrame.add(panel);
+        descriptionFrame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(soumettreTravaux::new);
     }
 }
