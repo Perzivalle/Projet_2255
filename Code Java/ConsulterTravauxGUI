@@ -47,11 +47,13 @@ public class ConsulterTravauxGUI {
 
     private void loadTravauxFromAPI() {
         try {
+            System.out.println("Connexion à l'API : " + API_URL);
             URL url = new URL(API_URL);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
             if (conn.getResponseCode() == 200) {
+                System.out.println("Connexion réussie !");
                 BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 StringBuilder response = new StringBuilder();
                 String line;
@@ -61,13 +63,15 @@ public class ConsulterTravauxGUI {
                 }
 
                 reader.close();
+                System.out.println("Réponse reçue : " + response.toString());
                 parseJsonResponse(response.toString());
             } else {
-                textArea.setText("Erreur lors de la récupération des données : " + conn.getResponseCode());
+                System.out.println("Erreur HTTP : " + conn.getResponseCode());
+                textArea.setText("Erreur lors de la récupération des données : HTTP " + conn.getResponseCode());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            textArea.setText("Erreur lors de la connexion à l'API.");
+            textArea.setText("Erreur lors de la connexion à l'API : " + e.getMessage());
         }
     }
 
@@ -98,6 +102,7 @@ public class ConsulterTravauxGUI {
             textArea.setText(builder.toString());
         } catch (JsonSyntaxException e) {
             e.printStackTrace();
+            System.out.println("Réponse brute de l'API : " + jsonResponse);
             textArea.setText("Erreur lors de l'analyse des données JSON.");
         }
     }
