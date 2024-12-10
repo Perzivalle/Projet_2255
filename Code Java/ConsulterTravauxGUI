@@ -1,0 +1,108 @@
+import com.google.gson.*;
+import javax.swing.*;
+import java.awt.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class ConsulterTravauxGUI {
+
+    private static final String API_URL = "https://donnees.montreal.ca/api/3/action/datastore_search?resource_id=cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+    private JFrame frame;
+    private JTextArea textArea;
+
+    public ConsulterTravauxGUI() {
+        frame = new JFrame("Consulter Travaux");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("Liste des Travaux", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(label, BorderLayout.NORTH);
+
+        textArea = new JTextArea();
+        textArea.setEditable(false);
+        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton filterButton = new JButton("Filtrer par travail");
+        JButton backButton = new JButton("Retour au menu principal");
+
+        filterButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Fonctionnalité de filtrage à implémenter !"));
+        backButton.addActionListener(e -> frame.dispose());
+
+        buttonPanel.add(filterButton);
+        buttonPanel.add(backButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        loadTravauxFromAPI();
+    }
+
+    private void loadTravauxFromAPI() {
+        try {
+            URL url = new URL(API_URL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("GET");
+
+            if (conn.getResponseCode() == 200) {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = reader.readLine()) != null) {
+                    response.append(line);
+                }
+
+                reader.close();
+                parseJsonResponse(response.toString());
+            } else {
+                textArea.setText("Erreur lors de la récupération des données : " + conn.getResponseCode());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            textArea.setText("Erreur lors de la connexion à l'API.");
+        }
+    }
+
+    private void parseJsonResponse(String jsonResponse) {
+        try {
+            Gson gson = new Gson();
+            JsonObject jsonObject = gson.fromJson(jsonResponse, JsonObject.class);
+            JsonArray records = jsonObject.getAsJsonObject("result").getAsJsonArray("records");
+
+            StringBuilder builder = new StringBuilder();
+            for (JsonElement element : records) {
+                JsonObject record = element.getAsJsonObject();
+                String id = record.has("id") ? record.get("id").getAsString() : "Indisponible";
+                String boroughId = record.has("boroughid") ? record.get("boroughid").getAsString() : "Indisponible";
+                String currentStatus = record.has("currentstatus") ? record.get("currentstatus").getAsString() : "Indisponible";
+                String reasonCategory = record.has("reason_category") ? record.get("reason_category").getAsString() : "Indisponible";
+                String submitterCategory = record.has("submittercategory") ? record.get("submittercategory").getAsString() : "Indisponible";
+                String organizationName = record.has("organizationname") ? record.get("organizationname").getAsString() : "Indisponible";
+
+                builder.append("ID : ").append(id).append("\n")
+                        .append("Borough ID : ").append(boroughId).append("\n")
+                        .append("Statut : ").append(currentStatus).append("\n")
+                        .append("Catégorie : ").append(reasonCategory).append("\n")
+                        .append("Soumis par : ").append(submitterCategory).append("\n")
+                        .append("Organisation : ").append(organizationName).append("\n\n");
+            }
+
+            textArea.setText(builder.toString());
+        } catch (JsonSyntaxException e) {
+            e.printStackTrace();
+            textArea.setText("Erreur lors de l'analyse des données JSON.");
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ConsulterTravauxGUI::new);
+    }
+}
