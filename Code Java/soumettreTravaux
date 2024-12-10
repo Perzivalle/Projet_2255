@@ -1,0 +1,160 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class soumettreTravaux {
+    public static ArrayList<String> informationRequete = new ArrayList();
+
+    public soumettreTravaux() {
+    }
+
+    public static void soumettreRequete() {
+        Scanner scanner = new Scanner(System.in);
+        String typeProbleme = "";
+
+        while(!typeProbleme.equals("1") && !typeProbleme.equals("2") && !typeProbleme.equals("3") && !typeProbleme.equals("4")) {
+            System.out.println("Veuillez choisir le type de problème");
+            System.out.println("1) Chaussée");
+            System.out.println("2) Éclairage");
+            System.out.println("3) Autre (Spécifiez après dans la description détaillée du problème)");
+            System.out.println("4) Revenir page principale");
+            typeProbleme = scanner.next();
+            if (!typeProbleme.equals("1") && !typeProbleme.equals("2") && !typeProbleme.equals("3") && !typeProbleme.equals("4")) {
+                System.out.println("Veuillez insérer une option valide");
+            }
+        }
+
+        if (typeProbleme.equals("1")) {
+            informationRequete.add("Chaussée");
+            dateDebut();
+        } else if (typeProbleme.equals("2")) {
+            informationRequete.add("Éclairage");
+            dateDebut();
+        } else if (typeProbleme.equals("3")) {
+            informationRequete.add("Autre (voir description problème");
+            dateDebut();
+        } else if (typeProbleme.equals("4")) {
+            Resident.menu();
+        }
+
+    }
+
+    public static void dateDebut() {
+        Scanner scanner = new Scanner(System.in);
+        String annee = "";
+
+        while(true) {
+            System.out.println("Veuillez indiquer l'année de debut espérée");
+            System.out.println("1) 2024");
+            System.out.println("2) 2025");
+            annee = scanner.next();
+            if (annee.equals("1")) {
+                informationRequete.add("2024");
+                break;
+            }
+
+            if (annee.equals("2")) {
+                informationRequete.add("2025");
+                break;
+            }
+
+            System.out.println("Veuillez choisir une option valide");
+        }
+
+        while(true) {
+            while(true) {
+                int jourChoisi = true;
+                ArrayList<String> mois = new ArrayList();
+                mois.add("Janvier");
+                mois.add("Février");
+                mois.add("Mars");
+                mois.add("Avril");
+                mois.add("Mai");
+                mois.add("Juin");
+                mois.add("Juillet");
+                mois.add("Aout");
+                mois.add("Septembre");
+                mois.add("Octobre");
+                mois.add("Novembre");
+                mois.add("Décembre");
+                System.out.println("Veuillez insérer le mois (de 1 à 12");
+                System.out.println("Par exemple janvier = 1");
+                if (scanner.hasNextInt()) {
+                    int jourChoisi = scanner.nextInt();
+                    if (jourChoisi >= 1 && jourChoisi <= 12) {
+                        informationRequete.add((String)mois.get(jourChoisi - 1));
+
+                        while(true) {
+                            while(true) {
+                                while(true) {
+                                    jourChoisi = true;
+                                    System.out.println("Veuillez insérer un jour entre 1 et 28");
+                                    if (scanner.hasNextInt()) {
+                                        jourChoisi = scanner.nextInt();
+                                        if (jourChoisi >= 1 && jourChoisi <= 28) {
+                                            informationRequete.add(String.valueOf(jourChoisi));
+                                            System.out.println("Requete de travail effectué avec succées");
+                                            localisationExacte();
+                                        } else {
+                                            System.out.println("Veuillez choisir une option valide");
+                                        }
+                                    } else {
+                                        System.out.println("Veuillez choisir une option valide");
+                                        scanner.next();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    System.out.println("Veuillez choisir une option valide");
+                } else {
+                    System.out.println("Veuillez choisir une option valide");
+                    scanner.next();
+                }
+            }
+        }
+    }
+
+    public static void localisationExacte() {
+        Scanner scanner = new Scanner(System.in);
+        String localisation = "";
+
+        while(!localisation.equals("1") && !localisation.equals("2")) {
+            System.out.println("Veuillez insérer la localisation exacte");
+            System.out.println("1) Localisation actuelle");
+            System.out.println("2) Ajouter une adresse");
+            localisation = scanner.nextLine();
+            if (localisation.equals("1")) {
+                System.out.println("Localisation actuelle ajouter");
+                informationRequete.add(localisation);
+                titreDescription();
+            } else if (localisation.equals("2")) {
+                System.out.println("Veuillez inscrire l'adresse comme suit : numéro, rue, code postal");
+                localisation = scanner.nextLine();
+                informationRequete.add(localisation);
+                titreDescription();
+            } else {
+                System.out.println("Veuillez entrer une option valide");
+            }
+        }
+
+    }
+
+    public static void titreDescription() {
+        Scanner scanner = new Scanner(System.in);
+        String description = "";
+
+        while(true) {
+            System.out.println("Veuillez insérer le titre du travail et une description");
+            description = scanner.nextLine();
+            if (!description.equals("")) {
+                System.out.println("Requete de travail effectuer avec succees");
+                informationRequete.add(description);
+                soumettreRequete();
+                return;
+            }
+
+            System.out.println("Veuillez entrer le titre du travail et une description");
+        }
+    }
+}
