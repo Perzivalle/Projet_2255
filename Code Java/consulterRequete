@@ -1,57 +1,94 @@
-import java.util.Scanner;
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class consulterRequete {
-    public consulterRequete() {
+    private final menu mainMenu;
+    private JFrame frame;
+
+    public consulterRequete(menu mainMenu) {
+        this.mainMenu = mainMenu;
+        createGUI();
     }
 
-    public static void consulterRequete() {
+    private void createGUI() {
+        frame = new JFrame("Consulter Requêtes");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Liste des Requêtes Disponibles", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        updateTextArea(textArea); // Affiche les requêtes dans la zone de texte
+        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+
+        JButton choisirRequeteButton = new JButton("Choisir une Requête");
+        JButton retourButton = new JButton("Retour au Menu");
+
+        choisirRequeteButton.addActionListener(e -> choisirRequete(textArea));
+        retourButton.addActionListener(e -> {
+            frame.dispose();
+            mainMenu.createPageMenuOptionsIntervenant(); // Retour au menu intervenant
+        });
+
+        buttonPanel.add(choisirRequeteButton);
+        buttonPanel.add(retourButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+    }
+
+    private void updateTextArea(JTextArea textArea) {
         if (soumettreTravaux.informationRequete.isEmpty()) {
-            System.out.println("Vous n'avez pas travaux !");
-            Intervenant.menu();
+            textArea.setText("Vous n'avez pas de travaux !");
         } else {
-            Scanner scanner = new Scanner(System.in);
-            String choixCandidature = "";
-            String candidatureIntervenant = "";
-
-            while(true) {
-                System.out.println("Requête de travail disponible");
-
-                int requete;
-                for(requete = 0; requete < soumettreTravaux.informationRequete.size(); ++requete) {
-                    System.out.println((String)soumettreTravaux.informationRequete.get(requete));
-                }
-
-                System.out.println("Veuillez choisir une requête, 0 étant la première");
-                System.out.println("Veuillez taper Retour pour revenir au menu");
-                choixCandidature = scanner.nextLine();
-                if (choixCandidature.equals("Retour")) {
-                    Intervenant.menu();
-                    return;
-                }
-
-                try {
-                    requete = Integer.parseInt(choixCandidature);
-                    if (requete >= 0 && requete < soumettreTravaux.informationRequete.size()) {
-                        candidatureIntervenant = (String)soumettreTravaux.informationRequete.get(requete);
-                        System.out.println("Requête acceptée : " + candidatureIntervenant);
-
-                        while(true) {
-                            System.out.println("Veuillez taper 1 pour sauvegarder et revenir au menu");
-                            String sauvegarder = scanner.nextLine();
-                            if (sauvegarder.equals("1")) {
-                                Intervenant.menu();
-                                break;
-                            }
-
-                            System.out.println("Veuillez taper correctement");
-                        }
-                    } else {
-                        System.out.println("Veuillez rentrer un numéro valide");
-                    }
-                } catch (NumberFormatException var5) {
-                    System.out.println("Veuillez rentrer une option valide");
-                }
+            StringBuilder builder = new StringBuilder();
+            ArrayList<String> requetes = soumettreTravaux.informationRequete;
+            for (int i = 0; i < requetes.size(); i++) {
+                builder.append(i).append(") ").append(requetes.get(i)).append("\n");
             }
+            textArea.setText(builder.toString());
+        }
+    }
+
+    private void choisirRequete(JTextArea textArea) {
+        if (soumettreTravaux.informationRequete.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Vous n'avez pas de travaux !");
+            return;
+        }
+
+        String choix = JOptionPane.showInputDialog(frame, "Veuillez choisir une requête (0 pour la première) :");
+        try {
+            int requeteIndex = Integer.parseInt(choix);
+
+            if (requeteIndex >= 0 && requeteIndex < soumettreTravaux.informationRequete.size()) {
+                String requete = soumettreTravaux.informationRequete.get(requeteIndex);
+                int confirmation = JOptionPane.showConfirmDialog(
+                        frame,
+                        "Requête acceptée : " + requete + "\nSouhaitez-vous la sauvegarder ?",
+                        "Confirmer",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirmation == JOptionPane.YES_OPTION) {
+                    JOptionPane.showMessageDialog(frame, "Requête sauvegardée avec succès !");
+                    frame.dispose();
+                    mainMenu.createPageMenuOptionsIntervenant();
+                }
+            } else {
+                JOptionPane.showMessageDialog(frame, "Veuillez entrer un index valide.");
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(frame, "Veuillez entrer un numéro valide.");
         }
     }
 }
