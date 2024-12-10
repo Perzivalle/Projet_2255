@@ -47,8 +47,19 @@ public class consulterEntraves {
         frameConsulterEntraves.setVisible(true);
 
         JPanel panelConsulterEntraves = new JPanel(new BorderLayout());
-        JPanel panelEnTete = Panel.panelTitrePage("Consultation des entraves", true);
+        JPanel panelEnTete = Panel.panelTitrePage("Consultation des entraves");
         panelConsulterEntraves.add(panelEnTete, BorderLayout.NORTH);
+        JPanel bouton = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JButton retour = new JButton("Retour");
+        bouton.add(retour);
+        panelEnTete.add(retour, BorderLayout.WEST);
+        retour.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frameConsulterEntraves.dispose();
+                menu.createPageMenuOptionsResident();
+            }
+        });
 
         //On va creer un JTable pour illustrer aux users les entraves et leurs informations
         JTable tableEntraves = new JTable(donnees,nomColonnes);
