@@ -7,9 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class menu {
-    private JFrame frame;
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
+    private static JFrame frame;
+    private static CardLayout cardLayout;
+    private static JPanel mainPanel;
 
     private static final String RESIDENTS_FILE = "comptesResident.csv";
     private static final String INTERVENANTS_FILE = "comptesIntervenant.csv";
@@ -202,7 +202,7 @@ public class menu {
         return panelConnexion;
     }
 
-    private JPanel createPageMenuOptionsResident() {
+    public static JPanel createPageMenuOptionsResident() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Menu Avancé - Résident", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
@@ -238,7 +238,7 @@ public class menu {
         return panel;
     }
 
-    private JPanel createPageMenuOptionsIntervenant() {
+    public static JPanel createPageMenuOptionsIntervenant() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Menu Avancé - Intervenant", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
