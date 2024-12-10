@@ -1,0 +1,127 @@
+import code.App;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Objects;
+import java.util.Scanner;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+
+public class consulterEntraves {
+    public static void consulterEntraves() {
+        // Permet de s'assurer qu'on a bien recu les donnees API voulu pour les entraves
+        if (App.responseEntraves == null || App.responseEntraves.getStatusCode() != 200) {
+            JOptionPane.showMessageDialog(null, "Erreur de données d'entraves","Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+
+
+        String jsonResponseEntraves = App.responseEntraves.getBody();  // on va chercher les donnees dans le body et le mettre en json pour faciliter le processus
+        Gson gson = new Gson();
+        JsonObject jsonObject = gson.fromJson(jsonResponseEntraves, JsonObject.class);
+        JsonArray records = jsonObject.getAsJsonObject("result").getAsJsonArray("records");
+
+        String[] nomColonnes={"ID Request", "Street ID", "Short Name", "Street Impact Type"};
+        Object[][] donnees = new Object[records.size()][4];
+
+        // Aller prendre chaque donnees du type quon veut avoir
+        int range = 0;
+        for (JsonElement record : records){
+            JsonObject obj = record.getAsJsonObject();
+
+            donnees[range][0] = obj.get("id_request").getAsString();
+            donnees[range][1] = obj.get("streetid").getAsString();
+            donnees[range][2] = obj.get("shortname").getAsString();
+            donnees[range][3] = obj.get("streetimpacttype").getAsString();
+            range++;
+        }
+
+        JFrame frameConsulterEntraves = Frame.nouveauFrame("MaVille");
+        frameConsulterEntraves.setVisible(true);
+
+        JPanel panelConsulterEntraves = new JPanel(new BorderLayout());
+        JPanel panelEnTete = Panel.panelTitrePage("Consultation des entraves", true);
+        panelConsulterEntraves.add(panelEnTete, BorderLayout.NORTH);
+
+        //On va creer un JTable pour illustrer aux users les entraves et leurs informations
+        JTable tableEntraves = new JTable(donnees,nomColonnes);
+        tableEntraves.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+
+        //On va creer un JScrollPane pour que le user puisse defiler et bien voir les informations
+        JScrollPane scrollPaneEntraves = new JScrollPane(tableEntraves);
+        scrollPaneEntraves.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        panelConsulterEntraves.add(scrollPaneEntraves,BorderLayout.CENTER);
+
+        //On va creer l'implémentation qui permet de filtrer les entraves à afficher
+        JPanel panelFiltreEntraves = new JPanel(new FlowLayout());
+        JTextField inputFiltre = new JTextField(15);
+        JButton filtrer = new JButton("Filtrer");
+        JButton reinitialiser = new JButton("Réinitialiser");
+        String[] typesFiltre = {"ID Request", "Street ID"};
+        JComboBox<String> comboBoxTypeFiltre = new JComboBox<>(typesFiltre);
+
+        panelFiltreEntraves.add(inputFiltre);
+        panelFiltreEntraves.add(comboBoxTypeFiltre);
+        panelFiltreEntraves.add(filtrer);
+        panelFiltreEntraves.add(reinitialiser);
+
+        panelConsulterEntraves.add(panelFiltreEntraves, BorderLayout.SOUTH);
+
+        filtrer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String choixFiltre = (String) comboBoxTypeFiltre.getSelectedItem();
+                String inputDonneeFiltre = inputFiltre.getText();
+
+                Object[][] donneesFiltrer = new Object[records.size()][4];
+                int i = 0;
+                if ("ID Request".equals(choixFiltre)){
+                    for (JsonElement record : records){
+                        JsonObject obj = record.getAsJsonObject();
+                        String idRequest = obj.get("id_request").getAsString();
+                        if (idRequest.equals(inputDonneeFiltre)) {
+                            donneesFiltrer[i][0] = idRequest;
+                            donneesFiltrer[i][1] = obj.get("streetid").getAsString();
+                            donneesFiltrer[i][2] = obj.get("shortname").getAsString();
+                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString();
+                            i++;
+                        }
+                    }
+                } else if ("Street ID".equals(choixFiltre)) {
+                    for (JsonElement record : records){
+                        JsonObject obj = record.getAsJsonObject();
+                        String streetid = obj.get("streetid").getAsString();
+                        if (streetid.equals(inputDonneeFiltre)) {
+                            donneesFiltrer[i][0] = obj.get("id_request");
+                            donneesFiltrer[i][1] = streetid;
+                            donneesFiltrer[i][2] = obj.get("shortname").getAsString();
+                            donneesFiltrer[i][3] = obj.get("streetimpacttype").getAsString();
+                            i++;
+                        }
+                    }
+                }
+                DefaultTableModel nouvelleTableEntrave = new DefaultTableModel(donneesFiltrer,nomColonnes);
+                tableEntraves.setModel(nouvelleTableEntrave);
+            }
+        });
+
+        reinitialiser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultTableModel reinitialiserTableEntrave = new DefaultTableModel(donnees, nomColonnes);
+                tableEntraves.setModel(reinitialiserTableEntrave);
+                //Permet de s'assurer que le champs soit libre pour taper à nouveau
+                inputFiltre.setText("");
+            }
+        });
+
+        frameConsulterEntraves.add(panelConsulterEntraves);
+    }
+}
