@@ -207,9 +207,13 @@ public class menu {
         panel.add(label, BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10));
+
+        JButton btnConsulterTravaux = new JButton("Consulter les travaux en cours");
+        btnConsulterTravaux.addActionListener(e -> new ConsulterTravauxGUI());
+        buttonPanel.add(btnConsulterTravaux);
+
         buttonPanel.add(new JButton("Modifier ses horaires de préférence"));
         buttonPanel.add(new JButton("Voir ses notifications"));
-        buttonPanel.add(new JButton("Consulter les travaux en cours"));
         buttonPanel.add(new JButton("Consulter les travaux à venir (3 prochains mois)"));
         buttonPanel.add(new JButton("Consulter les entraves"));
         buttonPanel.add(new JButton("Soumettre une requête de travail"));
@@ -282,4 +286,3 @@ public class menu {
         SwingUtilities.invokeLater(menu::new);
     }
 }
-
