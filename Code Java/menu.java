@@ -1,3 +1,5 @@
+import code.App;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -212,10 +214,13 @@ public class menu {
         btnConsulterTravaux.addActionListener(e -> new ConsulterTravauxGUI());
         buttonPanel.add(btnConsulterTravaux);
 
+        JButton consulterEntravesBtn = new JButton("Consulter Entraves");
+        consulterEntravesBtn.addActionListener(e -> consulterEntraves.consulterEntraves());
+        buttonPanel.add(consulterEntravesBtn);
+
         buttonPanel.add(new JButton("Modifier ses horaires de préférence"));
         buttonPanel.add(new JButton("Voir ses notifications"));
         buttonPanel.add(new JButton("Consulter les travaux à venir (3 prochains mois)"));
-        buttonPanel.add(new JButton("Consulter les entraves"));
         buttonPanel.add(new JButton("Soumettre une requête de travail"));
         buttonPanel.add(new JButton("Faire le suivi d'une requête de travail"));
 
@@ -284,5 +289,6 @@ public class menu {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(menu::new);
+        App.main(args);
     }
 }
