@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.Iterator;
 
 public class ConsulterTravauxGUI {
@@ -79,5 +80,56 @@ public class ConsulterTravauxGUI {
         frameConsulterTravaux.add(panelConsulterTravaux);
         frameConsulterTravaux.setVisible(true);
 
+        filtrer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String choixFiltre = (String) comboBoxTypeFiltre.getSelectedItem();
+                String inputDonneeFiltre = inputFiltre.getText().trim().toLowerCase();
+
+                Object[][] donneesFiltrer = new Object[records.size()][6];
+                int i = 0;
+                if ("boroughid".equals(choixFiltre)){
+                    for (JsonElement record : records){
+                        JsonObject obj = record.getAsJsonObject();
+                        String boroughId = obj.has("boroughid") && !obj.get("boroughid").isJsonNull() ? obj.get("boroughid").getAsString().trim().toLowerCase() : "Indisponible";
+                        if (boroughId.equals(inputDonneeFiltre)){
+                            donneesFiltrer[i][0] = obj.has("id") && !obj.get("id").isJsonNull() ? obj.get("id").getAsString() : "Indisponible";
+                            donneesFiltrer[i][1] = boroughId;
+                            donneesFiltrer[i][2] = obj.has("currentstatus") && !obj.get("currentstatus").isJsonNull() ? obj.get("currentstatus").getAsString() : "Indisponible";
+                            donneesFiltrer[i][3] = obj.has("reason_category") && !obj.get("reason_category").isJsonNull() ? obj.get("reason_category").getAsString() : "Indisponible";
+                            donneesFiltrer[i][4] = obj.has("submittercategory") && !obj.get("submittercategory").isJsonNull() ? obj.get("submittercategory").getAsString() : "Indisponible";
+                            donneesFiltrer[i][5] = obj.has("organizationname") && !obj.get("organizationname").isJsonNull() ? obj.get("organizationname").getAsString() : "Indisponible";
+                            i++;
+                        }
+                    }
+                } else if ("ID".equals(choixFiltre)) {
+                    for (JsonElement record : records){
+                        JsonObject obj = record.getAsJsonObject();
+                        String id = obj.has("id") && !obj.get("id").isJsonNull() ? obj.get("id").getAsString().trim().toLowerCase() : "Indisponible";
+                        if (id.equals(inputDonneeFiltre)){
+                            donneesFiltrer[i][0] = id;
+                            donneesFiltrer[i][1] = obj.has("boroughid") && !obj.get("boroughid").isJsonNull() ? obj.get("boroughid").getAsString() : "Indisponible";
+                            donneesFiltrer[i][2] = obj.has("currentstatus") && !obj.get("currentstatus").isJsonNull() ? obj.get("currentstatus").getAsString() : "Indisponible";
+                            donneesFiltrer[i][3] = obj.has("reason_category") && !obj.get("reason_category").isJsonNull() ? obj.get("reason_category").getAsString() : "Indisponible";
+                            donneesFiltrer[i][4] = obj.has("submittercategory") && !obj.get("submittercategory").isJsonNull() ? obj.get("submittercategory").getAsString() : "Indisponible";
+                            donneesFiltrer[i][5] = obj.has("organizationname") && !obj.get("organizationname").isJsonNull() ? obj.get("organizationname").getAsString() : "Indisponible";
+                            i++;
+                        }
+                    }
+                }
+                DefaultTableModel nouvelleTableTravaux = new DefaultTableModel(donneesFiltrer,nomColonnes);
+                tableTravaux.setModel(nouvelleTableTravaux);
+            }
+        });
+
+        reinitialiser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                DefaultTableModel reinitialiserTableTravaux = new DefaultTableModel(donnees, nomColonnes);
+                tableTravaux.setModel(reinitialiserTableTravaux);
+                //Permet de s'assurer que le champs soit libre pour taper à nouveau
+                inputFiltre.setText("");
+            }
+        });
     }
 }
