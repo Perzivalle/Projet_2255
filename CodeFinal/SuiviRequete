@@ -42,14 +42,17 @@ public abstract class SuiviRequete {
         JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton activerSuiviBtn = new JButton("Activer le Suivi");
         JButton desactiverSuiviBtn = new JButton("Désactiver le Suivi");
+        JButton retirerRequeteBtn = new JButton("Retirer la Requête");
         JButton retourBtn = new JButton("Retour au menu résident");
 
         activerSuiviBtn.addActionListener(e -> activerSuivi());
         desactiverSuiviBtn.addActionListener(e -> desactiverSuivi());
+        retirerRequeteBtn.addActionListener(e -> retirerRequete());
         retourBtn.addActionListener(e -> retourMenuResident());
 
         buttonPanel.add(activerSuiviBtn);
         buttonPanel.add(desactiverSuiviBtn);
+        buttonPanel.add(retirerRequeteBtn);
         buttonPanel.add(retourBtn);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -116,6 +119,32 @@ public abstract class SuiviRequete {
             JOptionPane.showMessageDialog(frame, "Le suivi a été désactivé pour cette requête.");
         } catch (IOException e) {
             JOptionPane.showMessageDialog(frame, "Erreur lors de la désactivation du suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
+        loadRequetes();
+    }
+
+    private void retirerRequete() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour la retirer.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String titre = table.getValueAt(selectedRow, 5).toString(); // Titre de la requête
+
+        List<String[]> requetes = readCSV(REQUETE_FILE);
+        requetes.removeIf(r -> r.length > 5 && r[5].equals(titre));
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(REQUETE_FILE))) {
+            for (String[] requete : requetes) {
+                writer.write(String.join(",", requete));
+                writer.newLine();
+            }
+            JOptionPane.showMessageDialog(frame, "La requête a été retirée avec succès.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la suppression de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
 
