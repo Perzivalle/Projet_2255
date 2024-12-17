@@ -1,254 +1,159 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.*;
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.*;
 
 public class soumettreTravaux {
+
     private final JFrame frame;
-    public static ArrayList<String> informationRequete = new ArrayList<>();
-    private static final String CSV_FILE = "requeteTravaux.csv"; // Nom du fichier CSV
-    private String suivi = "Non"; // Valeur par défaut pour le suivi
+    private final ArrayList<String> informationRequete = new ArrayList<>();
+    private static final String CSV_FILE = "requeteTravaux.csv";
+    private String suivi = "Non";
 
     public soumettreTravaux() {
-        frame = new JFrame("Soumettre Travaux");
-        frame.setSize(600, 400);
+        frame = new JFrame("Soumettre une Requête de Travail Résidentiel");
+        frame.setSize(500, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
 
-        JPanel panel = new JPanel(new BorderLayout());
+        // Titre principal
+        JLabel titleLabel = new JLabel("Soumettre une Requête de Travail", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        frame.add(titleLabel, BorderLayout.NORTH);
 
-        JLabel label = new JLabel("Soumettre une Requête de Travaux", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 24));
-        panel.add(label, BorderLayout.NORTH);
+        // Formulaire principal
+        JPanel formPanel = new JPanel(new GridLayout(8, 2, 10, 10));
 
-        JPanel buttonPanel = new JPanel(new GridLayout(4, 1, 10, 10));
+        // Champs requis
+        JTextField titreField = new JTextField();
+        JTextArea descriptionArea = new JTextArea(3, 20);
+        JComboBox<String> typeTravauxBox = new JComboBox<>(new String[]{"Chaussée", "Éclairage", "Autre"});
 
-        JButton btnChaussee = new JButton("Chaussée");
-        btnChaussee.addActionListener(e -> {
-            informationRequete.add("Chaussée");
-            dateDebut();
+        // Ajout de Quartier
+        String[] quartiers = {"Centre-ville", "Plateau Mont-Royal", "Rosemont", "Villeray", "Outremont", "Verdun", "Autre"};
+        JComboBox<String> quartierBox = new JComboBox<>(quartiers);
+
+        // Sélection de la date (Année, Mois, Jour)
+        JComboBox<String> anneeBox = new JComboBox<>(new String[]{"2024", "2025", "2026"});
+        JComboBox<String> moisBox = new JComboBox<>(new String[]{"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"});
+        JComboBox<Integer> jourBox = new JComboBox<>();
+
+        // Initialiser les jours pour le mois de janvier par défaut
+        updateJours(jourBox, 31);
+
+        // Ajuster les jours selon le mois sélectionné
+        moisBox.addActionListener(e -> {
+            int selectedMois = moisBox.getSelectedIndex() + 1;
+            int annee = Integer.parseInt((String) anneeBox.getSelectedItem());
+            int joursDansMois = getJoursDansMois(selectedMois, annee);
+            updateJours(jourBox, joursDansMois);
         });
 
-        JButton btnEclairage = new JButton("Éclairage");
-        btnEclairage.addActionListener(e -> {
-            informationRequete.add("Éclairage");
-            dateDebut();
+        anneeBox.addActionListener(e -> {
+            int selectedMois = moisBox.getSelectedIndex() + 1;
+            int annee = Integer.parseInt((String) anneeBox.getSelectedItem());
+            int joursDansMois = getJoursDansMois(selectedMois, annee);
+            updateJours(jourBox, joursDansMois);
         });
 
-        JButton btnAutre = new JButton("Autre (Spécifiez)");
-        btnAutre.addActionListener(e -> {
-            String autreTravaux = JOptionPane.showInputDialog(frame, "Veuillez entrer le type de travaux :", "Type de travaux personnalisé", JOptionPane.QUESTION_MESSAGE);
-            if (autreTravaux != null && !autreTravaux.isEmpty()) {
-                informationRequete.add(autreTravaux);
-                dateDebut();
-            } else {
-                JOptionPane.showMessageDialog(frame, "Type de travaux non spécifié. Veuillez réessayer.", "Erreur", JOptionPane.ERROR_MESSAGE);
+        // Suivi Option
+        JCheckBox suiviCheckBox = new JCheckBox("Faire le suivi de cette requête");
+
+        // Ajout des champs au formulaire
+        formPanel.add(new JLabel("Titre du travail :"));
+        formPanel.add(titreField);
+
+        formPanel.add(new JLabel("Description détaillée :"));
+        formPanel.add(new JScrollPane(descriptionArea));
+
+        formPanel.add(new JLabel("Type de travaux :"));
+        formPanel.add(typeTravauxBox);
+
+        formPanel.add(new JLabel("Quartier :"));
+        formPanel.add(quartierBox);
+
+        formPanel.add(new JLabel("Année :"));
+        formPanel.add(anneeBox);
+
+        formPanel.add(new JLabel("Mois :"));
+        formPanel.add(moisBox);
+
+        formPanel.add(new JLabel("Jour :"));
+        formPanel.add(jourBox);
+
+        formPanel.add(new JLabel("Options de suivi :"));
+        formPanel.add(suiviCheckBox);
+
+        frame.add(formPanel, BorderLayout.CENTER);
+
+        // Bouton pour soumettre
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton submitButton = new JButton("Soumettre");
+        JButton cancelButton = new JButton("Annuler");
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(submitButton);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Action Bouton Annuler
+        cancelButton.addActionListener(e -> frame.dispose());
+
+        // Action Bouton Soumettre
+        submitButton.addActionListener(e -> {
+            String titre = titreField.getText().trim();
+            String description = descriptionArea.getText().trim();
+            String typeTravaux = typeTravauxBox.getSelectedItem().toString();
+            String quartier = quartierBox.getSelectedItem().toString();
+            String annee = anneeBox.getSelectedItem().toString();
+            String mois = moisBox.getSelectedItem().toString();
+            String jour = jourBox.getSelectedItem().toString();
+            suivi = suiviCheckBox.isSelected() ? "Oui" : "Non";
+
+            // Validation des champs
+            if (titre.isEmpty() || description.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Veuillez remplir tous les champs requis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            // Ajouter les informations à la liste
+            String dateDebut = annee + "-" + (moisBox.getSelectedIndex() + 1) + "-" + jour;
+            informationRequete.addAll(Arrays.asList(titre, description, typeTravaux, quartier, dateDebut, suivi));
+
+            // Sauvegarder dans le fichier CSV
+            sauvegarderRequeteDansCSV(informationRequete);
+
+            // Message de confirmation
+            JOptionPane.showMessageDialog(frame, "Requête soumise avec succès !");
+            frame.dispose();
         });
 
-        JButton btnRetour = new JButton("Retour au menu principal");
-        btnRetour.addActionListener(e -> frame.dispose());
-
-        buttonPanel.add(btnChaussee);
-        buttonPanel.add(btnEclairage);
-        buttonPanel.add(btnAutre);
-        buttonPanel.add(btnRetour);
-
-        panel.add(buttonPanel, BorderLayout.CENTER);
-
-        frame.add(panel);
         frame.setVisible(true);
     }
 
-    private void dateDebut() {
-        JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
-
-        JFrame dateFrame = new JFrame("Sélectionner la Date de Début");
-        dateFrame.setSize(400, 300);
-        dateFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JLabel label = new JLabel("Veuillez indiquer l'année de début", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.PLAIN, 18));
-        panel.add(label);
-
-        JButton btn2024 = new JButton("2024");
-        btn2024.addActionListener(e -> {
-            informationRequete.add("2024");
-            moisSelection();
-            dateFrame.dispose();
-        });
-
-        JButton btn2025 = new JButton("2025");
-        btn2025.addActionListener(e -> {
-            informationRequete.add("2025");
-            moisSelection();
-            dateFrame.dispose();
-        });
-
-        panel.add(btn2024);
-        panel.add(btn2025);
-
-        dateFrame.add(panel);
-        dateFrame.setVisible(true);
-    }
-
-    private void moisSelection() {
-        JPanel panel = new JPanel(new GridLayout(12, 1, 5, 5));
-        JFrame moisFrame = new JFrame("Sélectionner le Mois");
-        moisFrame.setSize(400, 400);
-        moisFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        String[] mois = {"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"};
-
-        for (String m : mois) {
-            JButton btnMois = new JButton(m);
-            btnMois.addActionListener(e -> {
-                informationRequete.add(m);
-                jourSelection();
-                moisFrame.dispose();
-            });
-            panel.add(btnMois);
+    // Méthode pour mettre à jour les jours selon le mois
+    private void updateJours(JComboBox<Integer> jourBox, int jours) {
+        jourBox.removeAllItems();
+        for (int i = 1; i <= jours; i++) {
+            jourBox.addItem(i);
         }
-
-        moisFrame.add(new JScrollPane(panel));
-        moisFrame.setVisible(true);
     }
 
-    private void jourSelection() {
-        JPanel panel = new JPanel(new GridLayout(7, 4, 5, 5));
-        JFrame jourFrame = new JFrame("Sélectionner le Jour");
-        jourFrame.setSize(400, 300);
-        jourFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        for (int i = 1; i <= 28; i++) {
-            int jour = i;
-            JButton btnJour = new JButton(String.valueOf(jour));
-            btnJour.addActionListener(e -> {
-                informationRequete.add(String.valueOf(jour));
-                localisationExacte();
-                jourFrame.dispose();
-            });
-            panel.add(btnJour);
-        }
-
-        jourFrame.add(panel);
-        jourFrame.setVisible(true);
+    // Méthode pour obtenir le nombre de jours dans un mois
+    private int getJoursDansMois(int mois, int annee) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, annee);
+        cal.set(Calendar.MONTH, mois - 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
-    private void localisationExacte() {
-        JFrame localisationFrame = new JFrame("Localisation");
-        localisationFrame.setSize(400, 200);
-        localisationFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel label = new JLabel("Veuillez insérer la localisation exacte :", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.PLAIN, 16));
-        panel.add(label, BorderLayout.NORTH);
-
-        JPanel buttonPanel = new JPanel(new GridLayout(2, 1, 5, 5));
-        JButton btnActuelle = new JButton("Localisation Actuelle");
-        btnActuelle.addActionListener(e -> {
-            informationRequete.add("Localisation actuelle");
-            suiviOption();
-            localisationFrame.dispose();
-        });
-
-        JButton btnAjouterAdresse = new JButton("Ajouter une Adresse");
-        btnAjouterAdresse.addActionListener(e -> {
-            String adresse = JOptionPane.showInputDialog(localisationFrame, "Veuillez entrer l'adresse (ex : numéro, rue, code postal) :");
-            if (adresse != null && !adresse.isEmpty()) {
-                informationRequete.add(adresse);
-                suiviOption();
-            }
-            localisationFrame.dispose();
-        });
-
-        buttonPanel.add(btnActuelle);
-        buttonPanel.add(btnAjouterAdresse);
-
-        panel.add(buttonPanel, BorderLayout.CENTER);
-        localisationFrame.add(panel);
-        localisationFrame.setVisible(true);
-    }
-
-    private void suiviOption() {
-        JFrame suiviFrame = new JFrame("Faire le suivi");
-        suiviFrame.setSize(400, 300);
-        suiviFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel label = new JLabel("Souhaitez-vous faire le suivi ?", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.PLAIN, 16));
-        panel.add(label, BorderLayout.NORTH);
-
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JRadioButton btnOui = new JRadioButton("Oui");
-        JRadioButton btnNon = new JRadioButton("Non", true);
-
-        ButtonGroup group = new ButtonGroup();
-        group.add(btnOui);
-        group.add(btnNon);
-
-        btnOui.addActionListener(e -> suivi = "Oui");
-        btnNon.addActionListener(e -> suivi = "Non");
-
-        buttonPanel.add(btnOui);
-        buttonPanel.add(btnNon);
-
-        JButton btnNext = new JButton("Suivant");
-        btnNext.addActionListener(e -> {
-            informationRequete.add(suivi); // Ajouter le choix de suivi
-            titreDescription();
-            suiviFrame.dispose();
-        });
-
-        panel.add(buttonPanel, BorderLayout.CENTER);
-        panel.add(btnNext, BorderLayout.SOUTH);
-
-        suiviFrame.add(panel);
-        suiviFrame.setVisible(true);
-    }
-
-    private void titreDescription() {
-        JFrame descriptionFrame = new JFrame("Titre et Description");
-        descriptionFrame.setSize(400, 300);
-        descriptionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-
-        JPanel panel = new JPanel(new BorderLayout());
-
-        JLabel label = new JLabel("Veuillez insérer le titre (et/ou description) :", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.PLAIN, 16));
-        panel.add(label, BorderLayout.NORTH);
-
-        JTextArea textArea = new JTextArea();
-        panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-
-        JButton btnSoumettre = new JButton("Soumettre");
-        btnSoumettre.addActionListener(e -> {
-            String description = textArea.getText();
-            if (description != null && !description.isEmpty()) {
-                informationRequete.add(description);
-                sauvegarderRequeteDansCSV(); // Sauvegarde dans le fichier CSV
-                JOptionPane.showMessageDialog(descriptionFrame, "Requête de travail soumise avec succès !");
-                descriptionFrame.dispose();
-            } else {
-                JOptionPane.showMessageDialog(descriptionFrame, "Veuillez entrer une description valide.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        panel.add(btnSoumettre, BorderLayout.SOUTH);
-        descriptionFrame.add(panel);
-        descriptionFrame.setVisible(true);
-    }
-
-    private void sauvegarderRequeteDansCSV() {
+    private void sauvegarderRequeteDansCSV(ArrayList<String> informations) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE, true))) {
-            writer.write(String.join(",", informationRequete));
+            writer.write(String.join(",", informations));
             writer.newLine();
-            informationRequete.clear(); // Efface les données après la sauvegarde
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde dans le fichier CSV.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
@@ -257,3 +162,4 @@ public class soumettreTravaux {
         SwingUtilities.invokeLater(soumettreTravaux::new);
     }
 }
+
