@@ -1,0 +1,184 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Notifications {
+
+    private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier contenant les candidatures
+    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
+    private static final String NOTIFICATIONS_READ_FILE = "notificationsRead.csv"; // Fichier pour sauvegarder les notifications lues
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    public Notifications() {
+        frame = new JFrame("Notifications");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Notifications", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Configuration de la JTable pour afficher les notifications
+        String[] columnNames = {"Titre", "Type", "Localisation", "Date Début", "Date Fin", "Source"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Boutons d'action
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton markSelectedAsReadButton = new JButton("Marquer comme lue");
+        JButton closeButton = new JButton("Fermer");
+
+        markSelectedAsReadButton.addActionListener(e -> markSelectedAsRead());
+        closeButton.addActionListener(e -> frame.dispose());
+
+        buttonPanel.add(markSelectedAsReadButton);
+        buttonPanel.add(closeButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        // Charger les notifications dès l'ouverture
+        loadNotifications();
+    }
+
+    private void loadNotifications() {
+        try {
+            List<String[]> allNotifications = new ArrayList<>();
+            allNotifications.addAll(loadCandidatures());
+            allNotifications.addAll(loadProjets());
+
+            List<String[]> unreadNotifications = filterUnreadNotifications(allNotifications);
+
+            tableModel.setRowCount(0); // Effacer les anciennes notifications
+            for (String[] notification : unreadNotifications) {
+                tableModel.addRow(notification);
+            }
+
+            if (unreadNotifications.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Aucune nouvelle notification.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des notifications.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private List<String[]> loadCandidatures() {
+        List<String[]> candidatures = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(CANDIDATURES_FILE))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                String[] parts = ligne.split(",");
+                if (parts.length >= 6) { // Vérifie que toutes les colonnes sont présentes
+                    String titreTravail = parts[5];
+                    String typeTravail = parts[0];
+                    String localisation = parts[4];
+                    String dateDebut = parts[parts.length - 2].split(": ")[1];
+                    String dateFin = parts[parts.length - 1].split(": ")[1];
+                    candidatures.add(new String[]{titreTravail, typeTravail, localisation, dateDebut, dateFin, "Candidature"});
+                } else {
+                    System.err.println("Ligne invalide dans le fichier des candidatures : " + ligne);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la lecture des candidatures.");
+            e.printStackTrace();
+        }
+        return candidatures;
+    }
+
+    private List<String[]> loadProjets() {
+        List<String[]> projets = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                String[] parts = ligne.split(",");
+                if (parts.length >= 5) {
+                    String titreProjet = parts[0];
+                    String typeProjet = parts[1];
+                    String quartiers = parts[2];
+                    String dateDebut = parts[3];
+                    String dateFin = parts[4];
+                    projets.add(new String[]{titreProjet, typeProjet, quartiers, dateDebut, dateFin, "Projet"});
+                } else {
+                    System.err.println("Ligne invalide dans le fichier des projets soumis : " + ligne);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la lecture des projets soumis.");
+            e.printStackTrace();
+        }
+        return projets;
+    }
+
+    private List<String[]> filterUnreadNotifications(List<String[]> allNotifications) {
+        List<String[]> unreadNotifications = new ArrayList<>();
+        List<String[]> readNotifications = lireNotificationsLues();
+
+        for (String[] notification : allNotifications) {
+            boolean isRead = readNotifications.stream()
+                    .anyMatch(read -> read.length >= 2 &&
+                            notification[0].equals(read[0]) &&
+                            notification[3].equals(read[1])); // Vérifie titre et date
+            if (!isRead) {
+                unreadNotifications.add(notification);
+            }
+        }
+        return unreadNotifications;
+    }
+
+    private List<String[]> lireNotificationsLues() {
+        List<String[]> notificationsLues = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(NOTIFICATIONS_READ_FILE))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                notificationsLues.add(ligne.split(","));
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Le fichier des notifications lues est introuvable.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return notificationsLues;
+    }
+
+    private void markSelectedAsRead() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une notification à marquer comme lue.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int response = JOptionPane.showConfirmDialog(frame, "Êtes-vous sûr de vouloir marquer cette notification comme lue ?", "Confirmation", JOptionPane.YES_NO_OPTION);
+        if (response != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        String titre = table.getValueAt(selectedRow, 0).toString();
+        String dateDebut = table.getValueAt(selectedRow, 3).toString();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_READ_FILE, true))) {
+            writer.write(titre + "," + dateDebut);
+            writer.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        tableModel.removeRow(selectedRow);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(Notifications::new);
+    }
+}
