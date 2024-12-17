@@ -1,0 +1,142 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class PlanificationParticipative {
+
+    private static final String PREFERENCES_FILE = "preferencesHoraires.csv";
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    public PlanificationParticipative() {
+        frame = new JFrame("Planification Participative");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Planification Participative", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        frame.add(titleLabel, BorderLayout.NORTH);
+
+        // Table pour consulter les préférences
+        String[] columnNames = {"Quartier", "Plages Horaires", "Nom du Résident"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Panneau pour soumettre des préférences et fermer
+        JPanel submitPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        JLabel quartierLabel = new JLabel("Quartier :");
+        JTextField quartierField = new JTextField();
+        JLabel horaireLabel = new JLabel("Plages Horaires (ex : 08:00-12:00) :");
+        JTextField horaireField = new JTextField();
+        JLabel nomLabel = new JLabel("Votre nom :");
+        JTextField nomField = new JTextField();
+
+        JButton submitButton = new JButton("Soumettre");
+        JButton filterButton = new JButton("Consulter les préférences du quartier");
+        JButton closeButton = new JButton("Fermer la page");
+
+        submitPanel.add(quartierLabel);
+        submitPanel.add(quartierField);
+        submitPanel.add(horaireLabel);
+        submitPanel.add(horaireField);
+        submitPanel.add(nomLabel);
+        submitPanel.add(nomField);
+        submitPanel.add(submitButton);
+        submitPanel.add(filterButton);
+        submitPanel.add(closeButton);
+
+        frame.add(submitPanel, BorderLayout.SOUTH);
+
+        // Action : Soumettre les préférences
+        submitButton.addActionListener(e -> {
+            String quartier = quartierField.getText().trim();
+            String horaires = horaireField.getText().trim();
+            String nom = nomField.getText().trim();
+
+            if (quartier.isEmpty() || horaires.isEmpty() || nom.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Tous les champs doivent être remplis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            soumettrePreference(quartier, horaires, nom);
+            JOptionPane.showMessageDialog(frame, "Préférence ajoutée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            chargerPreferences();
+        });
+
+        // Action : Consulter les préférences d'un quartier spécifique
+        filterButton.addActionListener(e -> {
+            String quartier = quartierField.getText().trim();
+            if (quartier.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Veuillez entrer un quartier pour consulter les préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            consulterPreferencesParQuartier(quartier);
+        });
+
+        // Action : Fermer la page
+        closeButton.addActionListener(e -> frame.dispose());
+
+        // Charger toutes les préférences dès l'ouverture
+        chargerPreferences();
+
+        frame.setVisible(true);
+    }
+
+    private void soumettrePreference(String quartier, String horaires, String nom) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PREFERENCES_FILE, true))) {
+            writer.write(quartier + "," + horaires + "," + nom);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement des préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void chargerPreferences() {
+        List<String[]> preferences = lirePreferences();
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] preference : preferences) {
+            tableModel.addRow(preference);
+        }
+    }
+
+    private void consulterPreferencesParQuartier(String quartierFiltre) {
+        List<String[]> preferences = lirePreferences();
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] preference : preferences) {
+            if (preference[0].equalsIgnoreCase(quartierFiltre)) {
+                tableModel.addRow(preference);
+            }
+        }
+    }
+
+    private List<String[]> lirePreferences() {
+        List<String[]> preferences = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(PREFERENCES_FILE))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                String[] parts = ligne.split(",", 3); // Quartier, Horaires, Nom
+                if (parts.length == 3) {
+                    preferences.add(parts);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Le fichier des préférences n'existe pas encore.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return preferences;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(PlanificationParticipative::new);
+    }
+}
