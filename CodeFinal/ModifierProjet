@@ -1,0 +1,152 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ModifierProjet {
+
+    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    public ModifierProjet() {
+        frame = new JFrame("Modifier un projet");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Modifier les informations d'un projet", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        // Configuration de la JTable pour afficher les projets
+        String[] columnNames = {"Titre", "Type", "Quartiers", "Date Début", "Date Fin", "Statut"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Boutons d'action
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton modifyDescriptionButton = new JButton("Modifier la description");
+        JButton modifyEndDateButton = new JButton("Modifier la date de fin");
+        JButton modifyStatusButton = new JButton("Modifier le statut");
+        JButton retourButton = new JButton("Retour");
+
+        modifyDescriptionButton.addActionListener(e -> modifierDescription());
+        modifyEndDateButton.addActionListener(e -> modifierDateFin());
+        modifyStatusButton.addActionListener(e -> modifierStatut());
+        retourButton.addActionListener(e -> frame.dispose());
+
+        buttonPanel.add(modifyDescriptionButton);
+        buttonPanel.add(modifyEndDateButton);
+        buttonPanel.add(modifyStatusButton);
+        buttonPanel.add(retourButton);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        // Charger les projets dès l'ouverture
+        loadProjets();
+    }
+
+    private void loadProjets() {
+        List<String[]> projets = readProjetsFromCSV();
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] projet : projets) {
+            tableModel.addRow(projet);
+        }
+    }
+
+    private void modifierDescription() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner un projet pour modifier la description.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String titre = table.getValueAt(selectedRow, 0).toString();
+        String nouvelleDescription = JOptionPane.showInputDialog(frame, "Entrez la nouvelle description pour le projet : " + titre);
+        if (nouvelleDescription != null && !nouvelleDescription.isEmpty()) {
+            table.setValueAt(nouvelleDescription, selectedRow, 2); // Met à jour la colonne des quartiers (index 2)
+            sauvegarderModifications();
+        }
+    }
+
+    private void modifierDateFin() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner un projet pour modifier la date de fin.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String titre = table.getValueAt(selectedRow, 0).toString();
+        String nouvelleDateFin = JOptionPane.showInputDialog(frame, "Entrez la nouvelle date de fin pour le projet : " + titre);
+        if (nouvelleDateFin != null && !nouvelleDateFin.isEmpty()) {
+            table.setValueAt(nouvelleDateFin, selectedRow, 4); // Met à jour la colonne Date Fin (index 4)
+            sauvegarderModifications();
+        }
+    }
+
+    private void modifierStatut() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner un projet pour modifier le statut.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String titre = table.getValueAt(selectedRow, 0).toString();
+        String[] options = {"En cours", "Suspendu", "Terminé"};
+        String nouveauStatut = (String) JOptionPane.showInputDialog(frame, "Sélectionnez le nouveau statut pour le projet : " + titre,
+                "Modifier le statut", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+
+        if (nouveauStatut != null) {
+            table.setValueAt(nouveauStatut, selectedRow, 5); // Met à jour la colonne Statut (index 5)
+            sauvegarderModifications();
+        }
+    }
+
+    private void sauvegarderModifications() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PROJETS_FILE))) {
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                StringBuilder sb = new StringBuilder();
+                for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                    sb.append(tableModel.getValueAt(i, j));
+                    if (j < tableModel.getColumnCount() - 1) {
+                        sb.append(",");
+                    }
+                }
+                writer.write(sb.toString());
+                writer.newLine();
+            }
+            JOptionPane.showMessageDialog(frame, "Modifications enregistrées avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde des modifications.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private List<String[]> readProjetsFromCSV() {
+        List<String[]> projets = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                projets.add(line.split(","));
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des projets.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return projets;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(ModifierProjet::new);
+    }
+}
