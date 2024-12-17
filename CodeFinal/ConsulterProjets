@@ -1,0 +1,138 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ConsulterProjets {
+
+    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private JPanel parentPanel; // Référence au parent (menu résident)
+
+    public ConsulterProjets() {
+
+
+        frame = new JFrame("Consulter les travaux en cours ou à venir");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+
+        // Configuration de la JTable pour afficher les projets
+        String[] columnNames = {"Titre", "Type", "Quartiers", "Date Début", "Date Fin"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Panneau pour les filtres
+        JPanel filterPanel = new JPanel(new FlowLayout());
+        JTextField inputFilterQuartier = new JTextField(15); // Champ pour filtrer par quartier
+        JComboBox<String> filterTypeComboBox = new JComboBox<>(new String[]{
+                "Tous les types",
+                "Travaux routiers",
+                "Travaux de gaz ou électricité",
+                "Construction ou rénovation",
+                "Entretien paysager",
+                "Travaux liés aux transports en commun",
+                "Travaux de signalisation et éclairage",
+                "Travaux souterrains",
+                "Travaux résidentiel",
+                "Entretien urbain",
+                "Entretien des réseaux de télécommunication"
+        });
+
+        JButton applyFilterButton = new JButton("Appliquer Filtre");
+        JButton resetFilterButton = new JButton("Réinitialiser");
+        JButton retourButton = new JButton("Retour au menu résident");
+
+        // Filtrage
+        applyFilterButton.addActionListener(e -> applyFilter(inputFilterQuartier.getText(), filterTypeComboBox.getSelectedItem().toString()));
+        resetFilterButton.addActionListener(e -> loadProjects());
+        retourButton.addActionListener(e -> {
+            frame.dispose(); // Ferme la fenêtre actuelle
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(parentPanel); // Retrouve la fenêtre parent
+            parentFrame.setVisible(true); // Affiche la fenêtre du menu résident
+        });
+
+        filterPanel.add(new JLabel("Filtrer par quartier :"));
+        filterPanel.add(inputFilterQuartier);
+        filterPanel.add(new JLabel("Type de travaux :"));
+        filterPanel.add(filterTypeComboBox);
+        filterPanel.add(applyFilterButton);
+        filterPanel.add(resetFilterButton);
+        filterPanel.add(retourButton);
+
+        panel.add(filterPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        // Charger les projets dès l'ouverture
+        loadProjects();
+    }
+
+    private void loadProjects() {
+        List<String[]> projects = readProjectsFromCSV();
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] project : projects) {
+            tableModel.addRow(project);
+        }
+    }
+
+    private void applyFilter(String quartier, String typeTravaux) {
+        List<String[]> projects = readProjectsFromCSV();
+        List<String[]> filteredProjects = new ArrayList<>();
+
+        for (String[] project : projects) {
+            boolean matchQuartier = quartier.isEmpty() || project[2].toLowerCase().contains(quartier.toLowerCase());
+            boolean matchType = typeTravaux.equals("Tous les types") || project[1].equalsIgnoreCase(typeTravaux);
+
+            // Ajouter le projet si les deux critères correspondent (ou si un critère est ignoré)
+            if (matchQuartier && matchType) {
+                filteredProjects.add(project);
+            }
+        }
+
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] project : filteredProjects) {
+            tableModel.addRow(project);
+        }
+
+        // Afficher un message si aucun projet ne correspond aux critères
+        if (filteredProjects.isEmpty()) {
+            JOptionPane.showMessageDialog(frame, "Aucun projet trouvé pour les critères sélectionnés.", "Information", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+
+    private List<String[]> readProjectsFromCSV() {
+        List<String[]> projects = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                projects.add(line.split(","));
+            }
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la lecture des projets.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return projects;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            // Créer un panel fictif pour tester
+            JPanel fakeParentPanel = new JPanel();
+            JFrame parentFrame = new JFrame();
+            parentFrame.add(fakeParentPanel);
+            parentFrame.setVisible(false); // Simule un parent
+            new ConsulterProjets();
+        });
+    }
+}
