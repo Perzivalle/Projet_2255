@@ -1,0 +1,9 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class SuiviRequeteResident extends SuiviRequete {
+
+    public SuiviRequeteResident(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
+        super(emailResident, cardLayout, mainPanel);
+    }
+}
