@@ -1,0 +1,146 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public abstract class SuiviRequete {
+
+    protected JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private static final String REQUETE_FILE = "requeteTravaux.csv"; // Fichier contenant les requêtes
+    private static final String SUIVI_FILE = "suiviRequetes.csv"; // Fichier contenant les suivis des requêtes
+    private final String emailResident; // Email du résident connecté
+    protected final CardLayout cardLayout; // Pour naviguer dans le menu
+    protected final JPanel mainPanel;
+
+    public SuiviRequete(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
+        this.emailResident = emailResident;
+        this.cardLayout = cardLayout;
+        this.mainPanel = mainPanel;
+
+        frame = new JFrame("Suivi des Requêtes de Travaux");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel label = new JLabel("Suivi des Requêtes de Travaux", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(label, BorderLayout.NORTH);
+
+        // Configuration du tableau
+        String[] columnNames = {"Type", "Année", "Mois", "Jour", "Localisation", "Titre", "Suivi"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Boutons d'action
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton activerSuiviBtn = new JButton("Activer le Suivi");
+        JButton desactiverSuiviBtn = new JButton("Désactiver le Suivi");
+        JButton retourBtn = new JButton("Retour au menu résident");
+
+        activerSuiviBtn.addActionListener(e -> activerSuivi());
+        desactiverSuiviBtn.addActionListener(e -> desactiverSuivi());
+        retourBtn.addActionListener(e -> retourMenuResident());
+
+        buttonPanel.add(activerSuiviBtn);
+        buttonPanel.add(desactiverSuiviBtn);
+        buttonPanel.add(retourBtn);
+
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        // Charger les requêtes dès l'ouverture
+        loadRequetes();
+    }
+
+    private void loadRequetes() {
+        List<String[]> requetes = readCSV(REQUETE_FILE);
+        List<String[]> suivis = readCSV(SUIVI_FILE);
+
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] requete : requetes) {
+            if (requete.length < 6) continue; // Ignorer les lignes invalides
+            String suivi = suivis.stream().anyMatch(s -> s.length > 2 && s[0].equals(requete[0]) && s[1].equals(requete[5]) && s[2].equals(emailResident)) ? "Activé" : "Désactivé";
+            tableModel.addRow(new Object[]{requete[0], requete[1], requete[2], requete[3], requete[4], requete[5], suivi});
+        }
+    }
+
+    private void activerSuivi() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour activer le suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String type = table.getValueAt(selectedRow, 0).toString();
+        String titre = table.getValueAt(selectedRow, 5).toString();
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUIVI_FILE, true))) {
+            writer.write(type + "," + titre + "," + emailResident);
+            writer.newLine();
+            JOptionPane.showMessageDialog(frame, "Le suivi a été activé pour cette requête.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'activation du suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
+        loadRequetes();
+    }
+
+    private void desactiverSuivi() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour désactiver le suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String type = table.getValueAt(selectedRow, 0).toString();
+        String titre = table.getValueAt(selectedRow, 5).toString();
+
+        List<String[]> suivis = readCSV(SUIVI_FILE);
+        suivis.removeIf(s -> s.length > 2 && s[0].equals(type) && s[1].equals(titre) && s[2].equals(emailResident));
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUIVI_FILE))) {
+            for (String[] suivi : suivis) {
+                writer.write(String.join(",", suivi));
+                writer.newLine();
+            }
+            JOptionPane.showMessageDialog(frame, "Le suivi a été désactivé pour cette requête.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la désactivation du suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+
+        loadRequetes();
+    }
+
+    private List<String[]> readCSV(String fileName) {
+        List<String[]> data = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                data.add(line.split(","));
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Fichier " + fileName + " introuvable.");
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la lecture du fichier " + fileName + ".", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    // Méthode pour retourner au menu résident
+    protected void retourMenuResident() {
+        frame.dispose(); // Ferme la fenêtre actuelle
+        cardLayout.show(mainPanel, "MenuResident"); // Retourne à la page MenuResident
+    }
+}
