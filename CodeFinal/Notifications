@@ -7,7 +7,6 @@ import java.util.List;
 
 public class Notifications {
 
-    private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier contenant les candidatures
     private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
     private static final String NOTIFICATIONS_READ_FILE = "notificationsRead.csv"; // Fichier pour sauvegarder les notifications lues
     private JFrame frame;
@@ -15,18 +14,18 @@ public class Notifications {
     private DefaultTableModel tableModel;
 
     public Notifications() {
-        frame = new JFrame("Notifications");
+        frame = new JFrame("Notifications des Projets");
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel titleLabel = new JLabel("Notifications", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("Notifications des Projets", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        // Configuration de la JTable pour afficher les notifications
-        String[] columnNames = {"Titre", "Type", "Localisation", "Date Début", "Date Fin", "Source"};
+        // Configuration de la JTable
+        String[] columnNames = {"Titre", "Type", "Quartiers", "Rues", "Date Début", "Date Fin", "Statut", "Source"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -48,17 +47,15 @@ public class Notifications {
         frame.add(panel);
         frame.setVisible(true);
 
-        // Charger les notifications dès l'ouverture
+        // Charger les notifications
         loadNotifications();
     }
 
     private void loadNotifications() {
         try {
-            List<String[]> allNotifications = new ArrayList<>();
-            allNotifications.addAll(loadCandidatures());
-            allNotifications.addAll(loadProjets());
+            List<String[]> projets = loadProjets();
 
-            List<String[]> unreadNotifications = filterUnreadNotifications(allNotifications);
+            List<String[]> unreadNotifications = filterUnreadNotifications(projets);
 
             tableModel.setRowCount(0); // Effacer les anciennes notifications
             for (String[] notification : unreadNotifications) {
@@ -74,49 +71,27 @@ public class Notifications {
         }
     }
 
-    private List<String[]> loadCandidatures() {
-        List<String[]> candidatures = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(CANDIDATURES_FILE))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                String[] parts = ligne.split(",");
-                if (parts.length >= 6) { // Vérifie que toutes les colonnes sont présentes
-                    String titreTravail = parts[5];
-                    String typeTravail = parts[0];
-                    String localisation = parts[4];
-                    String dateDebut = parts[parts.length - 2].split(": ")[1];
-                    String dateFin = parts[parts.length - 1].split(": ")[1];
-                    candidatures.add(new String[]{titreTravail, typeTravail, localisation, dateDebut, dateFin, "Candidature"});
-                } else {
-                    System.err.println("Ligne invalide dans le fichier des candidatures : " + ligne);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la lecture des candidatures.");
-            e.printStackTrace();
-        }
-        return candidatures;
-    }
-
     private List<String[]> loadProjets() {
         List<String[]> projets = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
             String ligne;
             while ((ligne = reader.readLine()) != null) {
                 String[] parts = ligne.split(",");
-                if (parts.length >= 5) {
-                    String titreProjet = parts[0];
-                    String typeProjet = parts[1];
+                if (parts.length >= 8) { // Vérifier la validité de la ligne
+                    String titre = parts[0];
+                    String type = parts[1];
                     String quartiers = parts[2];
-                    String dateDebut = parts[3];
-                    String dateFin = parts[4];
-                    projets.add(new String[]{titreProjet, typeProjet, quartiers, dateDebut, dateFin, "Projet"});
+                    String rues = parts[3];
+                    String dateDebut = parts[4];
+                    String dateFin = parts[5];
+                    String statut = parts[6];
+                    projets.add(new String[]{titre, type, quartiers, rues, dateDebut, dateFin, statut, "Projet"});
                 } else {
-                    System.err.println("Ligne invalide dans le fichier des projets soumis : " + ligne);
+                    System.err.println("Ligne invalide dans le fichier des projets : " + ligne);
                 }
             }
         } catch (IOException e) {
-            System.err.println("Erreur lors de la lecture des projets soumis.");
+            System.err.println("Erreur lors de la lecture des projets.");
             e.printStackTrace();
         }
         return projets;
@@ -129,8 +104,8 @@ public class Notifications {
         for (String[] notification : allNotifications) {
             boolean isRead = readNotifications.stream()
                     .anyMatch(read -> read.length >= 2 &&
-                            notification[0].equals(read[0]) &&
-                            notification[3].equals(read[1])); // Vérifie titre et date
+                            notification[0].equals(read[0]) && // Vérifier le titre
+                            notification[4].equals(read[1])); // Vérifier la date début
             if (!isRead) {
                 unreadNotifications.add(notification);
             }
@@ -166,7 +141,7 @@ public class Notifications {
         }
 
         String titre = table.getValueAt(selectedRow, 0).toString();
-        String dateDebut = table.getValueAt(selectedRow, 3).toString();
+        String dateDebut = table.getValueAt(selectedRow, 4).toString();
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_READ_FILE, true))) {
             writer.write(titre + "," + dateDebut);
@@ -182,3 +157,4 @@ public class Notifications {
         SwingUtilities.invokeLater(Notifications::new);
     }
 }
+
