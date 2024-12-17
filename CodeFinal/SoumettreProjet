@@ -1,0 +1,174 @@
+import javax.swing.*;
+import java.awt.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class soumettreProjet {
+
+    private JFrame frame;
+    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier pour les projets soumis
+    private static final String NOTIFICATIONS_FILE = "notifications.csv"; // Fichier pour les notifications
+
+    public soumettreProjet() {
+        frame = new JFrame("Soumettre un nouveau projet");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // Titre du projet
+        JPanel titrePanel = new JPanel(new FlowLayout());
+        JLabel titreLabel = new JLabel("Titre du projet :");
+        JTextField titreField = new JTextField(20);
+        titrePanel.add(titreLabel);
+        titrePanel.add(titreField);
+
+        // Description du projet
+        JPanel descriptionPanel = new JPanel(new FlowLayout());
+        JLabel descriptionLabel = new JLabel("Description du projet :");
+        JTextArea descriptionArea = new JTextArea(5, 20);
+        descriptionArea.setLineWrap(true);
+        descriptionArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(descriptionArea);
+        descriptionPanel.add(descriptionLabel);
+        descriptionPanel.add(scrollPane);
+
+        // Type de travaux
+        JPanel typePanel = new JPanel(new FlowLayout());
+        JLabel typeLabel = new JLabel("Type de travaux :");
+        JComboBox<String> typeComboBox = new JComboBox<>(new String[]{
+                "Travaux routiers",
+                "Travaux de gaz ou électricité",
+                "Construction ou rénovation",
+                "Entretien paysager",
+                "Travaux liés aux transports en commun",
+                "Travaux de signalisation et éclairage",
+                "Travaux souterrains",
+                "Travaux résidentiel",
+                "Entretien urbain",
+                "Entretien des réseaux de télécommunication"
+        });
+        typePanel.add(typeLabel);
+        typePanel.add(typeComboBox);
+
+        // Quartiers affectés
+        JPanel quartiersPanel = new JPanel(new FlowLayout());
+        JLabel quartiersLabel = new JLabel("Quartiers affectés (séparés par des virgules) :");
+        JTextField quartiersField = new JTextField(20);
+        quartiersPanel.add(quartiersLabel);
+        quartiersPanel.add(quartiersField);
+
+        // Rues affectées
+        JPanel ruesPanel = new JPanel(new FlowLayout());
+        JLabel ruesLabel = new JLabel("Rues affectées (séparées par des virgules) :");
+        JTextField ruesField = new JTextField(20);
+        ruesPanel.add(ruesLabel);
+        ruesPanel.add(ruesField);
+
+        // Date de début et date de fin
+        JPanel datePanel = new JPanel(new FlowLayout());
+        JLabel dateDebutLabel = new JLabel("Date de début (JJ/MM/AAAA) :");
+        JTextField dateDebutField = new JTextField(10);
+        JLabel dateFinLabel = new JLabel("Date de fin (JJ/MM/AAAA) :");
+        JTextField dateFinField = new JTextField(10);
+        datePanel.add(dateDebutLabel);
+        datePanel.add(dateDebutField);
+        datePanel.add(dateFinLabel);
+        datePanel.add(dateFinField);
+
+        // Horaire des travaux
+        JPanel horairePanel = new JPanel(new FlowLayout());
+        JLabel horaireLabel = new JLabel("Horaire des travaux (HH:MM-HH:MM) :");
+        JTextField horaireField = new JTextField(15);
+        horairePanel.add(horaireLabel);
+        horairePanel.add(horaireField);
+
+        // Boutons
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton soumettreButton = new JButton("Soumettre");
+        JButton annulerButton = new JButton("Annuler");
+
+        soumettreButton.addActionListener(e -> {
+            String titre = titreField.getText();
+            String description = descriptionArea.getText();
+            String typeTravaux = (String) typeComboBox.getSelectedItem();
+            String quartiers = quartiersField.getText();
+            String rues = ruesField.getText();
+            String dateDebut = dateDebutField.getText();
+            String dateFin = dateFinField.getText();
+            String horaire = horaireField.getText();
+            String statut = "Prévu"; // Par défaut, le statut est "Prévu"
+
+            // Validation des champs
+            if (titre.isEmpty() || description.isEmpty() || quartiers.isEmpty() || rues.isEmpty()
+                    || dateDebut.isEmpty() || dateFin.isEmpty() || horaire.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Veuillez remplir tous les champs.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Enregistrer le projet soumis
+            enregistrerProjet(titre, description, typeTravaux, quartiers, rues, dateDebut, dateFin, horaire, statut);
+            enregistrerNotification(new String[]{titre, typeTravaux, quartiers, rues}, dateDebut, dateFin);
+
+            // Affichage des détails du projet soumis
+            JOptionPane.showMessageDialog(frame, "Projet soumis avec succès !\n\nDétails :\n" +
+                    "Titre : " + titre + "\n" +
+                    "Description : " + description + "\n" +
+                    "Type : " + typeTravaux + "\n" +
+                    "Quartiers : " + quartiers + "\n" +
+                    "Rues : " + rues + "\n" +
+                    "Date début : " + dateDebut + "\n" +
+                    "Date fin : " + dateFin + "\n" +
+                    "Horaire : " + horaire + "\n" +
+                    "Statut : " + statut, "Succès", JOptionPane.INFORMATION_MESSAGE);
+
+            // Fermer la fenêtre après soumission
+            frame.dispose();
+        });
+
+        annulerButton.addActionListener(e -> frame.dispose());
+
+        buttonPanel.add(soumettreButton);
+        buttonPanel.add(annulerButton);
+
+        // Ajout des composants au panel principal
+        panel.add(titrePanel);
+        panel.add(descriptionPanel);
+        panel.add(typePanel);
+        panel.add(quartiersPanel);
+        panel.add(ruesPanel);
+        panel.add(datePanel);
+        panel.add(horairePanel);
+        panel.add(buttonPanel);
+
+        frame.add(new JScrollPane(panel));
+        frame.setVisible(true);
+    }
+
+    private void enregistrerProjet(String titre, String description, String type, String quartiers, String rues, String dateDebut, String dateFin, String horaire, String statut) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PROJETS_FILE, true))) {
+            writer.write(String.join(",", titre, description, type, quartiers, rues, dateDebut, dateFin, horaire, statut));
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement du projet.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void enregistrerNotification(String[] travail, String dateDebut, String dateFin) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_FILE, true))) {
+            String notification = String.join(",", travail) + ",Date Début: " + dateDebut + ",Date Fin: " + dateFin + ",Projet";
+            writer.write(notification);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement de la notification.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(soumettreProjet::new);
+    }
+}
