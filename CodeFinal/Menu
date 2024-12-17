@@ -279,12 +279,11 @@ public class menu {
         label.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(label, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 10, 10));
+        JPanel buttonPanel = new JPanel(new GridLayout(8, 1, 10, 10)); // GridLayout mis à jour pour 8 boutons
 
         JButton consulterTravauxBtn = new JButton("Consulter les travaux en cours");
         consulterTravauxBtn.addActionListener(e -> ConsulterTravauxGUI.ConsulterTravauxGUI());
         buttonPanel.add(consulterTravauxBtn);
-
 
         JButton soumettreRequeteBtn = new JButton("Soumettre une requête de travail");
         soumettreRequeteBtn.addActionListener(e -> new soumettreTravaux());
@@ -294,10 +293,9 @@ public class menu {
         consulterEntravesBtn.addActionListener(e -> consulterEntraves.consulterEntraves());
         buttonPanel.add(consulterEntravesBtn);
 
-
         // Bouton Notifications
         JButton voirNotificationsBtn = new JButton("Voir ses notifications");
-        voirNotificationsBtn.addActionListener(e -> new Notifications()); // Appel à la classe Notifications
+        voirNotificationsBtn.addActionListener(e -> new Notifications());
         buttonPanel.add(voirNotificationsBtn);
 
         JButton consulterProjetsBtn = new JButton("Consulter les projets en cours ou à venir");
@@ -310,7 +308,10 @@ public class menu {
         });
         buttonPanel.add(suiviRequeteBtn);
 
-
+        // Nouveau bouton pour la planification participative
+        JButton planificationParticipativeBtn = new JButton("Planification Participative");
+        planificationParticipativeBtn.addActionListener(e -> new PlanificationParticipative());
+        buttonPanel.add(planificationParticipativeBtn);
 
         JButton btnDeconnexion = new JButton("Se Déconnecter");
         btnDeconnexion.addActionListener(e -> {
@@ -325,6 +326,7 @@ public class menu {
 
         return panel;
     }
+
 
 
 
