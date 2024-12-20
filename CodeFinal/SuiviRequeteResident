@@ -7,4 +7,3 @@ public class SuiviRequeteResident extends SuiviRequete {
         super(emailResident, cardLayout, mainPanel);
     }
 }
-
