@@ -1,17 +1,15 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Notifications {
 
-    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
-    private static final String NOTIFICATIONS_READ_FILE = "notificationsRead.csv"; // Fichier pour sauvegarder les notifications lues
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
+    private List<String[]> modifications;
 
     public Notifications() {
         frame = new JFrame("Notifications des Projets");
@@ -24,8 +22,8 @@ public class Notifications {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(titleLabel, BorderLayout.NORTH);
 
-        // Configuration de la JTable
-        String[] columnNames = {"Titre", "Type", "Quartiers", "Rues", "Date Début", "Date Fin", "Statut", "Source"};
+        // Configuration de la JTable avec la nouvelle colonne
+        String[] columnNames = {"Notifications (cliquez pour plus de détails)"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
@@ -33,13 +31,8 @@ public class Notifications {
 
         // Boutons d'action
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton markSelectedAsReadButton = new JButton("Marquer comme lue");
         JButton closeButton = new JButton("Fermer");
-
-        markSelectedAsReadButton.addActionListener(e -> markSelectedAsRead());
         closeButton.addActionListener(e -> frame.dispose());
-
-        buttonPanel.add(markSelectedAsReadButton);
         buttonPanel.add(closeButton);
 
         panel.add(buttonPanel, BorderLayout.SOUTH);
@@ -49,21 +42,38 @@ public class Notifications {
 
         // Charger les notifications
         loadNotifications();
+
+        // Ajouter un événement pour gérer le clic sur une ligne
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                afficherDetailsNotification(table.getSelectedRow());
+            }
+        });
     }
 
     private void loadNotifications() {
         try {
-            List<String[]> projets = loadProjets();
+            // Charger les projets soumis depuis la base de données
+            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
 
-            List<String[]> unreadNotifications = filterUnreadNotifications(projets);
+            // Charger les modifications de projets depuis la base de données
+            modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+
+            // Préparer les notifications pour affichage
+            List<String[]> notifications = preparerNotifications(projets);
 
             tableModel.setRowCount(0); // Effacer les anciennes notifications
-            for (String[] notification : unreadNotifications) {
-                tableModel.addRow(notification);
+            for (String[] notification : notifications) {
+                tableModel.addRow(new String[]{notification[0]});
             }
 
-            if (unreadNotifications.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Aucune nouvelle notification.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            // Ajouter les modifications comme notifications
+            for (String[] modification : modifications) {
+                tableModel.addRow(new String[]{"La modification d'un projet a été faite"});
+            }
+
+            if (notifications.isEmpty() && modifications.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Aucune notification disponible.", "Information", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des notifications.", "Erreur", JOptionPane.ERROR_MESSAGE);
@@ -71,90 +81,72 @@ public class Notifications {
         }
     }
 
-    private List<String[]> loadProjets() {
-        List<String[]> projets = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                String[] parts = ligne.split(",");
-                if (parts.length >= 8) { // Vérifier la validité de la ligne
-                    String titre = parts[0];
-                    String type = parts[1];
-                    String quartiers = parts[2];
-                    String rues = parts[3];
-                    String dateDebut = parts[4];
-                    String dateFin = parts[5];
-                    String statut = parts[6];
-                    projets.add(new String[]{titre, type, quartiers, rues, dateDebut, dateFin, statut, "Projet"});
-                } else {
-                    System.err.println("Ligne invalide dans le fichier des projets : " + ligne);
-                }
-            }
-        } catch (IOException e) {
-            System.err.println("Erreur lors de la lecture des projets.");
-            e.printStackTrace();
+    public static int getNotificationCount() {
+        try {
+            // Compter les notifications dans projetsSoumis.csv
+            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+            int countProjets = projets.size();
+
+            // Compter les notifications dans modificationsProjets.csv
+            List<String[]> modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+            int countModifications = modifications.size();
+
+            // Additionner les deux
+            return countProjets + countModifications;
+        } catch (Exception e) {
+            return 0; // En cas d'erreur, retourner 0
         }
-        return projets;
     }
 
-    private List<String[]> filterUnreadNotifications(List<String[]> allNotifications) {
-        List<String[]> unreadNotifications = new ArrayList<>();
-        List<String[]> readNotifications = lireNotificationsLues();
 
-        for (String[] notification : allNotifications) {
-            boolean isRead = readNotifications.stream()
-                    .anyMatch(read -> read.length >= 2 &&
-                            notification[0].equals(read[0]) && // Vérifier le titre
-                            notification[4].equals(read[1])); // Vérifier la date début
-            if (!isRead) {
-                unreadNotifications.add(notification);
-            }
+
+    private List<String[]> preparerNotifications(List<String[]> projets) {
+        List<String[]> notifications = new ArrayList<>();
+
+        for (String[] projet : projets) {
+            String typeNotif = "Un projet a été soumis"; // Par défaut, supposons que chaque ligne est un projet soumis
+            notifications.add(new String[]{typeNotif, projet[0], projet[1], projet[2], projet[3], projet[4], projet[5], projet[6]});
         }
-        return unreadNotifications;
+
+        return notifications;
     }
 
-    private List<String[]> lireNotificationsLues() {
-        List<String[]> notificationsLues = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(NOTIFICATIONS_READ_FILE))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                notificationsLues.add(ligne.split(","));
+    private void afficherDetailsNotification(int selectedRow) {
+        try {
+            int projetsCount = BaseDeDonnées.lireTous("projetsSoumis.csv").size();
+
+            if (selectedRow < projetsCount) {
+                // Notification provenant de projetsSoumis.csv
+                List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+                String[] projet = projets.get(selectedRow);
+
+                // Afficher les détails dans une nouvelle fenêtre
+                String details = String.format(
+                        "Titre : %s%nType : %s%nQuartiers : %s%nRues : %s%nDate Début : %s%nDate Fin : %s%nStatut : %s",
+                        projet[0], projet[1], projet[2], projet[3], projet[4], projet[5], projet[6]
+                );
+
+                JOptionPane.showMessageDialog(frame, details, "Détails de la Notification", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                // Notification provenant de modificationsProjets.csv
+                int modificationIndex = selectedRow - projetsCount;
+                String[] modification = modifications.get(modificationIndex);
+
+                // Afficher les détails de la modification
+                String details = String.format(
+                        "Titre du projet : %s%nType de modification : %s%nAncienne valeur : %s%nNouvelle valeur : %s",
+                        modification[0], modification[1], modification[2], modification[3]
+                );
+
+                JOptionPane.showMessageDialog(frame, details, "Détails de la Modification", JOptionPane.INFORMATION_MESSAGE);
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Le fichier des notifications lues est introuvable.");
-        } catch (IOException e) {
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'affichage des détails.", "Erreur", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
-        return notificationsLues;
-    }
-
-    private void markSelectedAsRead() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une notification à marquer comme lue.", "Information", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
-
-        int response = JOptionPane.showConfirmDialog(frame, "Êtes-vous sûr de vouloir marquer cette notification comme lue ?", "Confirmation", JOptionPane.YES_NO_OPTION);
-        if (response != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        String titre = table.getValueAt(selectedRow, 0).toString();
-        String dateDebut = table.getValueAt(selectedRow, 4).toString();
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_READ_FILE, true))) {
-            writer.write(titre + "," + dateDebut);
-            writer.newLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        tableModel.removeRow(selectedRow);
     }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Notifications::new);
     }
 }
-
