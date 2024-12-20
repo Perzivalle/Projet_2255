@@ -8,6 +8,9 @@ import java.util.List;
 public class ModifierProjet {
 
     private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
+    private static final String NOTIFICATIONS_FILE = "notifications.csv"; // Fichier pour les notifications
+    private static final String MODIFICATIONS_FILE = "modificationsProjets.csv"; // Fichier pour les modifications des projets
+
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
@@ -85,9 +88,12 @@ public class ModifierProjet {
         }
 
         String titre = table.getValueAt(selectedRow, 0).toString();
-        String nouvelleDescription = JOptionPane.showInputDialog(frame, "Entrez la nouvelle description pour le projet : " + titre);
+        String ancienneDescription = table.getValueAt(selectedRow, 1).toString();
+        String nouvelleDescription = JOptionPane.showInputDialog(frame, "Entrez la nouvelle description pour le projet : " + titre, ancienneDescription);
         if (nouvelleDescription != null && !nouvelleDescription.isEmpty()) {
             table.setValueAt(nouvelleDescription, selectedRow, 1); // Met à jour la colonne Description (index 1)
+            ajouterNotification("Un projet a été modifié", titre);
+            enregistrerModification(titre, "Description modifiée", ancienneDescription, nouvelleDescription);
             sauvegarderModifications();
         }
     }
@@ -100,9 +106,12 @@ public class ModifierProjet {
         }
 
         String titre = table.getValueAt(selectedRow, 0).toString();
-        String nouvelleDateFin = JOptionPane.showInputDialog(frame, "Entrez la nouvelle date de fin pour le projet : " + titre);
+        String ancienneDateFin = table.getValueAt(selectedRow, 6).toString();
+        String nouvelleDateFin = JOptionPane.showInputDialog(frame, "Entrez la nouvelle date de fin pour le projet : " + titre, ancienneDateFin);
         if (nouvelleDateFin != null && !nouvelleDateFin.isEmpty()) {
             table.setValueAt(nouvelleDateFin, selectedRow, 6); // Met à jour la colonne Date Fin (index 6)
+            ajouterNotification("Un projet a été modifié", titre);
+            enregistrerModification(titre, "Date de fin modifiée", ancienneDateFin, nouvelleDateFin);
             sauvegarderModifications();
         }
     }
@@ -115,12 +124,15 @@ public class ModifierProjet {
         }
 
         String titre = table.getValueAt(selectedRow, 0).toString();
+        String ancienStatut = table.getValueAt(selectedRow, 8).toString();
         String[] options = {"Prévu", "En cours", "Suspendu", "Terminé"};
         String nouveauStatut = (String) JOptionPane.showInputDialog(frame, "Sélectionnez le nouveau statut pour le projet : " + titre,
-                "Modifier le statut", JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                "Modifier le statut", JOptionPane.QUESTION_MESSAGE, null, options, ancienStatut);
 
         if (nouveauStatut != null) {
             table.setValueAt(nouveauStatut, selectedRow, 8); // Met à jour la colonne Statut (index 8)
+            ajouterNotification("Un projet a été modifié", titre);
+            enregistrerModification(titre, "Statut modifié", ancienStatut, nouveauStatut);
             sauvegarderModifications();
         }
     }
@@ -145,6 +157,28 @@ public class ModifierProjet {
         }
     }
 
+    private void ajouterNotification(String typeNotif, String titreProjet) {
+        String notification = String.join(",", typeNotif, titreProjet);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_FILE, true))) {
+            writer.write(notification);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'ajout de la notification.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void enregistrerModification(String titre, String typeModification, String ancienneValeur, String nouvelleValeur) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(MODIFICATIONS_FILE, true))) {
+            String modification = String.join(",", titre, typeModification, ancienneValeur, nouvelleValeur);
+            writer.write(modification);
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement de la modification.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
     private List<String[]> readProjetsFromCSV() {
         List<String[]> projets = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
@@ -159,9 +193,7 @@ public class ModifierProjet {
         return projets;
     }
 
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ModifierProjet::new);
     }
 }
-
