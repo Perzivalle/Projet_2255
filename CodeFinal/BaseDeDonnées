@@ -1,0 +1,86 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class BaseDeDonnées {
+
+    public static List<String[]> lireTous(String fichier) {
+        List<String[]> enregistrements = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fichier))) {
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                String[] valeurs = ligne.split(",", -1); // Utiliser -1 pour inclure les champs vides
+                enregistrements.add(valeurs);
+            }
+        } catch (FileNotFoundException e) {
+            System.err.println("Fichier introuvable : " + fichier);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return enregistrements;
+    }
+
+
+    public static void ecrireTous(String filePath, List<String[]> data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (String[] row : data) {
+                writer.write(String.join(",", row));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'écriture dans le fichier : " + filePath);
+            e.printStackTrace();
+        }
+    }
+
+    public static void écrire(String fichier, String[] valeurs) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier, true))) {
+            writer.write(String.join(",", valeurs));
+            writer.newLine();
+        } catch (IOException e) {
+            System.err.println("Erreur lors de l'écriture dans le fichier : " + fichier);
+            e.printStackTrace();
+        }
+    }
+
+    public static void ajouterLigne(String nomFichier, List<String> ligne) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(nomFichier, true))) {
+            writer.write(String.join(",", ligne));
+            writer.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException("Erreur lors de l'ajout d'une ligne au fichier : " + nomFichier, e);
+        }
+    }
+
+
+    public static void réécrire(String fichier, List<String[]> enregistrements) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier))) {
+            for (String[] valeurs : enregistrements) {
+                writer.write(String.join(",", valeurs));
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.err.println("Erreur lors de la réécriture du fichier : " + fichier);
+            e.printStackTrace();
+        }
+    }
+
+
+    public static void supprimer(String fichier, ConditionSuppression condition) {
+        List<String[]> enregistrements = lireTous(fichier);
+        List<String[]> enregistrementsMisAJour = new ArrayList<>();
+
+        for (String[] enregistrement : enregistrements) {
+            if (!condition.tester(enregistrement)) {
+                enregistrementsMisAJour.add(enregistrement);
+            }
+        }
+
+        réécrire(fichier, enregistrementsMisAJour);
+    }
+
+    @FunctionalInterface
+    public interface ConditionSuppression {
+        boolean tester(String[] enregistrement);
+    }
+}
