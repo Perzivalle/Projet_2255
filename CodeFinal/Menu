@@ -294,9 +294,11 @@ public class menu {
         buttonPanel.add(consulterEntravesBtn);
 
         // Bouton Notifications
-        JButton voirNotificationsBtn = new JButton("Voir ses notifications");
+        int notificationCount = Notifications.getNotificationCount(); // Appel pour compter les notifications
+        JButton voirNotificationsBtn = new JButton("Voir ses notifications (" + notificationCount + ")");
         voirNotificationsBtn.addActionListener(e -> new Notifications());
         buttonPanel.add(voirNotificationsBtn);
+
 
         JButton consulterProjetsBtn = new JButton("Consulter les projets en cours ou à venir");
         consulterProjetsBtn.addActionListener(e -> new ConsulterProjets());
@@ -347,7 +349,10 @@ public class menu {
 
 
         // Placeholder pour d'autres fonctionnalités (suivi de candidature)
-        buttonPanel.add(new JButton("Faire le suivi de sa candidature"));
+        // Bouton pour faire le suivi de sa candidature
+        JButton suiviCandidatureBtn = new JButton("Faire le suivi de sa candidature");
+        suiviCandidatureBtn.addActionListener(e -> new SuiviCandidature());
+        buttonPanel.add(suiviCandidatureBtn);
 
         // Bouton pour soumettre un projet
         JButton soumettreProjetBtn = new JButton("Soumettre un projet");
