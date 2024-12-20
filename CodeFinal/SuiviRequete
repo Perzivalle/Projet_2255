@@ -2,174 +2,204 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
 
-public abstract class SuiviRequete {
+public class SuiviRequete {
 
-    protected JFrame frame;
+    private static final String REQUETE_FILE = "requeteTravaux.csv"; // Fichier contenant les requêtes
+    private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier des candidatures
+    private static final String MESSAGES_FILE = "messagesCandidatures.csv"; // Fichier pour stocker les messages et décisions
+
+    private String emailResident; // Email du résident connecté
+    private CardLayout cardLayout; // Pour naviguer dans le menu
+    private JPanel mainPanel; // Panneau principal pour navigation
+    private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
-    private static final String REQUETE_FILE = "requeteTravaux.csv"; // Fichier contenant les requêtes
-    private static final String SUIVI_FILE = "suiviRequetes.csv"; // Fichier contenant les suivis des requêtes
-    private final String emailResident; // Email du résident connecté
-    protected final CardLayout cardLayout; // Pour naviguer dans le menu
-    protected final JPanel mainPanel;
+    private List<String[]> requetes;
+    private List<String[]> candidatures;
+    private List<String[]> messagesCandidatures;
 
     public SuiviRequete(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
         this.emailResident = emailResident;
         this.cardLayout = cardLayout;
         this.mainPanel = mainPanel;
-
         frame = new JFrame("Suivi des Requêtes de Travaux");
-        frame.setSize(800, 600);
+        frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JLabel label = new JLabel("Suivi des Requêtes de Travaux", SwingConstants.CENTER);
-        label.setFont(new Font("Arial", Font.BOLD, 24));
-        panel.add(label, BorderLayout.NORTH);
+        JLabel titleLabel = new JLabel("Suivi des Requêtes de Travaux", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
 
-        // Configuration du tableau
-        String[] columnNames = {"Type", "Année", "Mois", "Jour", "Localisation", "Titre", "Suivi"};
+        String[] columnNames = {"Titre", "Description", "Type", "Quartier", "Date Début", "Statut"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Boutons d'action
         JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton activerSuiviBtn = new JButton("Activer le Suivi");
-        JButton desactiverSuiviBtn = new JButton("Désactiver le Suivi");
-        JButton retirerRequeteBtn = new JButton("Retirer la Requête");
-        JButton retourBtn = new JButton("Retour au menu résident");
+        JButton refreshButton = new JButton("Actualiser");
+        JButton closeButton = new JButton("Fermer");
+        JButton closeRequestButton = new JButton("Fermer la Requête");
 
-        activerSuiviBtn.addActionListener(e -> activerSuivi());
-        desactiverSuiviBtn.addActionListener(e -> desactiverSuivi());
-        retirerRequeteBtn.addActionListener(e -> retirerRequete());
-        retourBtn.addActionListener(e -> retourMenuResident());
+        refreshButton.addActionListener(e -> loadRequetes());
+        closeButton.addActionListener(e -> frame.dispose());
+        closeRequestButton.addActionListener(e -> fermerRequete());
 
-        buttonPanel.add(activerSuiviBtn);
-        buttonPanel.add(desactiverSuiviBtn);
-        buttonPanel.add(retirerRequeteBtn);
-        buttonPanel.add(retourBtn);
-
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(closeRequestButton);
+        buttonPanel.add(closeButton);
         panel.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.add(panel);
         frame.setVisible(true);
 
-        // Charger les requêtes dès l'ouverture
         loadRequetes();
+
+        // Ajouter un événement pour gérer le clic sur une ligne
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                handleRequeteSelection(table.getSelectedRow());
+            }
+        });
     }
 
     private void loadRequetes() {
-        List<String[]> requetes = readCSV(REQUETE_FILE);
-        List<String[]> suivis = readCSV(SUIVI_FILE);
+        requetes = lireRequetesDepuisCSV();
+        candidatures = lireCandidaturesDepuisCSV();
+        messagesCandidatures = lireMessagesDepuisCSV();
 
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] requete : requetes) {
-            if (requete.length < 6) continue; // Ignorer les lignes invalides
-            String suivi = suivis.stream().anyMatch(s -> s.length > 2 && s[0].equals(requete[0]) && s[1].equals(requete[5]) && s[2].equals(emailResident)) ? "Activé" : "Désactivé";
-            tableModel.addRow(new Object[]{requete[0], requete[1], requete[2], requete[3], requete[4], requete[5], suivi});
+            String statut = getStatutRequete(requete[0]);
+            tableModel.addRow(new String[]{requete[0], requete[1], requete[2], requete[3], requete[4], statut});
         }
     }
 
-    private void activerSuivi() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour activer le suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+    private String getStatutRequete(String titreRequete) {
+        // Vérifier si une décision a déjà été prise
+        for (String[] message : messagesCandidatures) {
+            if (message[0].equals(titreRequete)) {
+                return "Candidature " + message[1];
+            }
+        }
+        // Si aucune décision, vérifier les candidatures
+        return candidatures.stream()
+                .anyMatch(c -> c.length > 0 && c[0].equals(titreRequete)) ? "Candidature soumise" : "Disponible";
+    }
+
+    private void handleRequeteSelection(int selectedRow) {
+        String titreRequete = table.getValueAt(selectedRow, 0).toString();
+        String statut = table.getValueAt(selectedRow, 5).toString();
+
+        if (!"Candidature soumise".equals(statut)) {
+            JOptionPane.showMessageDialog(frame, "Cette candidature est déjà traitée ou indisponible.", "Information", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
 
-        String type = table.getValueAt(selectedRow, 0).toString();
-        String titre = table.getValueAt(selectedRow, 5).toString();
+        // Permettre de prendre une décision
+        int response = JOptionPane.showOptionDialog(frame,
+                "Que voulez-vous faire avec cette candidature ?",
+                "Gestion de la Candidature",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Accepter", "Refuser", "Annuler"},
+                "Accepter");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUIVI_FILE, true))) {
-            writer.write(type + "," + titre + "," + emailResident);
+        if (response == JOptionPane.YES_OPTION) {
+            enregistrerMessage(titreRequete, "acceptée");
+        } else if (response == JOptionPane.NO_OPTION) {
+            enregistrerMessage(titreRequete, "refusée");
+        }
+    }
+
+    private void enregistrerMessage(String titreRequete, String action) {
+        String message = JOptionPane.showInputDialog(frame, "Entrez un message pour accompagner votre décision :");
+        if (message == null || message.trim().isEmpty()) {
+            message = "Aucun message fourni.";
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGES_FILE, true))) {
+            writer.write(titreRequete + "," + action + "," + message);
             writer.newLine();
-            JOptionPane.showMessageDialog(frame, "Le suivi a été activé pour cette requête.");
+            JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de l'activation du suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement du message.", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
 
         loadRequetes();
     }
 
-    private void desactiverSuivi() {
+    private void fermerRequete() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour désactiver le suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête à fermer.", "Erreur", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String type = table.getValueAt(selectedRow, 0).toString();
-        String titre = table.getValueAt(selectedRow, 5).toString();
+        String titreRequete = table.getValueAt(selectedRow, 0).toString();
 
-        List<String[]> suivis = readCSV(SUIVI_FILE);
-        suivis.removeIf(s -> s.length > 2 && s[0].equals(type) && s[1].equals(titre) && s[2].equals(emailResident));
+        int confirmation = JOptionPane.showConfirmDialog(frame,
+                "Êtes-vous sûr de vouloir fermer cette requête ?",
+                "Confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(SUIVI_FILE))) {
-            for (String[] suivi : suivis) {
-                writer.write(String.join(",", suivi));
-                writer.newLine();
-            }
-            JOptionPane.showMessageDialog(frame, "Le suivi a été désactivé pour cette requête.");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la désactivation du suivi.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+        if (confirmation == JOptionPane.YES_OPTION) {
+            // Supprimer la requête du fichier
+            requetes.removeIf(requete -> requete[0].equals(titreRequete));
+            ecrireDansCSV(REQUETE_FILE, requetes);
+            JOptionPane.showMessageDialog(frame, "La requête a été fermée avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            loadRequetes();
         }
-
-        loadRequetes();
     }
 
-    private void retirerRequete() {
-        int selectedRow = table.getSelectedRow();
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête pour la retirer.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        String titre = table.getValueAt(selectedRow, 5).toString(); // Titre de la requête
-
-        List<String[]> requetes = readCSV(REQUETE_FILE);
-        requetes.removeIf(r -> r.length > 5 && r[5].equals(titre));
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(REQUETE_FILE))) {
-            for (String[] requete : requetes) {
-                writer.write(String.join(",", requete));
+    private void ecrireDansCSV(String fileName, List<String[]> data) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            for (String[] ligne : data) {
+                writer.write(String.join(",", ligne));
                 writer.newLine();
             }
-            JOptionPane.showMessageDialog(frame, "La requête a été retirée avec succès.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la suppression de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la mise à jour du fichier.", "Erreur", JOptionPane.ERROR_MESSAGE);
         }
-
-        loadRequetes();
     }
 
-    private List<String[]> readCSV(String fileName) {
+    private List<String[]> lireRequetesDepuisCSV() {
+        return lireDepuisCSV(REQUETE_FILE);
+    }
+
+    private List<String[]> lireCandidaturesDepuisCSV() {
+        return lireDepuisCSV(CANDIDATURES_FILE);
+    }
+
+    private List<String[]> lireMessagesDepuisCSV() {
+        return lireDepuisCSV(MESSAGES_FILE);
+    }
+
+    private List<String[]> lireDepuisCSV(String fileName) {
         List<String[]> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                data.add(line.split(","));
+            String ligne;
+            while ((ligne = reader.readLine()) != null) {
+                data.add(ligne.split(","));
             }
-        } catch (FileNotFoundException e) {
-            System.err.println("Fichier " + fileName + " introuvable.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la lecture du fichier " + fileName + ".", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            // Si le fichier n'existe pas encore, retourner une liste vide
         }
         return data;
     }
 
-    // Méthode pour retourner au menu résident
-    protected void retourMenuResident() {
-        frame.dispose(); // Ferme la fenêtre actuelle
-        cardLayout.show(mainPanel, "MenuResident"); // Retourne à la page MenuResident
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            CardLayout cardLayout = new CardLayout();
+            JPanel mainPanel = new JPanel(cardLayout);
+            new SuiviRequete("test@example.com", cardLayout, mainPanel);
+        });
     }
 }
