@@ -1,0 +1,154 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class SuiviCandidature {
+
+    private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier des candidatures
+    private static final String STATUT_FILE = "messagesCandidatures.csv"; // Fichier des statuts de candidature
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+
+    public SuiviCandidature() {
+        frame = new JFrame("Suivi des Candidatures");
+        frame.setSize(900, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Suivi des Candidatures", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        frame.add(titleLabel, BorderLayout.NORTH);
+
+        // Configuration du tableau pour afficher les candidatures
+        String[] columnNames = {"Requête", "Statut", "Message"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        frame.add(scrollPane, BorderLayout.CENTER);
+
+        // Bouton de retour
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton retourButton = new JButton("Retour");
+        retourButton.addActionListener(e -> frame.dispose());
+        buttonPanel.add(retourButton);
+        frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Charger les candidatures avec leurs statuts
+        chargerCandidatures();
+
+        // Ajouter un listener pour gérer les clics sur les lignes
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                gererCandidature(table.getSelectedRow());
+            }
+        });
+
+        frame.setVisible(true);
+    }
+
+    private void chargerCandidatures() {
+        try {
+            // Charger les candidatures depuis la base de données
+            List<String[]> candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+            List<String[]> statuts = BaseDeDonnées.lireTous(STATUT_FILE);
+
+            tableModel.setRowCount(0); // Réinitialiser la table
+
+            // Filtrer les candidatures pour ne garder que celles soumises
+            List<String[]> candidaturesFiltrees = candidatures.stream()
+                    .filter(c -> c.length > 0) // Vérifier que la ligne n'est pas vide
+                    .collect(Collectors.toList());
+
+            for (String[] candidature : candidaturesFiltrees) {
+                String requete = candidature[0];
+
+                // Rechercher le statut et le message associés à la candidature
+                String statut = "En attente"; // Par défaut, le statut est "En attente"
+                String message = "";
+                for (String[] statutEntry : statuts) {
+                    if (statutEntry.length > 2 && statutEntry[0].equals(requete)) {
+                        statut = statutEntry[1];
+                        message = statutEntry[2];
+                        break;
+                    }
+                }
+
+                // Ajouter la ligne dans la table
+                tableModel.addRow(new Object[]{requete, statut, message});
+            }
+
+            if (candidaturesFiltrees.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Aucune candidature soumise.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des candidatures.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void gererCandidature(int selectedRow) {
+        String requete = table.getValueAt(selectedRow, 0).toString();
+        String statut = table.getValueAt(selectedRow, 1).toString();
+
+        if (!"acceptée".equals(statut)) {
+            JOptionPane.showMessageDialog(frame, "Vous ne pouvez gérer que les candidatures acceptées.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int choix = JOptionPane.showOptionDialog(frame,
+                "Voulez-vous confirmer ou annuler votre candidature ?",
+                "Gérer la Candidature",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Confirmer", "Annuler", "Annuler l'action"},
+                "Confirmer");
+
+        if (choix == JOptionPane.YES_OPTION) {
+            modifierStatutCandidature(requete, "confirmée", "Votre candidature a été confirmée par vous.");
+        } else if (choix == JOptionPane.NO_OPTION) {
+            modifierStatutCandidature(requete, "annulée", "Votre candidature a été annulée par vous.");
+        }
+    }
+
+    private void modifierStatutCandidature(String requete, String nouveauStatut, String message) {
+        try {
+            // Charger les statuts existants
+            List<String[]> statuts = BaseDeDonnées.lireTous(STATUT_FILE);
+
+            // Vérifier si le statut existe déjà
+            boolean statutExistant = false;
+            for (String[] statutEntry : statuts) {
+                if (statutEntry[0].equals(requete)) {
+                    statutEntry[1] = nouveauStatut;
+                    statutEntry[2] = message;
+                    statutExistant = true;
+                    break;
+                }
+            }
+
+            // Si le statut n'existe pas, l'ajouter
+            if (!statutExistant) {
+                statuts.add(new String[]{requete, nouveauStatut, message});
+            }
+
+            // Enregistrer les nouveaux statuts dans le fichier
+            BaseDeDonnées.ecrireTous(STATUT_FILE, statuts);
+
+            JOptionPane.showMessageDialog(frame, "Votre candidature a été " + nouveauStatut + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+
+            // Recharger les candidatures pour mettre à jour l'affichage
+            chargerCandidatures();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de la modification de la candidature.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(SuiviCandidature::new);
+    }
+}
