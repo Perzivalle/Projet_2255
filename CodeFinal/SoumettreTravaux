@@ -1,8 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 public class soumettreTravaux {
@@ -121,12 +118,15 @@ public class soumettreTravaux {
             String dateDebut = annee + "-" + (moisBox.getSelectedIndex() + 1) + "-" + jour;
             informationRequete.addAll(Arrays.asList(titre, description, typeTravaux, quartier, dateDebut, suivi));
 
-            // Sauvegarder dans le fichier CSV
-            sauvegarderRequeteDansCSV(informationRequete);
-
-            // Message de confirmation
-            JOptionPane.showMessageDialog(frame, "Requête soumise avec succès !");
-            frame.dispose();
+            // Sauvegarder dans la base de données
+            try {
+                BaseDeDonnées.écrire(CSV_FILE, informationRequete.toArray(new String[0]));
+                JOptionPane.showMessageDialog(frame, "Requête soumise avec succès !");
+                frame.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
         });
 
         frame.setVisible(true);
@@ -146,16 +146,6 @@ public class soumettreTravaux {
         cal.set(Calendar.YEAR, annee);
         cal.set(Calendar.MONTH, mois - 1);
         return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-    }
-
-    private void sauvegarderRequeteDansCSV(ArrayList<String> informations) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CSV_FILE, true))) {
-            writer.write(String.join(",", informations));
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
     }
 
     public static void main(String[] args) {
