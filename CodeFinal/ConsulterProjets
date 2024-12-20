@@ -1,16 +1,15 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConsulterProjets {
 
-    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
+    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Nom logique pour identifier les projets dans la base de données
 
     public ConsulterProjets() {
         frame = new JFrame("Consulter les projets en cours ou à venir");
@@ -67,7 +66,8 @@ public class ConsulterProjets {
     }
 
     private void loadProjects() {
-        List<String[]> projects = readProjectsFromCSV();
+        // Lire les projets depuis la base de données
+        List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] project : projects) {
             tableModel.addRow(project);
@@ -75,7 +75,7 @@ public class ConsulterProjets {
     }
 
     private void applyFilter(String quartier, String dateDebut) {
-        List<String[]> projects = readProjectsFromCSV();
+        List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
         List<String[]> filteredProjects = new ArrayList<>();
 
         for (String[] project : projects) {
@@ -98,25 +98,7 @@ public class ConsulterProjets {
         }
     }
 
-    private List<String[]> readProjectsFromCSV() {
-        List<String[]> projects = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] projectData = line.split(",", -1); // -1 pour inclure les champs vides
-                if (projectData.length == 9) { // Vérifier que toutes les colonnes sont présentes
-                    projects.add(projectData);
-                }
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la lecture des projets.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-        return projects;
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ConsulterProjets::new);
     }
 }
-
