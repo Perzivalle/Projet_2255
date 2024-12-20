@@ -7,14 +7,17 @@ import java.util.List;
 
 public class PlanificationParticipative {
 
+    private static final String TRAVAUX_FILE = "propositionsTravaux.csv";
     private static final String PREFERENCES_FILE = "preferencesHoraires.csv";
     private JFrame frame;
-    private JTable table;
-    private DefaultTableModel tableModel;
+    private JTable travauxTable;
+    private JTable preferencesTable;
+    private DefaultTableModel travauxTableModel;
+    private DefaultTableModel preferencesTableModel;
 
     public PlanificationParticipative() {
         frame = new JFrame("Planification Participative");
-        frame.setSize(800, 600);
+        frame.setSize(1000, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
@@ -22,118 +25,162 @@ public class PlanificationParticipative {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         frame.add(titleLabel, BorderLayout.NORTH);
 
-        // Table pour consulter les préférences
-        String[] columnNames = {"Quartier", "Plages Horaires", "Nom du Résident"};
-        tableModel = new DefaultTableModel(columnNames, 0);
-        table = new JTable(tableModel);
-        JScrollPane scrollPane = new JScrollPane(table);
-        frame.add(scrollPane, BorderLayout.CENTER);
+        // Table pour consulter les travaux proposés
+        String[] travauxColumns = {"Titre", "Description", "Quartier", "Date Début", "Date Fin", "Proposé par"};
+        travauxTableModel = new DefaultTableModel(travauxColumns, 0);
+        travauxTable = new JTable(travauxTableModel);
+        JScrollPane travauxScrollPane = new JScrollPane(travauxTable);
 
-        // Panneau pour soumettre des préférences et fermer
-        JPanel submitPanel = new JPanel(new GridLayout(5, 2, 10, 10));
+        // Table pour consulter les préférences horaires
+        String[] preferencesColumns = {"Quartier", "Titre du Travail", "Horaires Proposés", "Nom du Résident"};
+        preferencesTableModel = new DefaultTableModel(preferencesColumns, 0);
+        preferencesTable = new JTable(preferencesTableModel);
+        JScrollPane preferencesScrollPane = new JScrollPane(preferencesTable);
+
+        // Panneau pour soumettre des travaux
+        JPanel travauxPanel = new JPanel(new GridLayout(7, 2, 10, 10));
+        JLabel titreLabel = new JLabel("Titre du Travail :");
+        JTextField titreField = new JTextField();
+        JLabel descriptionLabel = new JLabel("Description :");
+        JTextArea descriptionField = new JTextArea(3, 20);
         JLabel quartierLabel = new JLabel("Quartier :");
         JTextField quartierField = new JTextField();
-        JLabel horaireLabel = new JLabel("Plages Horaires (ex : 08:00-12:00) :");
-        JTextField horaireField = new JTextField();
-        JLabel nomLabel = new JLabel("Votre nom :");
+        JLabel dateDebutLabel = new JLabel("Date Début (JJ/MM/AAAA) :");
+        JTextField dateDebutField = new JTextField();
+        JLabel dateFinLabel = new JLabel("Date Fin (JJ/MM/AAAA) :");
+        JTextField dateFinField = new JTextField();
+        JLabel nomLabel = new JLabel("Votre Nom :");
         JTextField nomField = new JTextField();
 
-        JButton submitButton = new JButton("Soumettre");
-        JButton filterButton = new JButton("Consulter les préférences du quartier");
-        JButton closeButton = new JButton("Fermer la page");
+        JButton soumettreTravailButton = new JButton("Soumettre Travail");
+        travauxPanel.add(titreLabel);
+        travauxPanel.add(titreField);
+        travauxPanel.add(descriptionLabel);
+        travauxPanel.add(new JScrollPane(descriptionField));
+        travauxPanel.add(quartierLabel);
+        travauxPanel.add(quartierField);
+        travauxPanel.add(dateDebutLabel);
+        travauxPanel.add(dateDebutField);
+        travauxPanel.add(dateFinLabel);
+        travauxPanel.add(dateFinField);
+        travauxPanel.add(nomLabel);
+        travauxPanel.add(nomField);
+        travauxPanel.add(soumettreTravailButton);
 
-        submitPanel.add(quartierLabel);
-        submitPanel.add(quartierField);
-        submitPanel.add(horaireLabel);
-        submitPanel.add(horaireField);
-        submitPanel.add(nomLabel);
-        submitPanel.add(nomField);
-        submitPanel.add(submitButton);
-        submitPanel.add(filterButton);
-        submitPanel.add(closeButton);
+        // Boutons pour soumettre des préférences et retourner au menu
+        JButton soumettrePreferenceButton = new JButton("Proposer une Plage Horaire");
+        JButton retourButton = new JButton("Retour");
 
-        frame.add(submitPanel, BorderLayout.SOUTH);
+        // Ajouter les composants au panneau principal
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, travauxScrollPane, preferencesScrollPane);
+        splitPane.setDividerLocation(500);
+        frame.add(splitPane, BorderLayout.CENTER);
+        frame.add(travauxPanel, BorderLayout.SOUTH);
 
-        // Action : Soumettre les préférences
-        submitButton.addActionListener(e -> {
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        buttonPanel.add(soumettrePreferenceButton);
+        buttonPanel.add(retourButton);
+        frame.add(buttonPanel, BorderLayout.EAST);
+
+        // Charger les travaux et préférences dès l'ouverture
+        chargerTravaux();
+        chargerPreferences();
+
+        // Action : Soumettre un travail
+        soumettreTravailButton.addActionListener(e -> {
+            String titre = titreField.getText().trim();
+            String description = descriptionField.getText().trim();
             String quartier = quartierField.getText().trim();
-            String horaires = horaireField.getText().trim();
+            String dateDebut = dateDebutField.getText().trim();
+            String dateFin = dateFinField.getText().trim();
             String nom = nomField.getText().trim();
 
-            if (quartier.isEmpty() || horaires.isEmpty() || nom.isEmpty()) {
+            if (titre.isEmpty() || description.isEmpty() || quartier.isEmpty() || dateDebut.isEmpty() || dateFin.isEmpty() || nom.isEmpty()) {
                 JOptionPane.showMessageDialog(frame, "Tous les champs doivent être remplis.", "Erreur", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            soumettrePreference(quartier, horaires, nom);
+            ajouterTravail(titre, description, quartier, dateDebut, dateFin, nom);
+            JOptionPane.showMessageDialog(frame, "Travail soumis avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            chargerTravaux();
+        });
+
+        // Action : Proposer une plage horaire
+        soumettrePreferenceButton.addActionListener(e -> {
+            int selectedRow = travauxTable.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(frame, "Veuillez sélectionner un travail pour proposer une plage horaire.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String titreTravail = travauxTableModel.getValueAt(selectedRow, 0).toString();
+            String quartierTravail = travauxTableModel.getValueAt(selectedRow, 2).toString();
+            String horaire = JOptionPane.showInputDialog(frame, "Entrez vos plages horaires (ex : 08:00-12:00) :");
+            String nom = JOptionPane.showInputDialog(frame, "Entrez votre nom :");
+
+            if (horaire == null || horaire.isEmpty() || nom == null || nom.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Les horaires et le nom doivent être renseignés.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            ajouterPreference(quartierTravail, titreTravail, horaire, nom);
             JOptionPane.showMessageDialog(frame, "Préférence ajoutée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
             chargerPreferences();
         });
 
-        // Action : Consulter les préférences d'un quartier spécifique
-        filterButton.addActionListener(e -> {
-            String quartier = quartierField.getText().trim();
-            if (quartier.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Veuillez entrer un quartier pour consulter les préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            consulterPreferencesParQuartier(quartier);
-        });
-
-        // Action : Fermer la page
-        closeButton.addActionListener(e -> frame.dispose());
-
-        // Charger toutes les préférences dès l'ouverture
-        chargerPreferences();
+        // Action : Retour
+        retourButton.addActionListener(e -> frame.dispose());
 
         frame.setVisible(true);
     }
 
-    private void soumettrePreference(String quartier, String horaires, String nom) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PREFERENCES_FILE, true))) {
-            writer.write(quartier + "," + horaires + "," + nom);
+    private void ajouterTravail(String titre, String description, String quartier, String dateDebut, String dateFin, String nom) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(TRAVAUX_FILE, true))) {
+            writer.write(String.join(",", titre, description, quartier, dateDebut, dateFin, nom));
             writer.newLine();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement des préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement du travail.", "Erreur", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
+        }
+    }
+
+    private void ajouterPreference(String quartier, String titreTravail, String horaire, String nom) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PREFERENCES_FILE, true))) {
+            writer.write(String.join(",", quartier, titreTravail, horaire, nom));
+            writer.newLine();
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement de la préférence.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            e.printStackTrace();
+        }
+    }
+
+    private void chargerTravaux() {
+        List<String[]> travaux = lireFichier(TRAVAUX_FILE);
+        travauxTableModel.setRowCount(0);
+        for (String[] travail : travaux) {
+            travauxTableModel.addRow(travail);
         }
     }
 
     private void chargerPreferences() {
-        List<String[]> preferences = lirePreferences();
-        tableModel.setRowCount(0); // Réinitialiser la table
+        List<String[]> preferences = lireFichier(PREFERENCES_FILE);
+        preferencesTableModel.setRowCount(0);
         for (String[] preference : preferences) {
-            tableModel.addRow(preference);
+            preferencesTableModel.addRow(preference);
         }
     }
 
-    private void consulterPreferencesParQuartier(String quartierFiltre) {
-        List<String[]> preferences = lirePreferences();
-        tableModel.setRowCount(0); // Réinitialiser la table
-        for (String[] preference : preferences) {
-            if (preference[0].equalsIgnoreCase(quartierFiltre)) {
-                tableModel.addRow(preference);
-            }
-        }
-    }
-
-    private List<String[]> lirePreferences() {
-        List<String[]> preferences = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(PREFERENCES_FILE))) {
+    private List<String[]> lireFichier(String fichier) {
+        List<String[]> data = new ArrayList<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(fichier))) {
             String ligne;
             while ((ligne = reader.readLine()) != null) {
-                String[] parts = ligne.split(",", 3); // Quartier, Horaires, Nom
-                if (parts.length == 3) {
-                    preferences.add(parts);
-                }
+                data.add(ligne.split(",", -1));
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("Le fichier des préférences n'existe pas encore.");
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des préférences.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            System.out.println("Erreur lors de la lecture du fichier : " + fichier);
         }
-        return preferences;
+        return data;
     }
 
     public static void main(String[] args) {
