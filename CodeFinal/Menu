@@ -296,7 +296,7 @@ public class menu {
         JPanel buttonPanel = new JPanel(new GridLayout(8, 1, 10, 10)); // GridLayout mis à jour pour 8 boutons
 
         JButton consulterTravauxBtn = new JButton("Consulter les travaux en cours");
-        consulterTravauxBtn.addActionListener(e -> ConsulterTravauxGUI.ConsulterTravauxGUI());
+        consulterTravauxBtn.addActionListener(e -> ConsulterTravaux.ConsulterTravaux());
         buttonPanel.add(consulterTravauxBtn);
 
         JButton soumettreRequeteBtn = new JButton("Soumettre une requête de travail");
