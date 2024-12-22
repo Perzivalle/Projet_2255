@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
 
-public class ConsulterTravauxGUI {
+public class ConsulterTravaux {
 
-    public static void ConsulterTravauxGUI() {
+    public static void ConsulterTravaux() {
         if (App.responseTravaux == null || App.responseTravaux.getStatusCode() != 200) {
             JOptionPane.showMessageDialog(null, "Erreur de données de travaux","Erreur", JOptionPane.ERROR_MESSAGE);
             return;
