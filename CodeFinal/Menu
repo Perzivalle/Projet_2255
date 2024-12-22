@@ -1,15 +1,18 @@
+import code.App;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 
 public class menu {
-    private JFrame frame;
-    private CardLayout cardLayout;
-    private JPanel mainPanel;
+    private static JFrame frame;
+    private static CardLayout cardLayout;
+    private static JPanel mainPanel;
 
     private static final String RESIDENTS_FILE = "comptesResident.csv";
     private static final String INTERVENANTS_FILE = "comptesIntervenant.csv";
@@ -19,8 +22,8 @@ public class menu {
 
     public menu() {
         // Charger les comptes depuis les fichiers
-        chargerComptesCSV(RESIDENTS_FILE, comptesResident);
-        chargerComptesCSV(INTERVENANTS_FILE, comptesIntervenant);
+        comptesResident.addAll(BaseDeDonnées.lireTous(RESIDENTS_FILE));
+        comptesIntervenant.addAll(BaseDeDonnées.lireTous(INTERVENANTS_FILE));
 
         // Initialisation de la fenêtre principale
         frame = new JFrame("Menu Principal");
@@ -191,7 +194,18 @@ public class menu {
         panelFooter.add(btnInscription);
 
         btnRetour.addActionListener(e -> cardLayout.show(mainPanel, "Accueil"));
+
         btnInscription.addActionListener(e -> {
+            if ("Résident".equals(comboBoxTypeCompte.getSelectedItem())) {
+                String[] donneesResident = {inputEmail.getText(), new String(inputMdp.getPassword()), inputNomComplet.getText(), inputDateNaissance.getText(), inputAdresse.getText()};
+                comptesResident.add(donneesResident);
+                BaseDeDonnées.réécrire(RESIDENTS_FILE, comptesResident);
+            }else if ("Intervenant".equals(comboBoxTypeCompte.getSelectedItem())) {
+                String [] donneesIntervenant = {inputEmail.getText(), new String(inputMdp.getPassword()), inputNomIntervenant.getText(), inputTypeIntervenant.getText(), inputIdVille.getText()};
+                comptesIntervenant.add(donneesIntervenant);
+                BaseDeDonnées.réécrire(INTERVENANTS_FILE, comptesIntervenant);
+            }
+
             JOptionPane.showMessageDialog(frame, "Inscription effectuée avec succès !");
             cardLayout.show(mainPanel, "Accueil");
         });
@@ -273,7 +287,7 @@ public class menu {
         return panelConnexion;
     }
 
-    public JPanel createPageMenuOptionsResident() {
+    public static JPanel createPageMenuOptionsResident() {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Menu Avancé - Résident", SwingConstants.CENTER);
         label.setFont(new Font("Arial", Font.BOLD, 24));
@@ -381,30 +395,8 @@ public class menu {
         return panel;
     }
 
-
-    private static void sauvegarderComptesCSV(String fichier, List<String[]> comptes) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier))) {
-            for (String[] compte : comptes) {
-                writer.write(String.join(",", compte));
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void chargerComptesCSV(String fichier, List<String[]> comptes) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fichier))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                String[] parts = ligne.split(",");
-                comptes.add(parts);
-            }
-        } catch (IOException ignored) {
-        }
-    }
-
     public static void main(String[] args) {
         SwingUtilities.invokeLater(menu::new);
+        App.main(args);
     }
 }
