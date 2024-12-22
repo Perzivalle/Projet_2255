@@ -358,7 +358,7 @@ public class menu {
 
         // Bouton pour consulter les requêtes de travail
         JButton consulterRequetesBtn = new JButton("Consulter les requêtes de travail");
-        consulterRequetesBtn.addActionListener(e -> new consulterRequete());
+        consulterRequetesBtn.addActionListener(e -> new consulterRequeteTravail());
         buttonPanel.add(consulterRequetesBtn);
 
 
