@@ -69,9 +69,9 @@ public class SuiviRequete {
     }
 
     private void loadRequetes() {
-        requetes = lireRequetesDepuisCSV();
-        candidatures = lireCandidaturesDepuisCSV();
-        messagesCandidatures = lireMessagesDepuisCSV();
+        requetes = BaseDeDonnées.lireTous(REQUETE_FILE);
+        candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+        messagesCandidatures = BaseDeDonnées.lireTous(MESSAGES_FILE);
 
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] requete : requetes) {
@@ -123,15 +123,8 @@ public class SuiviRequete {
         if (message == null || message.trim().isEmpty()) {
             message = "Aucun message fourni.";
         }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(MESSAGES_FILE, true))) {
-            writer.write(titreRequete + "," + action + "," + message);
-            writer.newLine();
-            JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement du message.", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
-
+        BaseDeDonnées.écrire(MESSAGES_FILE,new String[]{titreRequete, action, message});
+        JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
         loadRequetes();
     }
 
@@ -152,47 +145,10 @@ public class SuiviRequete {
 
         if (confirmation == JOptionPane.YES_OPTION) {
             // Supprimer la requête du fichier
-            requetes.removeIf(requete -> requete[0].equals(titreRequete));
-            ecrireDansCSV(REQUETE_FILE, requetes);
+            BaseDeDonnées.supprimer(REQUETE_FILE, enregistrement -> enregistrement[0].equals(titreRequete));
             JOptionPane.showMessageDialog(frame, "La requête a été fermée avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
             loadRequetes();
         }
-    }
-
-    private void ecrireDansCSV(String fileName, List<String[]> data) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            for (String[] ligne : data) {
-                writer.write(String.join(",", ligne));
-                writer.newLine();
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la mise à jour du fichier.", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private List<String[]> lireRequetesDepuisCSV() {
-        return lireDepuisCSV(REQUETE_FILE);
-    }
-
-    private List<String[]> lireCandidaturesDepuisCSV() {
-        return lireDepuisCSV(CANDIDATURES_FILE);
-    }
-
-    private List<String[]> lireMessagesDepuisCSV() {
-        return lireDepuisCSV(MESSAGES_FILE);
-    }
-
-    private List<String[]> lireDepuisCSV(String fileName) {
-        List<String[]> data = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                data.add(ligne.split(","));
-            }
-        } catch (IOException e) {
-            // Si le fichier n'existe pas encore, retourner une liste vide
-        }
-        return data;
     }
 
     public static void main(String[] args) {
