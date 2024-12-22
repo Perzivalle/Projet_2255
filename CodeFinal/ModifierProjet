@@ -71,7 +71,7 @@ public class ModifierProjet {
     }
 
     private void loadProjets() {
-        List<String[]> projets = readProjetsFromCSV();
+        List<String[]> projets = BaseDeDonnées.lireTous(PROJETS_FILE);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] projet : projets) {
             if (projet.length == 9) { // Vérifie que toutes les colonnes sont présentes
@@ -138,59 +138,27 @@ public class ModifierProjet {
     }
 
     private void sauvegarderModifications() {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(PROJETS_FILE))) {
-            for (int i = 0; i < tableModel.getRowCount(); i++) {
-                StringBuilder sb = new StringBuilder();
-                for (int j = 0; j < tableModel.getColumnCount(); j++) {
-                    sb.append(tableModel.getValueAt(i, j));
-                    if (j < tableModel.getColumnCount() - 1) {
-                        sb.append(",");
-                    }
-                }
-                writer.write(sb.toString());
-                writer.newLine();
+        List<String[]> projets = new ArrayList<>();
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            String[] projet = new String[tableModel.getColumnCount()];
+            for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                projet[j] = table.getValueAt(i, j).toString();
             }
-            JOptionPane.showMessageDialog(frame, "Modifications enregistrées avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde des modifications.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
+            projets.add(projet);
         }
+
+        BaseDeDonnées.réécrire(PROJETS_FILE,projets);
+        JOptionPane.showMessageDialog(frame, "Modifications enregistrées avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void ajouterNotification(String typeNotif, String titreProjet) {
-        String notification = String.join(",", typeNotif, titreProjet);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(NOTIFICATIONS_FILE, true))) {
-            writer.write(notification);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de l'ajout de la notification.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
+        String[] notification = {typeNotif,titreProjet};
+        BaseDeDonnées.écrire(NOTIFICATIONS_FILE, notification);
     }
 
     private void enregistrerModification(String titre, String typeModification, String ancienneValeur, String nouvelleValeur) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(MODIFICATIONS_FILE, true))) {
-            String modification = String.join(",", titre, typeModification, ancienneValeur, nouvelleValeur);
-            writer.write(modification);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de l'enregistrement de la modification.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-    }
-
-    private List<String[]> readProjetsFromCSV() {
-        List<String[]> projets = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(PROJETS_FILE))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                projets.add(line.split(",", -1)); // Inclut les champs vides
-            }
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors du chargement des projets.", "Erreur", JOptionPane.ERROR_MESSAGE);
-            e.printStackTrace();
-        }
-        return projets;
+        String[] modification = {titre, typeModification, ancienneValeur, nouvelleValeur};
+        BaseDeDonnées.écrire(MODIFICATIONS_FILE, modification);
     }
 
     public static void main(String[] args) {
