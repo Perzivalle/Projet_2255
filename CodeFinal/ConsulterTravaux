@@ -5,6 +5,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
 
 public class ConsulterTravauxGUI {
 
@@ -33,24 +37,23 @@ public class ConsulterTravauxGUI {
             range++;
         }
 
-
         JFrame frameConsulterTravaux = Frame.nouveauFrame("MaVille");
         frameConsulterTravaux.setVisible(true);
 
         JPanel panelConsulterTravaux = new JPanel(new BorderLayout());
-        JPanel panelEnTete = Panel.panelTitrePage("Consultation des travaux", true);
-
+        JPanel panelEnTete = Panel.panelTitrePage("Consultation des travaux");
+        panelConsulterTravaux.add(panelEnTete, BorderLayout.NORTH);
+        JPanel bouton = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JButton retour = new JButton("Retour");
+        bouton.add(retour);
+        panelEnTete.add(retour, BorderLayout.WEST);
         retour.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frameConsulterTravaux.dispose();
-                // Appel à createPageMenuOptionsResident
-                menu instanceMenu = new menu();
-                instanceMenu.createPageMenuOptionsResident(); // Correction ici
+                menu.createPageMenuOptionsResident();
             }
         });
-
 
         //On va creer un JTable pour illustrer aux users les travaux
         JTable tableTravaux = new JTable(donnees,nomColonnes);
@@ -65,6 +68,7 @@ public class ConsulterTravauxGUI {
         JPanel panelFiltreTravaux = new JPanel(new FlowLayout());
         JTextField inputFiltre = new JTextField(15);
         JButton filtrer = new JButton("Filtrer");
+        JButton prochainsMois = new JButton("Voir 3 prochains mois");
         JButton reinitialiser = new JButton("Réinitialiser");
         String[] typesFiltre = {"boroughid", "ID"};
         JComboBox<String> comboBoxTypeFiltre = new JComboBox<>(typesFiltre);
@@ -72,6 +76,7 @@ public class ConsulterTravauxGUI {
         panelFiltreTravaux.add(inputFiltre);
         panelFiltreTravaux.add(comboBoxTypeFiltre);
         panelFiltreTravaux.add(filtrer);
+        panelFiltreTravaux.add(prochainsMois);
         panelFiltreTravaux.add(reinitialiser);
 
         panelConsulterTravaux.add(panelFiltreTravaux, BorderLayout.SOUTH);
@@ -120,6 +125,44 @@ public class ConsulterTravauxGUI {
                 tableTravaux.setModel(nouvelleTableTravaux);
             }
         });
+
+        prochainsMois.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Object[][] donneesProchainsMoisFiltrer = new Object[records.size()][6];
+                int i = 0;
+
+                LocalDateTime aujourdhui = LocalDateTime.now();
+                LocalDateTime prochainsMois = aujourdhui.plusMonths(3);
+
+                for (JsonElement record : records){
+                    JsonObject obj = record.getAsJsonObject();
+                    if (obj.has("duration_start_date")&& !obj.get("duration_start_date").isJsonNull()){
+                        String dateDebut = obj.get("duration_start_date").getAsString();
+                        try {
+                            // Permet de convertir et extraire les informations pour juste avoir la date et l'heure
+                            ZonedDateTime debutDateHoraire = ZonedDateTime.parse(dateDebut);
+                            LocalDateTime debutDate = debutDateHoraire.toLocalDateTime();
+
+                            if (!debutDate.isBefore(aujourdhui) && !debutDate.isAfter(prochainsMois)){
+                                donneesProchainsMoisFiltrer[i][0] = obj.has("id") && !obj.get("id").isJsonNull() ? obj.get("id").getAsString() : "Indisponible";
+                                donneesProchainsMoisFiltrer[i][1] = obj.has("boroughid") && !obj.get("boroughid").isJsonNull() ? obj.get("boroughid").getAsString() : "Indisponible";
+                                donneesProchainsMoisFiltrer[i][2] = obj.has("currentstatus") && !obj.get("currentstatus").isJsonNull() ? obj.get("currentstatus").getAsString() : "Indisponible";
+                                donneesProchainsMoisFiltrer[i][3] = obj.has("reason_category") && !obj.get("reason_category").isJsonNull() ? obj.get("reason_category").getAsString() : "Indisponible";
+                                donneesProchainsMoisFiltrer[i][4] = obj.has("submittercategory") && !obj.get("submittercategory").isJsonNull() ? obj.get("submittercategory").getAsString() : "Indisponible";
+                                donneesProchainsMoisFiltrer[i][5] = obj.has("organizationname") && !obj.get("organizationname").isJsonNull() ? obj.get("organizationname").getAsString() : "Indisponible";
+                                i++;
+                            }
+                        } catch (DateTimeParseException exception) {
+                            System.err.println("Invalide:" + dateDebut);
+                        }
+                    }
+                }
+                DefaultTableModel nouvelleTableTravaux = new DefaultTableModel(donneesProchainsMoisFiltrer,nomColonnes);
+                tableTravaux.setModel(nouvelleTableTravaux);
+            }
+        });
+
 
         reinitialiser.addActionListener(new ActionListener() {
             @Override
