@@ -16,7 +16,11 @@ public class consulterRequete {
     private List<String[]> allTravaux;
     private List<String[]> candidatures;
 
+
     public consulterRequete() {
+        BaseDeDonnées.lireTous(CSV_FILE);
+        BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+
         frame = new JFrame("Consulter Requêtes de Travaux");
         frame.setSize(900, 600);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -78,8 +82,8 @@ public class consulterRequete {
     }
 
     private void updateTable() {
-        allTravaux = lireRequetesDepuisCSV();
-        candidatures = lireCandidaturesDepuisCSV();
+        allTravaux = BaseDeDonnées.lireTous(CSV_FILE);
+        candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
         resetTable();
     }
 
@@ -140,7 +144,12 @@ public class consulterRequete {
         String dateFin = JOptionPane.showInputDialog(frame, "Entrez la date de fin (format : JJ/MM/AAAA) :");
 
         if (dateDebut != null && !dateDebut.isEmpty() && dateFin != null && !dateFin.isEmpty()) {
-            sauvegarderCandidature(travail, dateDebut, dateFin);
+            String[] valeurs = new String[travail.length + 2];
+            System.arraycopy(travail, 0, valeurs, 0, travail.length);
+            valeurs[travail.length] = dateDebut;
+            valeurs[travail.length + 1] = dateFin;
+            BaseDeDonnées.écrire(CANDIDATURES_FILE, valeurs);
+
             JOptionPane.showMessageDialog(frame, "Candidature soumise avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
             updateTable();
         }
@@ -157,56 +166,11 @@ public class consulterRequete {
             travail[i] = table.getValueAt(selectedRow, i).toString();
         }
 
-        List<String[]> updatedCandidatures = candidatures.stream()
-                .filter(c -> !Arrays.equals(travail, Arrays.copyOfRange(c, 0, travail.length)))
-                .collect(Collectors.toList());
+        BaseDeDonnées.ConditionSuppression conditionSuppression = enregistrement -> Arrays.equals(travail, Arrays.copyOfRange(enregistrement, 0, travail.length));
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CANDIDATURES_FILE))) {
-            for (String[] candidature : updatedCandidatures) {
-                writer.write(String.join(",", candidature));
-                writer.newLine();
-            }
-            JOptionPane.showMessageDialog(frame, "Candidature retirée avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
-            updateTable();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        BaseDeDonnées.supprimer(CANDIDATURES_FILE, conditionSuppression);
     }
 
-    private void sauvegarderCandidature(String[] travail, String dateDebut, String dateFin) {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(CANDIDATURES_FILE, true))) {
-            writer.write(String.join(",", travail) + ",Date Début: " + dateDebut + ",Date Fin: " + dateFin);
-            writer.newLine();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde de la candidature.", "Erreur", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private List<String[]> lireRequetesDepuisCSV() {
-        List<String[]> travaux = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(CSV_FILE))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                travaux.add(ligne.split(","));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return travaux;
-    }
-
-    private List<String[]> lireCandidaturesDepuisCSV() {
-        List<String[]> candidatures = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(CANDIDATURES_FILE))) {
-            String ligne;
-            while ((ligne = reader.readLine()) != null) {
-                candidatures.add(ligne.split(","));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return candidatures;
-    }
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(consulterRequete::new);
