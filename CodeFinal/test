@@ -1,0 +1,76 @@
+import code.ApiResponse;
+import code.HttpClientApi;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+public class test {
+    public test(){
+    }
+    private String fichierTest;
+
+    @BeforeEach
+    public void setUp(){
+        fichierTest = "fichiertest.csv";
+        List<String[]> nomsTest = new ArrayList<>();
+        nomsTest.add(new String[] {"nom1", "nom2", "nom3", "nom4"});
+        BaseDeDonnées.ecrireTous(fichierTest, nomsTest);
+    }
+
+    @Test
+    public void testVisualiserFichier(){
+        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+        Assertions.assertArrayEquals(new String[] {"nom1", "nom2", "nom3", "nom4"}, resultatsFichierTest.get(0));
+    }
+
+    @Test
+    public void testAjouterLigne(){
+        String[] nouvelleLigne = new String[] {"nom5", "nom6", "nom7", "nom8"};
+        BaseDeDonnées.ajouterLigne(fichierTest, List.of(nouvelleLigne));
+        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+
+        Assertions.assertEquals(2, resultatsFichierTest.size());
+    }
+
+    @Test
+    public void testSupprimerLigne(){
+        BaseDeDonnées.ConditionSuppression conditionSuppression = enregistrement -> enregistrement[0].equals("nom1");
+        String[] nouvelleLigne = new String[] {"nom5", "nom6", "nom7", "nom8"};
+        BaseDeDonnées.ajouterLigne(fichierTest, List.of(nouvelleLigne));
+
+        BaseDeDonnées.supprimer(fichierTest, conditionSuppression);
+
+        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+        Assertions.assertEquals(1, resultatsFichierTest.size());
+    }
+
+    @Test
+    public void testAPIValidité() {
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiReponse = api.getData(resourceIdTravaux);
+        Assertions.assertEquals(200, testApiReponse.getStatusCode());
+    }
+
+    @Test
+    public void testAPIBody() {
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiBody = api.getData(resourceIdTravaux);
+        Assertions.assertNotNull(testApiBody.getBody());
+    }
+
+    @Test
+    public void testAPIMessage() {
+        HttpClientApi api = new HttpClientApi();
+        String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
+        ApiResponse testApiMessage = api.getData(resourceIdTravaux);
+        Assertions.assertNotNull(testApiMessage.getMessage());
+    }
+}
