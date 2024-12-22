@@ -6,7 +6,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class consulterRequete {
+public class consulterRequeteTravail {
 
     private static final String CSV_FILE = "requeteTravaux.csv"; // Fichier des requêtes
     private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier des candidatures
@@ -17,7 +17,7 @@ public class consulterRequete {
     private List<String[]> candidatures;
 
 
-    public consulterRequete() {
+    public consulterRequeteTravail() {
         BaseDeDonnées.lireTous(CSV_FILE);
         BaseDeDonnées.lireTous(CANDIDATURES_FILE);
 
@@ -173,6 +173,6 @@ public class consulterRequete {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(consulterRequete::new);
+        SwingUtilities.invokeLater(consulterRequeteTravail::new);
     }
 }
