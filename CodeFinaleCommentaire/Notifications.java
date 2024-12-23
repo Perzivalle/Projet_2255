@@ -1,22 +1,38 @@
+/**
+ * Classe responsable de la gestion et de l'affichage des notifications
+ * concernant les projets et leurs modifications.
+ */
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * La classe Notifications gère l'interface utilisateur pour afficher les notifications liées aux projets.
- * Elle permet aux utilisateurs de voir les notifications des modifications et soumissions des projets.
- */
 public class Notifications {
 
-    private JFrame frame;
-    private JTable table;
-    private DefaultTableModel tableModel;
-    private List<String[]> modifications;
+    /**
+     * Fenêtre principale pour l'affichage des notifications.
+     */
+    private static JFrame frame;
 
     /**
-     * Constructeur qui initialise les composants de l'interface utilisateur et charge les notifications.
+     * Tableau pour afficher les notifications.
+     */
+    private JTable table;
+
+    /**
+     * Modèle de table pour gérer les notifications.
+     */
+    private static DefaultTableModel tableModel;
+
+    /**
+     * Liste des modifications de projets.
+     */
+    private static List<String[]> modifications;
+
+    /**
+     * Constructeur de la classe Notifications.
+     * Initialise la fenêtre et charge les notifications.
      */
     public Notifications() {
         frame = new JFrame("Notifications des Projets");
@@ -29,12 +45,14 @@ public class Notifications {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(titleLabel, BorderLayout.NORTH);
 
+        // Configuration de la JTable avec une seule colonne pour les notifications
         String[] columnNames = {"Notifications (cliquez pour plus de détails)"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Boutons d'action
         JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton closeButton = new JButton("Fermer");
         closeButton.addActionListener(e -> frame.dispose());
@@ -45,8 +63,10 @@ public class Notifications {
         frame.add(panel);
         frame.setVisible(true);
 
-        loadNotifications();
+        // Charger les notifications
+        loadNotifications("projetsSoumis.csv", "modificationsProjets.csv");
 
+        // Ajouter un événement pour gérer le clic sur une ligne
         table.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
                 afficherDetailsNotification(table.getSelectedRow());
@@ -55,20 +75,28 @@ public class Notifications {
     }
 
     /**
-     * Charge et affiche les notifications à partir des fichiers CSV.
+     * Charge les notifications à partir des fichiers donnés.
+     *
+     * @param fichierProjets      Le fichier contenant les projets soumis.
+     * @param fichierModifications Le fichier contenant les modifications des projets.
      */
-    private void loadNotifications() {
+    public static void loadNotifications(String fichierProjets, String fichierModifications) {
         try {
-            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
-            modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+            // Charger les projets soumis
+            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
 
+            // Charger les modifications de projets
+            modifications = BaseDeDonnées.lireTous(fichierModifications);
+
+            // Préparer les notifications pour affichage
             List<String[]> notifications = preparerNotifications(projets);
 
-            tableModel.setRowCount(0);
+            tableModel.setRowCount(0); // Effacer les anciennes notifications
             for (String[] notification : notifications) {
                 tableModel.addRow(new String[]{notification[0]});
             }
 
+            // Ajouter les modifications comme notifications
             for (String[] modification : modifications) {
                 tableModel.addRow(new String[]{"La modification d'un projet a été faite"});
             }
@@ -83,60 +111,78 @@ public class Notifications {
     }
 
     /**
-     * Compte et retourne le nombre total de notifications.
+     * Compte le nombre total de notifications.
      *
-     * @return int Nombre total de notifications.
+     * @param fichierProjets      Le fichier contenant les projets soumis.
+     * @param fichierModifications Le fichier contenant les modifications des projets.
+     * @return Le nombre total de notifications.
      */
-    public static int getNotificationCount() {
+    public static int getNotificationCount(String fichierProjets, String fichierModifications) {
         try {
-            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+            // Compter les notifications dans projetsSoumis.csv
+            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
             int countProjets = projets.size();
-            List<String[]> modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+
+            // Compter les notifications dans modificationsProjets.csv
+            List<String[]> modifications = BaseDeDonnées.lireTous(fichierModifications);
             int countModifications = modifications.size();
+
+            // Retourner le total
             return countProjets + countModifications;
         } catch (Exception e) {
-            return 0;
+            return 0; // En cas d'erreur, retourner 0
         }
     }
 
     /**
-     * Prépare les notifications pour l'affichage à partir des projets soumis.
+     * Prépare une liste de notifications à partir des projets soumis.
      *
-     * @param projets Liste des projets soumis.
-     * @return List<String[]> Liste formatée des notifications.
+     * @param projets La liste des projets soumis.
+     * @return Une liste de notifications formatées.
      */
-    private List<String[]> preparerNotifications(List<String[]> projets) {
+    public static List<String[]> preparerNotifications(List<String[]> projets) {
         List<String[]> notifications = new ArrayList<>();
+
         for (String[] projet : projets) {
             String typeNotif = "Un projet a été soumis";
-            notifications.add(new String[]{typeNotif});
+            notifications.add(new String[]{typeNotif, projet[0], projet[1], projet[2], projet[3], projet[4], projet[5], projet[6]});
         }
+
         return notifications;
     }
 
     /**
      * Affiche les détails d'une notification sélectionnée.
      *
-     * @param selectedRow L'index de la ligne sélectionnée dans la table.
+     * @param selectedRow L'index de la ligne sélectionnée.
      */
     private void afficherDetailsNotification(int selectedRow) {
         try {
             int projetsCount = BaseDeDonnées.lireTous("projetsSoumis.csv").size();
+
             if (selectedRow < projetsCount) {
+                // Notification provenant de projetsSoumis.csv
                 List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
                 String[] projet = projets.get(selectedRow);
+
+                // Afficher les détails dans une nouvelle fenêtre
                 String details = String.format(
                         "Titre : %s%nType : %s%nQuartiers : %s%nRues : %s%nDate Début : %s%nDate Fin : %s%nStatut : %s",
                         projet[0], projet[1], projet[2], projet[3], projet[4], projet[5], projet[6]
                 );
+
                 JOptionPane.showMessageDialog(frame, details, "Détails de la Notification", JOptionPane.INFORMATION_MESSAGE);
             } else {
+                // Notification provenant de modificationsProjets.csv
                 int modificationIndex = selectedRow - projetsCount;
                 String[] modification = modifications.get(modificationIndex);
+
+                // Afficher les détails de la modification
                 String details = String.format(
                         "Titre du projet : %s%nType de modification : %s%nAncienne valeur : %s%nNouvelle valeur : %s",
                         modification[0], modification[1], modification[2], modification[3]
                 );
+
                 JOptionPane.showMessageDialog(frame, details, "Détails de la Modification", JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (Exception e) {
@@ -146,7 +192,9 @@ public class Notifications {
     }
 
     /**
-     * Méthode principale pour exécuter la classe de manière indépendante.
+     * Point d'entrée principal pour lancer l'application Notifications.
+     *
+     * @param args Arguments de la ligne de commande.
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Notifications::new);
