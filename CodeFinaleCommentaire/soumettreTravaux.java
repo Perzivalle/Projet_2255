@@ -3,18 +3,32 @@ import java.awt.*;
 import java.util.*;
 
 /**
- * La classe soumettreTravaux gère l'interface pour soumettre des requêtes de travaux résidentiels par les utilisateurs.
- * Elle permet de saisir des informations sur des travaux prévus et de les enregistrer dans un fichier CSV.
+ * Classe permettant à un résident de soumettre une requête de travail résidentiel.
  */
 public class soumettreTravaux {
 
+    /**
+     * Fenêtre principale pour l'interface utilisateur.
+     */
     private final JFrame frame;
+
+    /**
+     * Liste des informations de la requête à enregistrer.
+     */
     private final ArrayList<String> informationRequete = new ArrayList<>();
+
+    /**
+     * Chemin du fichier CSV contenant les requêtes de travail.
+     */
     private static final String CSV_FILE = "requeteTravaux.csv";
+
+    /**
+     * Indique si le suivi de la requête est activé.
+     */
     private String suivi = "Non";
 
     /**
-     * Constructeur qui initialise l'interface graphique pour la soumission de nouvelles requêtes de travaux.
+     * Constructeur pour initialiser l'interface de soumission de requête de travail.
      */
     public soumettreTravaux() {
         frame = new JFrame("Soumettre une Requête de Travail Résidentiel");
@@ -22,76 +36,154 @@ public class soumettreTravaux {
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        // Configuration des composants de l'interface
+        // Titre principal
         JLabel titleLabel = new JLabel("Soumettre une Requête de Travail", SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
         frame.add(titleLabel, BorderLayout.NORTH);
 
-        JPanel formPanel = createFormPanel(); // Création du panneau de formulaire
+        // Formulaire principal
+        JPanel formPanel = new JPanel(new GridLayout(8, 2, 10, 10));
+
+        // Champs requis
+        JTextField titreField = new JTextField();
+        JTextArea descriptionArea = new JTextArea(3, 20);
+        JComboBox<String> typeTravauxBox = new JComboBox<>(new String[]{"Chaussée", "Éclairage", "Autre"});
+
+        // Ajout de Quartier
+        String[] quartiers = {"Centre-ville", "Plateau Mont-Royal", "Rosemont", "Villeray", "Outremont", "Verdun", "Autre"};
+        JComboBox<String> quartierBox = new JComboBox<>(quartiers);
+
+        // Sélection de la date (Année, Mois, Jour)
+        JComboBox<String> anneeBox = new JComboBox<>(new String[]{"2024", "2025", "2026"});
+        JComboBox<String> moisBox = new JComboBox<>(new String[]{"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"});
+        JComboBox<Integer> jourBox = new JComboBox<>();
+
+        // Initialiser les jours pour le mois de janvier par défaut
+        updateJours(jourBox, 31);
+
+        // Ajuster les jours selon le mois sélectionné
+        moisBox.addActionListener(e -> {
+            int selectedMois = moisBox.getSelectedIndex() + 1;
+            int annee = Integer.parseInt((String) anneeBox.getSelectedItem());
+            int joursDansMois = getJoursDansMois(selectedMois, annee);
+            updateJours(jourBox, joursDansMois);
+        });
+
+        anneeBox.addActionListener(e -> {
+            int selectedMois = moisBox.getSelectedIndex() + 1;
+            int annee = Integer.parseInt((String) anneeBox.getSelectedItem());
+            int joursDansMois = getJoursDansMois(selectedMois, annee);
+            updateJours(jourBox, joursDansMois);
+        });
+
+        // Suivi Option
+        JCheckBox suiviCheckBox = new JCheckBox("Faire le suivi de cette requête");
+
+        // Ajout des champs au formulaire
+        formPanel.add(new JLabel("Titre du travail :"));
+        formPanel.add(titreField);
+
+        formPanel.add(new JLabel("Description détaillée :"));
+        formPanel.add(new JScrollPane(descriptionArea));
+
+        formPanel.add(new JLabel("Type de travaux :"));
+        formPanel.add(typeTravauxBox);
+
+        formPanel.add(new JLabel("Quartier :"));
+        formPanel.add(quartierBox);
+
+        formPanel.add(new JLabel("Année :"));
+        formPanel.add(anneeBox);
+
+        formPanel.add(new JLabel("Mois :"));
+        formPanel.add(moisBox);
+
+        formPanel.add(new JLabel("Jour :"));
+        formPanel.add(jourBox);
+
+        formPanel.add(new JLabel("Options de suivi :"));
+        formPanel.add(suiviCheckBox);
+
         frame.add(formPanel, BorderLayout.CENTER);
 
-        JPanel buttonPanel = createButtonPanel(); // Création du panneau des boutons
+        // Bouton pour soumettre
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton submitButton = new JButton("Soumettre");
+        JButton cancelButton = new JButton("Annuler");
+
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(submitButton);
         frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Action Bouton Annuler
+        cancelButton.addActionListener(e -> frame.dispose());
+
+        // Action Bouton Soumettre
+        submitButton.addActionListener(e -> {
+            String titre = titreField.getText().trim();
+            String description = descriptionArea.getText().trim();
+            String typeTravaux = typeTravauxBox.getSelectedItem().toString();
+            String quartier = quartierBox.getSelectedItem().toString();
+            String annee = anneeBox.getSelectedItem().toString();
+            String mois = moisBox.getSelectedItem().toString();
+            String jour = jourBox.getSelectedItem().toString();
+            suivi = suiviCheckBox.isSelected() ? "Oui" : "Non";
+
+            // Validation des champs
+            if (titre.isEmpty() || description.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Veuillez remplir tous les champs requis.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Ajouter les informations à la liste
+            String dateDebut = annee + "-" + (moisBox.getSelectedIndex() + 1) + "-" + jour;
+            informationRequete.addAll(Arrays.asList(titre, description, typeTravaux, quartier, dateDebut, suivi));
+
+            // Sauvegarder dans la base de données
+            try {
+                BaseDeDonnées.écrire(CSV_FILE, informationRequete.toArray(new String[0]));
+                JOptionPane.showMessageDialog(frame, "Requête soumise avec succès !");
+                frame.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(frame, "Erreur lors de la sauvegarde de la requête.", "Erreur", JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+        });
 
         frame.setVisible(true);
     }
 
     /**
-     * Crée et retourne un panneau de formulaire pour la saisie des détails de la requête.
-     * @return JPanel le panneau contenant les champs de formulaire.
+     * Met à jour les jours disponibles dans le champ jourBox en fonction du mois et de l'année.
+     *
+     * @param jourBox JComboBox représentant le champ des jours.
+     * @param jours   Nombre de jours dans le mois.
      */
-    private JPanel createFormPanel() {
-        JPanel formPanel = new JPanel(new GridLayout(8, 2, 10, 10));
-
-        // Initialisation et ajout des différents champs de saisie
-        formPanel.add(new JLabel("Titre du travail :"));
-        JTextField titreField = new JTextField();
-        formPanel.add(titreField);
-
-        formPanel.add(new JLabel("Description détaillée :"));
-        JTextArea descriptionArea = new JTextArea(3, 20);
-        descriptionArea.setLineWrap(true);
-        descriptionArea.setWrapStyleWord(true);
-        formPanel.add(new JScrollPane(descriptionArea));
-
-        formPanel.add(new JLabel("Type de travaux :"));
-        JComboBox<String> typeTravauxBox = new JComboBox<>(new String[]{"Chaussée", "Éclairage", "Autre"});
-        formPanel.add(typeTravauxBox);
-
-        formPanel.add(new JLabel("Quartier :"));
-        JComboBox<String> quartierBox = new JComboBox<>(new String[]{"Centre-ville", "Plateau Mont-Royal", "Rosemont", "Villeray", "Outremont", "Verdun", "Autre"});
-        formPanel.add(quartierBox);
-
-        formPanel.add(new JLabel("Date de début (JJ/MM/AAAA) :"));
-        JComboBox<String> jourBox = new JComboBox<>(); // Jours ajoutés en fonction du mois et de l'année
-        JComboBox<String> moisBox = new JComboBox<>(new String[]{"Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"});
-        JComboBox<String> anneeBox = new JComboBox<>(new String[]{"2024", "2025", "2026"});
-        formPanel.add(anneeBox);
-        formPanel.add(moisBox);
-        formPanel.add(jourBox);
-
-        JCheckBox suiviCheckBox = new JCheckBox("Faire le suivi de cette requête");
-        formPanel.add(new JLabel("Options de suivi :"));
-        formPanel.add(suiviCheckBox);
-
-        return formPanel;
+    private void updateJours(JComboBox<Integer> jourBox, int jours) {
+        jourBox.removeAllItems();
+        for (int i = 1; i <= jours; i++) {
+            jourBox.addItem(i);
+        }
     }
 
     /**
-     * Crée et retourne un panneau de boutons pour les actions de soumission et d'annulation.
-     * @return JPanel le panneau contenant les boutons.
+     * Calcule le nombre de jours dans un mois donné pour une année donnée.
+     *
+     * @param mois  Numéro du mois (1 pour janvier, 12 pour décembre).
+     * @param annee Année considérée.
+     * @return Nombre de jours dans le mois spécifié.
      */
-    private JPanel createButtonPanel() {
-        JPanel buttonPanel = new JPanel(new FlowLayout());
-        JButton submitButton = new JButton("Soumettre");
-        JButton cancelButton = new JButton("Annuler");
-        buttonPanel.add(cancelButton);
-        buttonPanel.add(submitButton);
-        return buttonPanel;
+    private int getJoursDansMois(int mois, int annee) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, annee);
+        cal.set(Calendar.MONTH, mois - 1);
+        return cal.getActualMaximum(Calendar.DAY_OF_MONTH);
     }
 
     /**
-     * Méthode principale pour exécuter la classe de manière indépendante.
+     * Point d'entrée principal pour exécuter l'application.
+     *
+     * @param args Arguments de la ligne de commande (non utilisés).
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(soumettreTravaux::new);
