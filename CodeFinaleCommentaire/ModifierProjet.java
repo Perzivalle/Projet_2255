@@ -5,21 +5,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * La classe ModifierProjet gère l'interface utilisateur pour la modification des détails des projets.
- * Elle permet aux utilisateurs de changer la description des projets, les dates de fin, et les statuts.
+ * Classe permettant de modifier les informations des projets soumis.
+ * Offre des fonctionnalités pour mettre à jour la description, la date de fin, et le statut des projets.
  */
 public class ModifierProjet {
 
-    private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
-    private static final String NOTIFICATIONS_FILE = "notifications.csv"; // Fichier pour les notifications
-    private static final String MODIFICATIONS_FILE = "modificationsProjets.csv"; // Fichier pour les modifications des projets
+    /** Fichier contenant les projets soumis. */
+    private static final String PROJETS_FILE = "projetsSoumis.csv";
+
+    /** Fichier pour les notifications. */
+    private static final String NOTIFICATIONS_FILE = "notifications.csv";
+
+    /** Fichier pour les modifications des projets. */
+    private static final String MODIFICATIONS_FILE = "modificationsProjets.csv";
 
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
 
     /**
-     * Constructeur qui initialise les composants de l'interface utilisateur et charge les projets.
+     * Constructeur de la classe ModifierProjet.
+     * Initialise l'interface graphique et charge les projets soumis dans une JTable.
      */
     public ModifierProjet() {
         frame = new JFrame("Modifier un projet");
@@ -32,9 +38,17 @@ public class ModifierProjet {
         titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
         panel.add(titleLabel, BorderLayout.NORTH);
 
+        // Configuration de la JTable pour afficher les projets
         String[] columnNames = {
-                "Titre du projet", "Description du projet", "Type de travaux", "Quartiers affectés",
-                "Rues affectées", "Date de début", "Date de fin", "Horaires des travaux", "Statut"
+                "Titre du projet",
+                "Description du projet",
+                "Type de travaux",
+                "Quartiers affectés",
+                "Rues affectées",
+                "Date de début",
+                "Date de fin",
+                "Horaires des travaux",
+                "Statut"
         };
 
         tableModel = new DefaultTableModel(columnNames, 0);
@@ -42,6 +56,7 @@ public class ModifierProjet {
         JScrollPane scrollPane = new JScrollPane(table);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Boutons d'action
         JPanel buttonPanel = new JPanel(new FlowLayout());
         JButton modifyDescriptionButton = new JButton("Modifier la description");
         JButton modifyEndDateButton = new JButton("Modifier la date de fin");
@@ -63,14 +78,18 @@ public class ModifierProjet {
         frame.add(panel);
         frame.setVisible(true);
 
-        loadProjets();
+        // Charger les projets dès l'ouverture
+        loadProjets(PROJETS_FILE, tableModel);
     }
 
     /**
-     * Charge les projets depuis un fichier CSV et les affiche dans la table.
+     * Charge les projets depuis le fichier spécifié et les affiche dans la JTable.
+     *
+     * @param fichier     Chemin du fichier contenant les projets.
+     * @param tableModel  Modèle de la JTable où afficher les projets.
      */
-    private void loadProjets() {
-        List<String[]> projets = BaseDeDonnées.lireTous(PROJETS_FILE);
+    private void loadProjets(String fichier, DefaultTableModel tableModel) {
+        List<String[]> projets = BaseDeDonnées.lireTous(fichier);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] projet : projets) {
             if (projet.length == 9) { // Vérifie que toutes les colonnes sont présentes
@@ -80,7 +99,7 @@ public class ModifierProjet {
     }
 
     /**
-     * Modifie la description d'un projet sélectionné.
+     * Modifie la description d'un projet sélectionné dans la JTable.
      */
     private void modifierDescription() {
         int selectedRow = table.getSelectedRow();
@@ -93,7 +112,7 @@ public class ModifierProjet {
         String ancienneDescription = table.getValueAt(selectedRow, 1).toString();
         String nouvelleDescription = JOptionPane.showInputDialog(frame, "Entrez la nouvelle description pour le projet : " + titre, ancienneDescription);
         if (nouvelleDescription != null && !nouvelleDescription.isEmpty()) {
-            table.setValueAt(nouvelleDescription, selectedRow, 1);
+            table.setValueAt(nouvelleDescription, selectedRow, 1); // Met à jour la colonne Description
             ajouterNotification("Un projet a été modifié", titre);
             enregistrerModification(titre, "Description modifiée", ancienneDescription, nouvelleDescription);
             sauvegarderModifications();
@@ -101,7 +120,7 @@ public class ModifierProjet {
     }
 
     /**
-     * Modifie la date de fin d'un projet sélectionné.
+     * Modifie la date de fin d'un projet sélectionné dans la JTable.
      */
     private void modifierDateFin() {
         int selectedRow = table.getSelectedRow();
@@ -114,7 +133,7 @@ public class ModifierProjet {
         String ancienneDateFin = table.getValueAt(selectedRow, 6).toString();
         String nouvelleDateFin = JOptionPane.showInputDialog(frame, "Entrez la nouvelle date de fin pour le projet : " + titre, ancienneDateFin);
         if (nouvelleDateFin != null && !nouvelleDateFin.isEmpty()) {
-            table.setValueAt(nouvelleDateFin, selectedRow, 6);
+            table.setValueAt(nouvelleDateFin, selectedRow, 6); // Met à jour la colonne Date Fin
             ajouterNotification("Un projet a été modifié", titre);
             enregistrerModification(titre, "Date de fin modifiée", ancienneDateFin, nouvelleDateFin);
             sauvegarderModifications();
@@ -122,7 +141,7 @@ public class ModifierProjet {
     }
 
     /**
-     * Modifie le statut d'un projet sélectionné.
+     * Modifie le statut d'un projet sélectionné dans la JTable.
      */
     private void modifierStatut() {
         int selectedRow = table.getSelectedRow();
@@ -138,7 +157,7 @@ public class ModifierProjet {
                 "Modifier le statut", JOptionPane.QUESTION_MESSAGE, null, options, ancienStatut);
 
         if (nouveauStatut != null) {
-            table.setValueAt(nouveauStatut, selectedRow, 8);
+            table.setValueAt(nouveauStatut, selectedRow, 8); // Met à jour la colonne Statut
             ajouterNotification("Un projet a été modifié", titre);
             enregistrerModification(titre, "Statut modifié", ancienStatut, nouveauStatut);
             sauvegarderModifications();
@@ -146,7 +165,7 @@ public class ModifierProjet {
     }
 
     /**
-     * Enregistre les modifications apportées aux projets dans le fichier CSV.
+     * Sauvegarde les modifications apportées à la liste des projets.
      */
     private void sauvegarderModifications() {
         List<String[]> projets = new ArrayList<>();
@@ -163,7 +182,10 @@ public class ModifierProjet {
     }
 
     /**
-     * Ajoute une notification lorsqu'une modification est effectuée.
+     * Ajoute une notification concernant une modification de projet.
+     *
+     * @param typeNotif  Type de notification.
+     * @param titreProjet Titre du projet concerné.
      */
     private void ajouterNotification(String typeNotif, String titreProjet) {
         String[] notification = {typeNotif, titreProjet};
@@ -171,7 +193,12 @@ public class ModifierProjet {
     }
 
     /**
-     * Enregistre une modification spécifique pour le suivi et l'audit.
+     * Enregistre une modification spécifique pour un projet.
+     *
+     * @param titre           Titre du projet concerné.
+     * @param typeModification Type de modification effectuée.
+     * @param ancienneValeur   Ancienne valeur de l'attribut modifié.
+     * @param nouvelleValeur   Nouvelle valeur de l'attribut modifié.
      */
     private void enregistrerModification(String titre, String typeModification, String ancienneValeur, String nouvelleValeur) {
         String[] modification = {titre, typeModification, ancienneValeur, nouvelleValeur};
@@ -179,7 +206,9 @@ public class ModifierProjet {
     }
 
     /**
-     * Méthode principale pour exécuter la classe de manière indépendante pour les tests ou l'utilisation autonome.
+     * Méthode principale pour lancer l'application.
+     *
+     * @param args Arguments de ligne de commande (non utilisés).
      */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ModifierProjet::new);
