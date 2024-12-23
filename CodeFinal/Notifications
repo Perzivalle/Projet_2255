@@ -81,14 +81,14 @@ public class Notifications {
         }
     }
 
-    public static int getNotificationCount() {
+    public static int getNotificationCount(String fichierProjets, String fichierModifications) {
         try {
             // Compter les notifications dans projetsSoumis.csv
-            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
             int countProjets = projets.size();
 
             // Compter les notifications dans modificationsProjets.csv
-            List<String[]> modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+            List<String[]> modifications = BaseDeDonnées.lireTous(fichierModifications);
             int countModifications = modifications.size();
 
             // Additionner les deux
