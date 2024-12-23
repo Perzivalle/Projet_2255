@@ -1,26 +1,65 @@
 import code.ApiResponse;
 import code.HttpClientApi;
+
+import java.awt.*;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+
+import org.junit.jupiter.api.*;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class test {
     public test(){
     }
-    private String fichierTest;
+    private static final String fichierTest = "fichiertest.csv";
+    private static final String fichierProjetsTest = "fichierProjetsTest.csv";
+    private static final String fichierModificationsTest = "fichierModificationsTest.csv";
+    private static final String fichierRequeteTest = "fichierRequeteTest.csv";
+    private static final String fichierCandidaturesTest = "fichierCandidaturesTest.csv";
+    private static final String fichierMessagesTest = "fichierMessagesTest.csv";
 
     @BeforeEach
     public void setUp(){
-        fichierTest = "fichiertest.csv";
         List<String[]> nomsTest = new ArrayList<>();
         nomsTest.add(new String[] {"nom1", "nom2", "nom3", "nom4"});
         BaseDeDonnées.ecrireTous(fichierTest, nomsTest);
+
+        List<String[]> testNombreProjets = new ArrayList<>();
+        testNombreProjets.add(new String[] {"projet1"});
+        BaseDeDonnées.ecrireTous(fichierProjetsTest, testNombreProjets);
+
+        List<String[]> testNombreNotifications = new ArrayList<>();
+        testNombreNotifications.add(new String[] {"Notification1"});
+        BaseDeDonnées.ecrireTous(fichierModificationsTest, testNombreNotifications);
+
+        List<String[]> testRequete = new ArrayList<>();
+        testRequete.add(new String[] {"Requete1"});
+        BaseDeDonnées.ecrireTous(fichierRequeteTest, testRequete);
+
+        List<String[]> testCandidatures = new ArrayList<>();
+        testCandidatures.add(new String[] {"Candidature1"});
+        BaseDeDonnées.ecrireTous(fichierCandidaturesTest, testCandidatures);
+
+        List<String[]> testMessages = new ArrayList<>();
+        testMessages.add(new String[] {"Message1"});
+        BaseDeDonnées.ecrireTous(fichierMessagesTest, testMessages);
+
+
+    }
+    @AfterEach
+    public void supprimerFichierTest(){
+        new File(fichierTest).delete();
+        new File(fichierProjetsTest).delete();
+        new File(fichierModificationsTest).delete();
+        new File(fichierRequeteTest).delete();
+        new File(fichierCandidaturesTest).delete();
+        new File(fichierMessagesTest).delete();
     }
 
     @Test
@@ -51,6 +90,118 @@ public class test {
     }
 
     @Test
+    public void testGetNotificationCount(){
+        int nombreNotification = Notifications.getNotificationCount(fichierProjetsTest, fichierModificationsTest);
+        Assertions.assertEquals(2, nombreNotification);
+    }
+
+    @Test
+    public void testGetNotificationCountEchoue(){
+        int nombreNotification = Notifications.getNotificationCount(fichierProjetsTest, fichierModificationsTest);
+        Assertions.assertNotEquals(3, nombreNotification);
+    }
+
+    @Test
+    public void testPreparerNotifications(){
+        List<String[]> testPreparerNotif = new ArrayList<>();
+        testPreparerNotif.add(new String[] {"projet1","projet2","projet3","projet4","projet5","projet6","projet7"});
+
+        List<String[]> testNotifs = Notifications.preparerNotifications(testPreparerNotif);
+
+        String[] testExpectativeNotif = new String[]{"Un projet a été soumis","projet1","projet2","projet3","projet4","projet5","projet6","projet7"};
+
+        Assertions.assertArrayEquals(testExpectativeNotif, testNotifs.get(0));
+    }
+
+    @Test
+    public void testGetStatutRequeteAccepte(){
+        List<String[]> testMessagesCandidatures = new ArrayList<>();
+        testMessagesCandidatures.add(new String[] {"Requete candidature1", "acceptée"});
+
+        List<String[]> testCandidatures = new ArrayList<>();
+        testCandidatures.add(new String[] {"Candidature1"});
+
+        String testStatutRequete = SuiviRequete.getStatutRequete("Requete candidature1", testMessagesCandidatures, testCandidatures);
+        Assertions.assertEquals("Candidature acceptée", testStatutRequete, "Le statut de la requête devrait être 'Candidature acceptée'");
+
+    }
+
+    @Test
+    public void testGetStatusRequeteSoumise(){
+        List<String[]> testMessagesCandidatures = new ArrayList<>();
+        testMessagesCandidatures.add(new String[] {"Requete candidature1", "acceptée"});
+
+        List<String[]> testCandidatures = new ArrayList<>();
+        testCandidatures.add(new String[] {"Candidature1"});
+
+        String testStatutRequete = SuiviRequete.getStatutRequete("Candidature1", testMessagesCandidatures, testCandidatures);
+        Assertions.assertEquals("Candidature soumise", testStatutRequete, "Le statut de la requête devrait être 'Candidature soumise'");
+    }
+
+    @Test
+    public void testGetStatusRequeteEchoue(){
+        List<String[]> testMessagesCandidatures = new ArrayList<>();
+        testMessagesCandidatures.add(new String[] {"Requete candidature1", "acceptée"});
+
+        List<String[]> testCandidatures = new ArrayList<>();
+        testCandidatures.add(new String[] {"Candidature1"});
+
+        String testStatutRequete = SuiviRequete.getStatutRequete("Candidature1", testMessagesCandidatures, testCandidatures);
+        Assertions.assertNotEquals("Candidature acceptée", testStatutRequete, "Le statut de la requête devrait être 'Candidature soumise'");
+    }
+
+    @Test
+    public void testPanel(){
+        String testTitrePage = "testTitrePage";
+        JPanel testPanel = Panel.panelTitrePage(testTitrePage);
+
+        Assertions.assertNotNull(testPanel, "Panel ne doit pas etre nul");
+    }
+
+    @Test
+    public void testPanelPresenceJLabel(){
+        String testTitrePageCentrer = "testTitrePage";
+        JPanel testPanel = Panel.panelTitrePage(testTitrePageCentrer);
+
+        Assertions.assertTrue(testPanel.getComponentCount()>0);
+    }
+
+    @Test
+    public void testPanelFont(){
+        String testTitrePageCentrer = "testTitrePage";
+        JPanel testPanel = Panel.panelTitrePage(testTitrePageCentrer);
+        JLabel testLabel = (JLabel) testPanel.getComponent(0);
+
+        Font testFont = testLabel.getFont();
+        Assertions.assertEquals(30f, testFont.getSize2D());
+    }
+
+    @Test
+    public void testFrame(){
+        String testTitreFrame = "testTitreFrame";
+        JFrame testFrame = Frame.nouveauFrame(testTitreFrame);
+
+        Assertions.assertNotNull(testFrame, "Frame ne doit pas etre nul");
+    }
+
+    @Test
+    public void testFrameClose(){
+        String testTitreFrame = "testTitreFrame";
+        JFrame testFrame = Frame.nouveauFrame(testTitreFrame);
+
+        Assertions.assertEquals(JFrame.EXIT_ON_CLOSE, testFrame.getDefaultCloseOperation());
+    }
+
+    @Test
+    public void testFrameSize(){
+        String testTitreFrame = "testTitreFrame";
+        JFrame testFrame = Frame.nouveauFrame(testTitreFrame);
+
+        Assertions.assertEquals(550, testFrame.getWidth());
+        Assertions.assertEquals(450, testFrame.getHeight());
+    }
+
+    @Test
     public void testAPIValidité() {
         HttpClientApi api = new HttpClientApi();
         String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
@@ -74,3 +225,4 @@ public class test {
         Assertions.assertNotNull(testApiMessage.getMessage());
     }
 }
+
