@@ -10,16 +10,6 @@ public class Panel {
         titre.setFont(titre.getFont().deriveFont(30f));
         panelEnTete.add(titre, BorderLayout.CENTER);
 
-        JButton retour = null;
-        if (boutonRetour){
-            JPanel bouton = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            retour = new JButton("Retour");
-            bouton.add(retour);
-            panelEnTete.add(bouton, BorderLayout.WEST);
-
-            //ActionManager.actionRetour(retour,);
-        }
-
         return panelEnTete;
     }
 }
