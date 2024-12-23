@@ -18,8 +18,8 @@ public class SuiviRequete {
     private JTable table;
     private DefaultTableModel tableModel;
     private List<String[]> requetes;
-    private List<String[]> candidatures;
-    private List<String[]> messagesCandidatures;
+    private static List<String[]> candidatures;
+    private static List<String[]> messagesCandidatures;
 
     public SuiviRequete(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
         this.emailResident = emailResident;
@@ -75,12 +75,12 @@ public class SuiviRequete {
 
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] requete : requetes) {
-            String statut = getStatutRequete(requete[0]);
+            String statut = getStatutRequete(requete[0], messagesCandidatures, candidatures);
             tableModel.addRow(new String[]{requete[0], requete[1], requete[2], requete[3], requete[4], statut});
         }
     }
 
-    private String getStatutRequete(String titreRequete) {
+    public static String getStatutRequete(String titreRequete, List<String[]> messagesCandidatures, List<String[]> candidatures) {
         // Vérifier si une décision a déjà été prise
         for (String[] message : messagesCandidatures) {
             if (message[0].equals(titreRequete)) {
