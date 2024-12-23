@@ -8,6 +8,4 @@ public class Frame {
         frame.setLocationRelativeTo(null);
         return frame;
     }
-    //JFrame frameMenuResident = Frame.nouveauFrame("MaVille: Menu");
-    //frameMenuResident.setVisible(true);
 }
