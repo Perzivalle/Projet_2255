@@ -6,10 +6,10 @@ import java.util.List;
 
 public class Notifications {
 
-    private JFrame frame;
+    private static JFrame frame;
     private JTable table;
-    private DefaultTableModel tableModel;
-    private List<String[]> modifications;
+    private static DefaultTableModel tableModel;
+    private static List<String[]> modifications;
 
     public Notifications() {
         frame = new JFrame("Notifications des Projets");
@@ -51,7 +51,7 @@ public class Notifications {
         });
     }
 
-    private void loadNotifications(String fichierProjets, String fichierModifications) {
+    public static void loadNotifications(String fichierProjets, String fichierModifications) {
         try {
             // Charger les projets soumis depuis la base de données
             List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
@@ -100,7 +100,7 @@ public class Notifications {
 
 
 
-    private List<String[]> preparerNotifications(List<String[]> projets) {
+    public static List<String[]> preparerNotifications(List<String[]> projets) {
         List<String[]> notifications = new ArrayList<>();
 
         for (String[] projet : projets) {
