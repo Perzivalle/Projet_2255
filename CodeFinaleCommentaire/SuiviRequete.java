@@ -1,0 +1,185 @@
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.util.*;
+import java.util.List;
+
+/**
+ * La classe SuiviRequete permet de gérer et suivre les requêtes de travaux soumises par les résidents.
+ * Elle affiche les requêtes et permet d'interagir avec celles-ci pour prendre des décisions ou modifier leur statut.
+ */
+public class SuiviRequete {
+
+    private static final String REQUETE_FILE = "requeteTravaux.csv"; // Fichier contenant les requêtes
+    private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier des candidatures
+    private static final String MESSAGES_FILE = "messagesCandidatures.csv"; // Fichier pour stocker les messages et décisions
+
+    private String emailResident; // Email du résident connecté
+    private CardLayout cardLayout; // Pour naviguer dans le menu
+    private JPanel mainPanel; // Panneau principal pour navigation
+    private JFrame frame;
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private List<String[]> requetes;
+    private List<String[]> candidatures;
+    private List<String[]> messagesCandidatures;
+
+    /**
+     * Constructeur de la classe SuiviRequete.
+     * @param emailResident Email du résident utilisé pour filtrer les requêtes.
+     * @param cardLayout Gestionnaire de layout pour la navigation.
+     * @param mainPanel Panneau principal contenant la vue du suivi.
+     */
+    public SuiviRequete(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
+        this.emailResident = emailResident;
+        this.cardLayout = cardLayout;
+        this.mainPanel = mainPanel;
+        frame = new JFrame("Suivi des Requêtes de Travaux");
+        frame.setSize(900, 600);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        JPanel panel = new JPanel(new BorderLayout());
+
+        JLabel titleLabel = new JLabel("Suivi des Requêtes de Travaux", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        panel.add(titleLabel, BorderLayout.NORTH);
+
+        String[] columnNames = {"Titre", "Description", "Type", "Quartier", "Date Début", "Statut"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        JButton refreshButton = new JButton("Actualiser");
+        JButton closeButton = new JButton("Fermer");
+        JButton closeRequestButton = new JButton("Fermer la Requête");
+
+        refreshButton.addActionListener(e -> loadRequetes());
+        closeButton.addActionListener(e -> frame.dispose());
+        closeRequestButton.addActionListener(e -> fermerRequete());
+
+        buttonPanel.add(refreshButton);
+        buttonPanel.add(closeRequestButton);
+        buttonPanel.add(closeButton);
+        panel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+        loadRequetes();
+
+        table.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting() && table.getSelectedRow() != -1) {
+                handleRequeteSelection(table.getSelectedRow());
+            }
+        });
+    }
+
+    /**
+     * Charge et affiche les requêtes en consultant les fichiers de données.
+     */
+    private void loadRequetes() {
+        requetes = BaseDeDonnées.lireTous(REQUETE_FILE);
+        candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+        messagesCandidatures = BaseDeDonnées.lireTous(MESSAGES_FILE);
+
+        tableModel.setRowCount(0); // Réinitialiser la table
+        for (String[] requete : requetes) {
+            String statut = getStatutRequete(requete[0]);
+            tableModel.addRow(new String[]{requete[0], requete[1], requete[2], requete[3], requete[4], statut});
+        }
+    }
+
+    /**
+     * Détermine le statut de la requête en examinant les fichiers des candidatures et des messages.
+     * @param titreRequete Le titre de la requête à examiner.
+     * @return Le statut actuel de la requête.
+     */
+    private String getStatutRequete(String titreRequete) {
+        for (String[] message : messagesCandidatures) {
+            if (message[0].equals(titreRequete)) {
+                return "Candidature " + message[1];
+            }
+        }
+        return candidatures.stream()
+                .anyMatch(c -> c.length > 0 && c[0].equals(titreRequete)) ? "Candidature soumise" : "Disponible";
+    }
+
+    /**
+     * Gère la sélection d'une requête pour modification du statut ou autres actions.
+     * @param selectedRow L'index de la ligne sélectionnée.
+     */
+    private void handleRequeteSelection(int selectedRow) {
+        String titreRequete = table.getValueAt(selectedRow, 0).toString();
+        String statut = table.getValueAt(selectedRow, 5).toString();
+
+        if (!"Candidature soumise".equals(statut)) {
+            JOptionPane.showMessageDialog(frame, "Cette candidature est déjà traitée ou indisponible.", "Information", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        int response = JOptionPane.showOptionDialog(frame,
+                "Que voulez-vous faire avec cette candidature ?",
+                "Gestion de la Candidature",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Accepter", "Refuser", "Annuler"},
+                "Accepter");
+
+        if (response == JOptionPane.YES_OPTION) {
+            enregistrerMessage(titreRequete, "acceptée");
+        } else if (response == JOptionPane.NO_OPTION) {
+            enregistrerMessage(titreRequete, "refusée");
+        }
+    }
+
+    /**
+     * Enregistre un message associé à une candidature dans le fichier des messages.
+     * @param titreRequete Le titre de la requête concernée.
+     * @param action L'action effectuée ("acceptée" ou "refusée").
+     */
+    private void enregistrerMessage(String titreRequete, String action) {
+        String message = JOptionPane.showInputDialog(frame, "Entrez un message pour accompagner votre décision :");
+        if (message == null || message.trim().isEmpty()) {
+            message = "Aucun message fourni.";
+        }
+        BaseDeDonnées.écrire(MESSAGES_FILE, new String[]{titreRequete, action, message});
+        JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+        loadRequetes();
+    }
+
+    /**
+     * Permet de fermer une requête sélectionnée, supprimant ainsi son enregistrement.
+     */
+    private void fermerRequete() {
+        int selectedRow = table.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(frame, "Veuillez sélectionner une requête à fermer.", "Erreur", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String titreRequete = table.getValueAt(selectedRow, 0).toString();
+
+        int confirmation = JOptionPane.showConfirmDialog(frame,
+                "Êtes-vous sûr de vouloir fermer cette requête ?",
+                "Confirmation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirmation == JOptionPane.YES_OPTION) {
+            BaseDeDonnées.supprimer(REQUETE_FILE, enregistrement -> enregistrement[0].equals(titreRequete));
+            JOptionPane.showMessageDialog(frame, "La requête a été fermée avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
+            loadRequetes();
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            CardLayout cardLayout = new CardLayout();
+            JPanel mainPanel = new JPanel(cardLayout);
+            new SuiviRequete("test@example.com", cardLayout, mainPanel);
+        });
+    }
+}
