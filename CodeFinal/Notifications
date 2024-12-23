@@ -41,7 +41,7 @@ public class Notifications {
         frame.setVisible(true);
 
         // Charger les notifications
-        loadNotifications();
+        loadNotifications("projetsSoumis.csv", "modificationsProjets.csv");
 
         // Ajouter un événement pour gérer le clic sur une ligne
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -51,13 +51,13 @@ public class Notifications {
         });
     }
 
-    private void loadNotifications() {
+    private void loadNotifications(String fichierProjets, String fichierModifications) {
         try {
             // Charger les projets soumis depuis la base de données
-            List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
 
             // Charger les modifications de projets depuis la base de données
-            modifications = BaseDeDonnées.lireTous("modificationsProjets.csv");
+            modifications = BaseDeDonnées.lireTous(fichierModifications);
 
             // Préparer les notifications pour affichage
             List<String[]> notifications = preparerNotifications(projets);
