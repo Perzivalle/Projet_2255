@@ -67,11 +67,11 @@ public class ModifierProjet {
         frame.setVisible(true);
 
         // Charger les projets dès l'ouverture
-        loadProjets();
+        loadProjets(PROJETS_FILE, tableModel);
     }
 
-    private void loadProjets() {
-        List<String[]> projets = BaseDeDonnées.lireTous(PROJETS_FILE);
+    private void loadProjets(String fichier, DefaultTableModel tableModel) {
+        List<String[]> projets = BaseDeDonnées.lireTous(fichier);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] projet : projets) {
             if (projet.length == 9) { // Vérifie que toutes les colonnes sont présentes
