@@ -308,7 +308,7 @@ public class menu {
         buttonPanel.add(consulterEntravesBtn);
 
         // Bouton Notifications
-        int notificationCount = Notifications.getNotificationCount(); // Appel pour compter les notifications
+        int notificationCount = Notifications.getNotificationCount("projetsSoumis.csv", "modificationsProjets.csv"); // Appel pour compter les notifications
         JButton voirNotificationsBtn = new JButton("Voir ses notifications (" + notificationCount + ")");
         voirNotificationsBtn.addActionListener(e -> new Notifications());
         buttonPanel.add(voirNotificationsBtn);
