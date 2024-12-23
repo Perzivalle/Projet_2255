@@ -51,7 +51,7 @@ public class ConsulterTravaux {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frameConsulterTravaux.dispose();
-                menu.createPageMenuOptionsResident();
+                Main.createPageMenuOptionsResident();
             }
         });
 
