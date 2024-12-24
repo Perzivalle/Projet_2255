@@ -61,8 +61,8 @@ public class SuiviCandidature {
     private void chargerCandidatures() {
         try {
             // Charger les candidatures depuis la base de données
-            List<String[]> candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
-            List<String[]> statuts = BaseDeDonnées.lireTous(STATUT_FILE);
+            List<String[]> candidatures = BaseDeDonnees.lireTous(CANDIDATURES_FILE);
+            List<String[]> statuts = BaseDeDonnees.lireTous(STATUT_FILE);
 
             tableModel.setRowCount(0); // Réinitialiser la table
 
@@ -134,7 +134,7 @@ public class SuiviCandidature {
     private void modifierStatutCandidature(String requete, String nouveauStatut, String message) {
         try {
             // Charger les statuts existants
-            List<String[]> statuts = BaseDeDonnées.lireTous(STATUT_FILE);
+            List<String[]> statuts = BaseDeDonnees.lireTous(STATUT_FILE);
 
             // Vérifier si le statut existe déjà
             boolean statutExistant = false;
@@ -153,7 +153,7 @@ public class SuiviCandidature {
             }
 
             // Enregistrer les nouveaux statuts dans le fichier
-            BaseDeDonnées.ecrireTous(STATUT_FILE, statuts);
+            BaseDeDonnees.ecrireTous(STATUT_FILE, statuts);
 
             JOptionPane.showMessageDialog(frame, "Votre candidature a été " + nouveauStatut + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
 
