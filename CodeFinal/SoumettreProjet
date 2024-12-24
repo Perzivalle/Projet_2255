@@ -116,11 +116,11 @@ public class soumettreProjet {
 
             // Enregistrer le projet soumis
             List<String> projet = Arrays.asList(titre, description, typeTravaux, quartiers, rues, dateDebut, dateFin, horaire, statut);
-            BaseDeDonnées.ajouterLigne("projetsSoumis.csv", projet);
+            BaseDeDonnees.ajouterLigne("projetsSoumis.csv", projet);
 
             // Enregistrer une notification
             String typeNotif = "Un projet a été soumis";
-            BaseDeDonnées.ajouterLigne("notifications.csv", Arrays.asList("Un nouveau projet a été soumis", titre));
+            BaseDeDonnees.ajouterLigne("notifications.csv", Arrays.asList("Un nouveau projet a été soumis", titre));
 
 
 
