@@ -4,7 +4,10 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-
+/**
+ * La classe SuiviRequete permet de gérer et suivre les requêtes de travaux soumises par les résidents.
+ * Elle affiche les requêtes et permet d'interagir avec celles-ci pour prendre des décisions ou modifier leur statut.
+ */
 public class SuiviRequete {
 
     private static final String REQUETE_FILE = "requeteTravaux.csv"; // Fichier contenant les requêtes
@@ -20,7 +23,12 @@ public class SuiviRequete {
     private List<String[]> requetes;
     private static List<String[]> candidatures;
     private static List<String[]> messagesCandidatures;
-
+/**
+     * Constructeur de la classe SuiviRequete.
+     * @param emailResident Email du résident utilisé pour filtrer les requêtes.
+     * @param cardLayout Gestionnaire de layout pour la navigation.
+     * @param mainPanel Panneau principal contenant la vue du suivi.
+     */
     public SuiviRequete(String emailResident, CardLayout cardLayout, JPanel mainPanel) {
         this.emailResident = emailResident;
         this.cardLayout = cardLayout;
@@ -57,7 +65,9 @@ public class SuiviRequete {
 
         frame.add(panel);
         frame.setVisible(true);
-
+/**
+     * Charge et affiche les requêtes en consultant les fichiers de données.
+     */
         loadRequetes();
 
         // Ajouter un événement pour gérer le clic sur une ligne
@@ -79,7 +89,11 @@ public class SuiviRequete {
             tableModel.addRow(new String[]{requete[0], requete[1], requete[2], requete[3], requete[4], statut});
         }
     }
-
+/**
+     * Détermine le statut de la requête en examinant les fichiers des candidatures et des messages.
+     * @param titreRequete Le titre de la requête à examiner.
+     * @return Le statut actuel de la requête.
+     */
     public static String getStatutRequete(String titreRequete, List<String[]> messagesCandidatures, List<String[]> candidatures) {
         // Vérifier si une décision a déjà été prise
         for (String[] message : messagesCandidatures) {
@@ -91,7 +105,10 @@ public class SuiviRequete {
         return candidatures.stream()
                 .anyMatch(c -> c.length > 0 && c[0].equals(titreRequete)) ? "Candidature soumise" : "Disponible";
     }
-
+ /**
+     * Gère la sélection d'une requête pour modification du statut ou autres actions.
+     * @param selectedRow L'index de la ligne sélectionnée.
+     */
     private void handleRequeteSelection(int selectedRow) {
         String titreRequete = table.getValueAt(selectedRow, 0).toString();
         String statut = table.getValueAt(selectedRow, 5).toString();
@@ -117,7 +134,11 @@ public class SuiviRequete {
             enregistrerMessage(titreRequete, "refusée");
         }
     }
-
+ /**
+     * Enregistre un message associé à une candidature dans le fichier des messages.
+     * @param titreRequete Le titre de la requête concernée.
+     * @param action L'action effectuée ("acceptée" ou "refusée").
+     */
     private void enregistrerMessage(String titreRequete, String action) {
         String message = JOptionPane.showInputDialog(frame, "Entrez un message pour accompagner votre décision :");
         if (message == null || message.trim().isEmpty()) {
@@ -127,7 +148,9 @@ public class SuiviRequete {
         JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
         loadRequetes();
     }
-
+/**
+     * Permet de fermer une requête sélectionnée, supprimant ainsi son enregistrement.
+     */
     private void fermerRequete() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
