@@ -9,9 +9,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeParseException;
-
+/**
+ * Cette classe est responsable de l'affichage des demandes de travaux à partir d'une réponse d'API.
+ * Elle permet aux utilisateurs de visualiser, filtrer et interagir avec les demandes de travaux en utilisant une interface graphique.
+ */
 public class ConsulterTravaux {
-
+ /**
+     * Méthode pour initialiser et afficher les demandes de travaux si l'appel API est réussi.
+     */
     public static void ConsulterTravaux() {
         if (App.responseTravaux == null || App.responseTravaux.getStatusCode() != 200) {
             JOptionPane.showMessageDialog(null, "Erreur de données de travaux","Erreur", JOptionPane.ERROR_MESSAGE);
