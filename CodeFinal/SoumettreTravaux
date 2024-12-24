@@ -127,7 +127,7 @@ public class soumettreTravaux {
 
             // Sauvegarder dans la base de données
             try {
-                BaseDeDonnées.écrire(CSV_FILE, informationRequete.toArray(new String[0]));
+                BaseDeDonnees.ecrire(CSV_FILE, informationRequete.toArray(new String[0]));
                 JOptionPane.showMessageDialog(frame, "Requête soumise avec succès !");
                 frame.dispose();
             } catch (Exception ex) {
