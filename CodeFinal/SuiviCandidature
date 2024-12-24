@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -14,7 +16,7 @@ public class SuiviCandidature {
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
- /**
+    /**
      * Constructeur qui initialise l'interface graphique pour le suivi des candidatures.
      */
     public SuiviCandidature() {
@@ -53,7 +55,7 @@ public class SuiviCandidature {
 
         frame.setVisible(true);
     }
- /**
+    /**
      * Charge et affiche les candidatures avec leurs statuts depuis les fichiers CSV.
      */
     private void chargerCandidatures() {
@@ -95,7 +97,7 @@ public class SuiviCandidature {
             e.printStackTrace();
         }
     }
- /**
+    /**
      * Gère les interactions avec les candidatures sélectionnées, permettant de modifier le statut de la candidature.
      * @param selectedRow l'indice de la ligne sélectionnée dans la table.
      */
@@ -123,7 +125,7 @@ public class SuiviCandidature {
             modifierStatutCandidature(requete, "annulée", "Votre candidature a été annulée par vous.");
         }
     }
- /**
+    /**
      * Modifie le statut d'une candidature et enregistre le changement dans le fichier CSV.
      * @param requete le titre de la candidature à modifier.
      * @param nouveauStatut le nouveau statut de la candidature.
