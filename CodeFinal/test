@@ -23,27 +23,27 @@ public class test {
     public void setUp(){
         List<String[]> nomsTest = new ArrayList<>();
         nomsTest.add(new String[] {"nom1", "nom2", "nom3", "nom4"});
-        BaseDeDonnées.ecrireTous(fichierTest, nomsTest);
+        BaseDeDonnees.ecrireTous(fichierTest, nomsTest);
 
         List<String[]> testNombreProjets = new ArrayList<>();
         testNombreProjets.add(new String[] {"projet1"});
-        BaseDeDonnées.ecrireTous(fichierProjetsTest, testNombreProjets);
+        BaseDeDonnees.ecrireTous(fichierProjetsTest, testNombreProjets);
 
         List<String[]> testNombreNotifications = new ArrayList<>();
         testNombreNotifications.add(new String[] {"Notification1"});
-        BaseDeDonnées.ecrireTous(fichierModificationsTest, testNombreNotifications);
+        BaseDeDonnees.ecrireTous(fichierModificationsTest, testNombreNotifications);
 
         List<String[]> testRequete = new ArrayList<>();
         testRequete.add(new String[] {"Requete1"});
-        BaseDeDonnées.ecrireTous(fichierRequeteTest, testRequete);
+        BaseDeDonnees.ecrireTous(fichierRequeteTest, testRequete);
 
         List<String[]> testCandidatures = new ArrayList<>();
         testCandidatures.add(new String[] {"Candidature1"});
-        BaseDeDonnées.ecrireTous(fichierCandidaturesTest, testCandidatures);
+        BaseDeDonnees.ecrireTous(fichierCandidaturesTest, testCandidatures);
 
         List<String[]> testMessages = new ArrayList<>();
         testMessages.add(new String[] {"Message1"});
-        BaseDeDonnées.ecrireTous(fichierMessagesTest, testMessages);
+        BaseDeDonnees.ecrireTous(fichierMessagesTest, testMessages);
 
 
     }
@@ -59,28 +59,28 @@ public class test {
 
     @Test
     public void testVisualiserFichier(){
-        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+        List<String[]> resultatsFichierTest = BaseDeDonnees.lireTous(fichierTest);
         Assertions.assertArrayEquals(new String[] {"nom1", "nom2", "nom3", "nom4"}, resultatsFichierTest.get(0));
     }
 
     @Test
     public void testAjouterLigne(){
         String[] nouvelleLigne = new String[] {"nom5", "nom6", "nom7", "nom8"};
-        BaseDeDonnées.ajouterLigne(fichierTest, List.of(nouvelleLigne));
-        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+        BaseDeDonnees.ajouterLigne(fichierTest, List.of(nouvelleLigne));
+        List<String[]> resultatsFichierTest = BaseDeDonnees.lireTous(fichierTest);
 
         Assertions.assertEquals(2, resultatsFichierTest.size());
     }
 
     @Test
     public void testSupprimerLigne(){
-        BaseDeDonnées.ConditionSuppression conditionSuppression = enregistrement -> enregistrement[0].equals("nom1");
+        BaseDeDonnees.ConditionSuppression conditionSuppression = enregistrement -> enregistrement[0].equals("nom1");
         String[] nouvelleLigne = new String[] {"nom5", "nom6", "nom7", "nom8"};
-        BaseDeDonnées.ajouterLigne(fichierTest, List.of(nouvelleLigne));
+        BaseDeDonnees.ajouterLigne(fichierTest, List.of(nouvelleLigne));
 
-        BaseDeDonnées.supprimer(fichierTest, conditionSuppression);
+        BaseDeDonnees.supprimer(fichierTest, conditionSuppression);
 
-        List<String[]> resultatsFichierTest = BaseDeDonnées.lireTous(fichierTest);
+        List<String[]> resultatsFichierTest = BaseDeDonnees.lireTous(fichierTest);
         Assertions.assertEquals(1, resultatsFichierTest.size());
     }
 
@@ -197,7 +197,7 @@ public class test {
     }
 
     @Test
-    public void testAPIValidité() {
+    public void testAPIValidite() {
         HttpClientApi api = new HttpClientApi();
         String resourceIdTravaux = "cc41b532-f12d-40fb-9f55-eb58c9a2b12b";
         ApiResponse testApiReponse = api.getData(resourceIdTravaux);
