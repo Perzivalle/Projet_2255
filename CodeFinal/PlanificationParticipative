@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -19,7 +21,7 @@ public class PlanificationParticipative {
     private JTable preferencesTable;
     private DefaultTableModel travauxTableModel;
     private DefaultTableModel preferencesTableModel;
-/**
+    /**
      * Constructeur qui initialise les composants de l'interface utilisateur et charge les données.
      */
     public PlanificationParticipative() {
