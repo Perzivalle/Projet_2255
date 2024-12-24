@@ -3,14 +3,19 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Classe pour consulter les projets soumis. Permet d'afficher les projets dans une interface graphique,
+ * avec des fonctionnalités de filtrage par quartier et par date.
+ */
 public class ConsulterProjets {
 
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
     private static final String PROJETS_FILE = "projetsSoumis.csv"; // Nom logique pour identifier les projets dans la base de données
-
+/**
+     * Constructeur qui initialise l'interface graphique et charge les données des projets.
+     */
     public ConsulterProjets() {
         frame = new JFrame("Consulter les projets en cours ou à venir");
         frame.setSize(1000, 600);
@@ -64,7 +69,9 @@ public class ConsulterProjets {
         resetFilterButton.addActionListener(e -> loadProjects());
         retourButton.addActionListener(e -> frame.dispose());
     }
-
+/**
+     * Charge et affiche tous les projets depuis le fichier CSV dans la table.
+     */
     private void loadProjects() {
         // Lire les projets depuis la base de données
         List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
@@ -73,7 +80,12 @@ public class ConsulterProjets {
             tableModel.addRow(project);
         }
     }
-
+/**
+     * Applique les filtres spécifiés aux données des projets et met à jour l'affichage.
+     *
+     * @param quartier Le quartier pour filtrer les projets.
+     * @param dateDebut La date de début pour filtrer les projets.
+     */
     private void applyFilter(String quartier, String dateDebut) {
         List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
         List<String[]> filteredProjects = new ArrayList<>();
@@ -97,7 +109,9 @@ public class ConsulterProjets {
             JOptionPane.showMessageDialog(frame, "Aucun projet trouvé pour les critères sélectionnés.", "Information", JOptionPane.INFORMATION_MESSAGE);
         }
     }
-
+ /**
+     * Méthode principale pour exécuter l'application.
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ConsulterProjets::new);
     }
