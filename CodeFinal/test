@@ -1,18 +1,13 @@
-import code.ApiResponse;
-import code.HttpClientApi;
+package org.example;
 
+import org.example.code.ApiResponse;
+import org.example.code.HttpClientApi;
+import org.junit.jupiter.api.*;
+import javax.swing.*;
 import java.awt.*;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-
-import org.junit.jupiter.api.*;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 
 public class test {
     public test(){
@@ -225,4 +220,3 @@ public class test {
         Assertions.assertNotNull(testApiMessage.getMessage());
     }
 }
-
