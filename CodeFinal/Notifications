@@ -68,10 +68,10 @@ public class Notifications {
     public static void loadNotifications(String fichierProjets, String fichierModifications) {
         try {
             // Charger les projets soumis depuis la base de données
-            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
+            List<String[]> projets = BaseDeDonnees.lireTous(fichierProjets);
 
             // Charger les modifications de projets depuis la base de données
-            modifications = BaseDeDonnées.lireTous(fichierModifications);
+            modifications = BaseDeDonnees.lireTous(fichierModifications);
 
             // Préparer les notifications pour affichage
             List<String[]> notifications = preparerNotifications(projets);
@@ -104,11 +104,11 @@ public class Notifications {
     public static int getNotificationCount(String fichierProjets, String fichierModifications) {
         try {
             // Compter les notifications dans projetsSoumis.csv
-            List<String[]> projets = BaseDeDonnées.lireTous(fichierProjets);
+            List<String[]> projets = BaseDeDonnees.lireTous(fichierProjets);
             int countProjets = projets.size();
 
             // Compter les notifications dans modificationsProjets.csv
-            List<String[]> modifications = BaseDeDonnées.lireTous(fichierModifications);
+            List<String[]> modifications = BaseDeDonnees.lireTous(fichierModifications);
             int countModifications = modifications.size();
 
             // Additionner les deux
@@ -143,11 +143,11 @@ public class Notifications {
      */
     private void afficherDetailsNotification(int selectedRow) {
         try {
-            int projetsCount = BaseDeDonnées.lireTous("projetsSoumis.csv").size();
+            int projetsCount = BaseDeDonnees.lireTous("projetsSoumis.csv").size();
 
             if (selectedRow < projetsCount) {
                 // Notification provenant de projetsSoumis.csv
-                List<String[]> projets = BaseDeDonnées.lireTous("projetsSoumis.csv");
+                List<String[]> projets = BaseDeDonnees.lireTous("projetsSoumis.csv");
                 String[] projet = projets.get(selectedRow);
 
                 // Afficher les détails dans une nouvelle fenêtre
