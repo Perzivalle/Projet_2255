@@ -4,7 +4,10 @@ import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Classe permettant de modifier les informations des projets soumis.
+ * Offre des fonctionnalités pour mettre à jour la description, la date de fin, et le statut des projets.
+ */
 public class ModifierProjet {
 
     private static final String PROJETS_FILE = "projetsSoumis.csv"; // Fichier contenant les projets soumis
@@ -14,7 +17,10 @@ public class ModifierProjet {
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
-
+ /**
+     * Constructeur de la classe ModifierProjet.
+     * Initialise l'interface graphique et charge les projets soumis dans une JTable.
+     */
     public ModifierProjet() {
         frame = new JFrame("Modifier un projet");
         frame.setSize(1000, 600);
@@ -69,7 +75,12 @@ public class ModifierProjet {
         // Charger les projets dès l'ouverture
         loadProjets(PROJETS_FILE, tableModel);
     }
-
+ /**
+     * Charge les projets depuis le fichier spécifié et les affiche dans la JTable.
+     *
+     * @param fichier     Chemin du fichier contenant les projets.
+     * @param tableModel  Modèle de la JTable où afficher les projets.
+     */
     private void loadProjets(String fichier, DefaultTableModel tableModel) {
         List<String[]> projets = BaseDeDonnées.lireTous(fichier);
         tableModel.setRowCount(0); // Réinitialiser la table
@@ -79,7 +90,9 @@ public class ModifierProjet {
             }
         }
     }
-
+/**
+     * Modifie la description d'un projet sélectionné dans la JTable.
+     */
     private void modifierDescription() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -97,7 +110,9 @@ public class ModifierProjet {
             sauvegarderModifications();
         }
     }
-
+/**
+     * Modifie la date de fin d'un projet sélectionné dans la JTable.
+     */
     private void modifierDateFin() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -115,7 +130,9 @@ public class ModifierProjet {
             sauvegarderModifications();
         }
     }
-
+ /**
+     * Modifie le statut d'un projet sélectionné dans la JTable.
+     */
     private void modifierStatut() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -136,7 +153,9 @@ public class ModifierProjet {
             sauvegarderModifications();
         }
     }
-
+/**
+     * Sauvegarde les modifications apportées à la liste des projets.
+     */
     private void sauvegarderModifications() {
         List<String[]> projets = new ArrayList<>();
         for (int i = 0; i < tableModel.getRowCount(); i++) {
@@ -150,17 +169,34 @@ public class ModifierProjet {
         BaseDeDonnées.réécrire(PROJETS_FILE,projets);
         JOptionPane.showMessageDialog(frame, "Modifications enregistrées avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
     }
-
+ /**
+     * Ajoute une notification concernant une modification de projet.
+     *
+     * @param typeNotif  Type de notification.
+     * @param titreProjet Titre du projet concerné.
+     */
     private void ajouterNotification(String typeNotif, String titreProjet) {
         String[] notification = {typeNotif,titreProjet};
         BaseDeDonnées.écrire(NOTIFICATIONS_FILE, notification);
     }
 
+    /**
+     * Enregistre une modification spécifique pour un projet.
+     *
+     * @param titre           Titre du projet concerné.
+     * @param typeModification Type de modification effectuée.
+     * @param ancienneValeur   Ancienne valeur de l'attribut modifié.
+     * @param nouvelleValeur   Nouvelle valeur de l'attribut modifié.
+     */
     private void enregistrerModification(String titre, String typeModification, String ancienneValeur, String nouvelleValeur) {
         String[] modification = {titre, typeModification, ancienneValeur, nouvelleValeur};
         BaseDeDonnées.écrire(MODIFICATIONS_FILE, modification);
     }
-
+/**
+     * Méthode principale pour lancer l'application.
+     *
+     * @param args Arguments de ligne de commande (non utilisés).
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(ModifierProjet::new);
     }
