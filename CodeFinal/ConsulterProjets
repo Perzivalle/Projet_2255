@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -13,7 +15,7 @@ public class ConsulterProjets {
     private JTable table;
     private DefaultTableModel tableModel;
     private static final String PROJETS_FILE = "projetsSoumis.csv"; // Nom logique pour identifier les projets dans la base de données
-/**
+    /**
      * Constructeur qui initialise l'interface graphique et charge les données des projets.
      */
     public ConsulterProjets() {
@@ -69,7 +71,7 @@ public class ConsulterProjets {
         resetFilterButton.addActionListener(e -> loadProjects());
         retourButton.addActionListener(e -> frame.dispose());
     }
-/**
+    /**
      * Charge et affiche tous les projets depuis le fichier CSV dans la table.
      */
     private void loadProjects() {
@@ -80,7 +82,7 @@ public class ConsulterProjets {
             tableModel.addRow(project);
         }
     }
-/**
+    /**
      * Applique les filtres spécifiés aux données des projets et met à jour l'affichage.
      *
      * @param quartier Le quartier pour filtrer les projets.
@@ -109,7 +111,7 @@ public class ConsulterProjets {
             JOptionPane.showMessageDialog(frame, "Aucun projet trouvé pour les critères sélectionnés.", "Information", JOptionPane.INFORMATION_MESSAGE);
         }
     }
- /**
+    /**
      * Méthode principale pour exécuter l'application.
      */
     public static void main(String[] args) {
