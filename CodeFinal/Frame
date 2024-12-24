@@ -1,4 +1,6 @@
-import javax.swing.JFrame;
+package org.example;
+
+import javax.swing.*;
 
 public class Frame {
     public static JFrame nouveauFrame(String titreFrame){
