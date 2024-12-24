@@ -4,11 +4,16 @@ import java.util.*;
 import java.util.List;
 import java.util.Arrays;
 
-
+/**
+ * La classe soumettreProjet gère l'interface pour la soumission de nouveaux projets par les utilisateurs.
+ * Elle permet aux utilisateurs de saisir des informations détaillées sur les projets et de les soumettre pour enregistrement.
+ */
 public class soumettreProjet {
 
     private JFrame frame;
-
+ /**
+     * Constructeur qui initialise l'interface graphique pour la soumission de nouveaux projets.
+     */
     public soumettreProjet() {
         frame = new JFrame("Soumettre un nouveau projet");
         frame.setSize(800, 600);
