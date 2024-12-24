@@ -83,7 +83,7 @@ public class ModifierProjet {
      * @param tableModel  Modèle de la JTable où afficher les projets.
      */
     private void loadProjets(String fichier, DefaultTableModel tableModel) {
-        List<String[]> projets = BaseDeDonnées.lireTous(fichier);
+        List<String[]> projets = BaseDeDonnees.lireTous(fichier);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] projet : projets) {
             if (projet.length == 9) { // Vérifie que toutes les colonnes sont présentes
@@ -167,7 +167,7 @@ public class ModifierProjet {
             projets.add(projet);
         }
 
-        BaseDeDonnées.réécrire(PROJETS_FILE,projets);
+        BaseDeDonnees.reecrire(PROJETS_FILE,projets);
         JOptionPane.showMessageDialog(frame, "Modifications enregistrées avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
     }
     /**
@@ -178,7 +178,7 @@ public class ModifierProjet {
      */
     private void ajouterNotification(String typeNotif, String titreProjet) {
         String[] notification = {typeNotif,titreProjet};
-        BaseDeDonnées.écrire(NOTIFICATIONS_FILE, notification);
+        BaseDeDonnees.ecrire(NOTIFICATIONS_FILE, notification);
     }
 
     /**
@@ -191,7 +191,7 @@ public class ModifierProjet {
      */
     private void enregistrerModification(String titre, String typeModification, String ancienneValeur, String nouvelleValeur) {
         String[] modification = {titre, typeModification, ancienneValeur, nouvelleValeur};
-        BaseDeDonnées.écrire(MODIFICATIONS_FILE, modification);
+        BaseDeDonnees.ecrire(MODIFICATIONS_FILE, modification);
     }
     /**
      * Méthode principale pour lancer l'application.
