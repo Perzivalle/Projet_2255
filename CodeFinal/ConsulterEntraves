@@ -10,8 +10,14 @@ import com.google.gson.JsonElement;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
+/**
+ * Classe permettant de consulter les informations sur les entraves à partir des données fournies par une API.
+ */
 public class consulterEntraves {
+/**
+     * Consulte les entraves et affiche les données dans une interface utilisateur.
+     * Cette méthode extrait les données de l'API, les traite et les affiche dans un tableau avec des options de filtrage.
+     */
     public static void consulterEntraves() {
         // Permet de s'assurer qu'on a bien recu les donnees API voulu pour les entraves
         if (App.responseEntraves == null || App.responseEntraves.getStatusCode() != 200) {
