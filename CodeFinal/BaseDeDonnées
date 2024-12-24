@@ -8,7 +8,7 @@ import java.util.List;
  * Cette classe fournit des méthodes statiques pour la manipulation de fichiers qui agissent comme une simple base de données textuelle.
  */
 
-public class BaseDeDonnées {
+public class BaseDeDonnees {
 
     /**
      * Lit toutes les lignes d'un fichier donné et les retourne sous forme de liste de tableaux de String.
@@ -59,7 +59,7 @@ public class BaseDeDonnées {
      * @param valeurs Les valeurs à écrire dans le fichier.
      */
 
-    public static void écrire(String fichier, String[] valeurs) {
+    public static void ecrire(String fichier, String[] valeurs) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier, true))) {
             writer.write(String.join(",", valeurs));
             writer.newLine();
@@ -91,7 +91,7 @@ public class BaseDeDonnées {
      * @param enregistrements Les nouveaux enregistrements à écrire dans le fichier.
      */
 
-    public static void réécrire(String fichier, List<String[]> enregistrements) {
+    public static void reecrire(String fichier, List<String[]> enregistrements) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier))) {
             for (String[] valeurs : enregistrements) {
                 writer.write(String.join(",", valeurs));
@@ -120,7 +120,7 @@ public class BaseDeDonnées {
             }
         }
 
-        réécrire(fichier, enregistrementsMisAJour);
+        reecrire(fichier, enregistrementsMisAJour);
     }
 
     /**
