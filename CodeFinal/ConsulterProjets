@@ -76,7 +76,7 @@ public class ConsulterProjets {
      */
     private void loadProjects() {
         // Lire les projets depuis la base de données
-        List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
+        List<String[]> projects = BaseDeDonnees.lireTous(PROJETS_FILE);
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] project : projects) {
             tableModel.addRow(project);
@@ -89,7 +89,7 @@ public class ConsulterProjets {
      * @param dateDebut La date de début pour filtrer les projets.
      */
     private void applyFilter(String quartier, String dateDebut) {
-        List<String[]> projects = BaseDeDonnées.lireTous(PROJETS_FILE);
+        List<String[]> projects = BaseDeDonnees.lireTous(PROJETS_FILE);
         List<String[]> filteredProjects = new ArrayList<>();
 
         for (String[] project : projects) {
