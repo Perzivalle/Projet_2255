@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -13,7 +15,7 @@ public class Notifications {
     private JTable table;
     private static DefaultTableModel tableModel;
     private static List<String[]> modifications;
-/**
+    /**
      * Constructeur de la classe Notifications.
      * Initialise la fenêtre et charge les notifications.
      */
@@ -92,7 +94,7 @@ public class Notifications {
             e.printStackTrace();
         }
     }
-/**
+    /**
      * Compte le nombre total de notifications.
      *
      * @param fichierProjets      Le fichier contenant les projets soumis.
@@ -117,7 +119,7 @@ public class Notifications {
     }
 
 
-  /**
+    /**
      * Prépare une liste de notifications à partir des projets soumis.
      *
      * @param projets La liste des projets soumis.
@@ -134,7 +136,7 @@ public class Notifications {
 
         return notifications;
     }
- /**
+    /**
      * Affiche les détails d'une notification sélectionnée.
      *
      * @param selectedRow L'index de la ligne sélectionnée.
@@ -173,7 +175,7 @@ public class Notifications {
             e.printStackTrace();
         }
     }
-/**
+    /**
      * Point d'entrée principal pour lancer l'application Notifications.
      *
      * @param args Arguments de la ligne de commande.
