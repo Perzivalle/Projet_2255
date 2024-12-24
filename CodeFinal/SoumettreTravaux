@@ -1,14 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-
+/**
+ * La classe soumettreTravaux gère l'interface pour soumettre des requêtes de travaux résidentiels par les utilisateurs.
+ * Elle permet de saisir des informations sur des travaux prévus et de les enregistrer dans un fichier CSV.
+ */
 public class soumettreTravaux {
 
     private final JFrame frame;
     private final ArrayList<String> informationRequete = new ArrayList<>();
     private static final String CSV_FILE = "requeteTravaux.csv";
     private String suivi = "Non";
-
+/**
+     * Constructeur qui initialise l'interface graphique pour la soumission de nouvelles requêtes de travaux.
+     */
     public soumettreTravaux() {
         frame = new JFrame("Soumettre une Requête de Travail Résidentiel");
         frame.setSize(500, 600);
@@ -131,8 +136,12 @@ public class soumettreTravaux {
 
         frame.setVisible(true);
     }
-
-    // Méthode pour mettre à jour les jours selon le mois
+/**
+ * Met à jour les jours disponibles dans un JComboBox en fonction du nombre de jours spécifié.
+ *
+ * @param jourBox le JComboBox à mettre à jour avec les jours.
+ * @param jours le nombre de jours à afficher dans le JComboBox.
+ */
     private void updateJours(JComboBox<Integer> jourBox, int jours) {
         jourBox.removeAllItems();
         for (int i = 1; i <= jours; i++) {
@@ -140,7 +149,13 @@ public class soumettreTravaux {
         }
     }
 
-    // Méthode pour obtenir le nombre de jours dans un mois
+/**
+ * Calcule le nombre de jours dans un mois donné pour une année spécifique.
+ *
+ * @param mois le mois (1 pour janvier, 12 pour décembre).
+ * @param annee l'année (par exemple, 2024).
+ * @return le nombre de jours dans le mois spécifié.
+ */
     private int getJoursDansMois(int mois, int annee) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, annee);
