@@ -5,7 +5,10 @@ import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * Classe destinée à consulter et gérer les requêtes de travaux.
+ * Elle permet de visualiser, filtrer, soumettre et retirer des candidatures pour des travaux.
+ */
 public class consulterRequeteTravail {
 
     private static final String CSV_FILE = "requeteTravaux.csv"; // Fichier des requêtes
@@ -16,7 +19,9 @@ public class consulterRequeteTravail {
     private List<String[]> allTravaux;
     private List<String[]> candidatures;
 
-
+/**
+     * Constructeur qui initialise l'interface utilisateur pour la consultation des requêtes de travaux.
+     */
     public consulterRequeteTravail() {
         BaseDeDonnées.lireTous(CSV_FILE);
         BaseDeDonnées.lireTous(CANDIDATURES_FILE);
@@ -80,13 +85,17 @@ public class consulterRequeteTravail {
 
         updateTable();
     }
-
+/**
+     * Met à jour la table des travaux en rechargeant les données depuis les fichiers CSV.
+     */
     private void updateTable() {
         allTravaux = BaseDeDonnées.lireTous(CSV_FILE);
         candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
         resetTable();
     }
-
+/**
+     * Réinitialise et met à jour les données affichées dans la table en fonction des travaux et des candidatures existantes.
+     */
     private void resetTable() {
         tableModel.setRowCount(0);
         for (String[] travail : allTravaux) {
@@ -94,7 +103,12 @@ public class consulterRequeteTravail {
             tableModel.addRow(new String[]{travail[0], travail[1], travail[2], travail[3], travail[4], travail[5], statut});
         }
     }
-
+ /**
+     * Applique un filtre aux travaux affichés en fonction du type, du quartier ou de la date de début.
+     *
+     * @param criteria La valeur du critère de filtrage.
+     * @param filterType Le type de filtre appliqué (Type, Quartier, Date Début).
+     */
     private void applyFilter(String criteria, String filterType) {
         if (criteria == null || criteria.isEmpty()) {
             JOptionPane.showMessageDialog(frame, "Veuillez entrer une valeur pour le filtre.", "Erreur", JOptionPane.ERROR_MESSAGE);
@@ -123,7 +137,9 @@ public class consulterRequeteTravail {
         }
     }
 
-
+/**
+     * Permet à l'utilisateur de soumettre une candidature pour un travail sélectionné.
+     */
     private void soumettreCandidature() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
@@ -154,7 +170,9 @@ public class consulterRequeteTravail {
             updateTable();
         }
     }
-
+ /**
+     * Permet à l'utilisateur de retirer une candidature précédemment soumise pour un travail sélectionné.
+     */
     private void retirerCandidature() {
         int selectedRow = table.getSelectedRow();
         if (selectedRow == -1) {
