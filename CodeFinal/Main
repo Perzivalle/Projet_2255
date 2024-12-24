@@ -29,8 +29,8 @@ public class Main {
      */
     public Main() {
         // Charger les comptes depuis les fichiers
-        comptesResident.addAll(BaseDeDonnées.lireTous(RESIDENTS_FILE));
-        comptesIntervenant.addAll(BaseDeDonnées.lireTous(INTERVENANTS_FILE));
+        comptesResident.addAll(BaseDeDonnees.lireTous(RESIDENTS_FILE));
+        comptesIntervenant.addAll(BaseDeDonnees.lireTous(INTERVENANTS_FILE));
 
         // Initialisation de la fenêtre principale
         frame = new JFrame("Menu Principal");
@@ -215,11 +215,11 @@ public class Main {
             if ("Résident".equals(comboBoxTypeCompte.getSelectedItem())) {
                 String[] donneesResident = {inputEmail.getText(), new String(inputMdp.getPassword()), inputNomComplet.getText(), inputDateNaissance.getText(), inputAdresse.getText()};
                 comptesResident.add(donneesResident);
-                BaseDeDonnées.réécrire(RESIDENTS_FILE, comptesResident);
+                BaseDeDonnees.reecrire(RESIDENTS_FILE, comptesResident);
             }else if ("Intervenant".equals(comboBoxTypeCompte.getSelectedItem())) {
                 String [] donneesIntervenant = {inputEmail.getText(), new String(inputMdp.getPassword()), inputNomIntervenant.getText(), inputTypeIntervenant.getText(), inputIdVille.getText()};
                 comptesIntervenant.add(donneesIntervenant);
-                BaseDeDonnées.réécrire(INTERVENANTS_FILE, comptesIntervenant);
+                BaseDeDonnees.reecrire(INTERVENANTS_FILE, comptesIntervenant);
             }
 
             JOptionPane.showMessageDialog(frame, "Inscription effectuée avec succès !");
