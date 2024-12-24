@@ -25,8 +25,8 @@ public class consulterRequeteTravail {
      * Constructeur qui initialise l'interface utilisateur pour la consultation des requêtes de travaux.
      */
     public consulterRequeteTravail() {
-        BaseDeDonnées.lireTous(CSV_FILE);
-        BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+        BaseDeDonnees.lireTous(CSV_FILE);
+        BaseDeDonnees.lireTous(CANDIDATURES_FILE);
 
         frame = new JFrame("Consulter Requêtes de Travaux");
         frame.setSize(900, 600);
@@ -91,8 +91,8 @@ public class consulterRequeteTravail {
      * Met à jour la table des travaux en rechargeant les données depuis les fichiers CSV.
      */
     private void updateTable() {
-        allTravaux = BaseDeDonnées.lireTous(CSV_FILE);
-        candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
+        allTravaux = BaseDeDonnees.lireTous(CSV_FILE);
+        candidatures = BaseDeDonnees.lireTous(CANDIDATURES_FILE);
         resetTable();
     }
     /**
@@ -166,7 +166,7 @@ public class consulterRequeteTravail {
             System.arraycopy(travail, 0, valeurs, 0, travail.length);
             valeurs[travail.length] = dateDebut;
             valeurs[travail.length + 1] = dateFin;
-            BaseDeDonnées.écrire(CANDIDATURES_FILE, valeurs);
+            BaseDeDonnees.ecrire(CANDIDATURES_FILE, valeurs);
 
             JOptionPane.showMessageDialog(frame, "Candidature soumise avec succès !", "Succès", JOptionPane.INFORMATION_MESSAGE);
             updateTable();
@@ -186,9 +186,9 @@ public class consulterRequeteTravail {
             travail[i] = table.getValueAt(selectedRow, i).toString();
         }
 
-        BaseDeDonnées.ConditionSuppression conditionSuppression = enregistrement -> Arrays.equals(travail, Arrays.copyOfRange(enregistrement, 0, travail.length));
+        BaseDeDonnees.ConditionSuppression conditionSuppression = enregistrement -> Arrays.equals(travail, Arrays.copyOfRange(enregistrement, 0, travail.length));
 
-        BaseDeDonnées.supprimer(CANDIDATURES_FILE, conditionSuppression);
+        BaseDeDonnees.supprimer(CANDIDATURES_FILE, conditionSuppression);
     }
 
 
