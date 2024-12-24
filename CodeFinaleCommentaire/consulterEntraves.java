@@ -63,7 +63,7 @@ public class consulterEntraves {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frameConsulterEntraves.dispose();
-                menu.createPageMenuOptionsResident();
+                Main.createPageMenuOptionsResident();
             }
         });
 
