@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -11,7 +13,7 @@ import java.util.Arrays;
 public class soumettreProjet {
 
     private JFrame frame;
- /**
+    /**
      * Constructeur qui initialise l'interface graphique pour la soumission de nouveaux projets.
      */
     public soumettreProjet() {
