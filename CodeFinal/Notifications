@@ -3,14 +3,20 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
+/**
+ * Classe responsable de la gestion et de l'affichage des notifications
+ * concernant les projets et leurs modifications.
+ */
 public class Notifications {
 
     private static JFrame frame;
     private JTable table;
     private static DefaultTableModel tableModel;
     private static List<String[]> modifications;
-
+/**
+     * Constructeur de la classe Notifications.
+     * Initialise la fenêtre et charge les notifications.
+     */
     public Notifications() {
         frame = new JFrame("Notifications des Projets");
         frame.setSize(800, 600);
@@ -51,6 +57,12 @@ public class Notifications {
         });
     }
 
+    /**
+     * Charge les notifications à partir des fichiers donnés.
+     *
+     * @param fichierProjets      Le fichier contenant les projets soumis.
+     * @param fichierModifications Le fichier contenant les modifications des projets.
+     */
     public static void loadNotifications(String fichierProjets, String fichierModifications) {
         try {
             // Charger les projets soumis depuis la base de données
@@ -80,7 +92,13 @@ public class Notifications {
             e.printStackTrace();
         }
     }
-
+/**
+     * Compte le nombre total de notifications.
+     *
+     * @param fichierProjets      Le fichier contenant les projets soumis.
+     * @param fichierModifications Le fichier contenant les modifications des projets.
+     * @return Le nombre total de notifications.
+     */
     public static int getNotificationCount(String fichierProjets, String fichierModifications) {
         try {
             // Compter les notifications dans projetsSoumis.csv
@@ -99,6 +117,12 @@ public class Notifications {
     }
 
 
+  /**
+     * Prépare une liste de notifications à partir des projets soumis.
+     *
+     * @param projets La liste des projets soumis.
+     * @return Une liste de notifications formatées.
+     */
 
     public static List<String[]> preparerNotifications(List<String[]> projets) {
         List<String[]> notifications = new ArrayList<>();
@@ -110,7 +134,11 @@ public class Notifications {
 
         return notifications;
     }
-
+ /**
+     * Affiche les détails d'une notification sélectionnée.
+     *
+     * @param selectedRow L'index de la ligne sélectionnée.
+     */
     private void afficherDetailsNotification(int selectedRow) {
         try {
             int projetsCount = BaseDeDonnées.lireTous("projetsSoumis.csv").size();
@@ -145,7 +173,11 @@ public class Notifications {
             e.printStackTrace();
         }
     }
-
+/**
+     * Point d'entrée principal pour lancer l'application Notifications.
+     *
+     * @param args Arguments de la ligne de commande.
+     */
     public static void main(String[] args) {
         SwingUtilities.invokeLater(Notifications::new);
     }
