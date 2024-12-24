@@ -65,9 +65,9 @@ public class SuiviRequete {
 
         frame.add(panel);
         frame.setVisible(true);
-/**
- * Charge et affiche les requêtes en consultant les fichiers de données.
- */
+        /**
+         * Charge et affiche les requêtes en consultant les fichiers de données.
+        */
         loadRequetes();
 
         // Ajouter un événement pour gérer le clic sur une ligne
@@ -79,9 +79,9 @@ public class SuiviRequete {
     }
 
     private void loadRequetes() {
-        requetes = BaseDeDonnées.lireTous(REQUETE_FILE);
-        candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
-        messagesCandidatures = BaseDeDonnées.lireTous(MESSAGES_FILE);
+        requetes = BaseDeDonnees.lireTous(REQUETE_FILE);
+        candidatures = BaseDeDonnees.lireTous(CANDIDATURES_FILE);
+        messagesCandidatures = BaseDeDonnees.lireTous(MESSAGES_FILE);
 
         tableModel.setRowCount(0); // Réinitialiser la table
         for (String[] requete : requetes) {
@@ -144,7 +144,7 @@ public class SuiviRequete {
         if (message == null || message.trim().isEmpty()) {
             message = "Aucun message fourni.";
         }
-        BaseDeDonnées.écrire(MESSAGES_FILE,new String[]{titreRequete, action, message});
+        BaseDeDonnees.ecrire(MESSAGES_FILE,new String[]{titreRequete, action, message});
         JOptionPane.showMessageDialog(frame, "Candidature " + action + " avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
         loadRequetes();
     }
@@ -168,7 +168,7 @@ public class SuiviRequete {
 
         if (confirmation == JOptionPane.YES_OPTION) {
             // Supprimer la requête du fichier
-            BaseDeDonnées.supprimer(REQUETE_FILE, enregistrement -> enregistrement[0].equals(titreRequete));
+            BaseDeDonnees.supprimer(REQUETE_FILE, enregistrement -> enregistrement[0].equals(titreRequete));
             JOptionPane.showMessageDialog(frame, "La requête a été fermée avec succès.", "Succès", JOptionPane.INFORMATION_MESSAGE);
             loadRequetes();
         }
