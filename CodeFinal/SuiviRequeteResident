@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import java.awt.*;
 /**
@@ -6,7 +8,7 @@ import java.awt.*;
  * Elle utilise la même logique que SuiviRequete, mais est spécialisée pour l'usage par des résidents.
  */
 public class SuiviRequeteResident extends SuiviRequete {
-/**
+    /**
      * Constructeur de SuiviRequeteResident.
      * @param emailResident L'email du résident connecté, utilisé pour filtrer les requêtes pertinentes.
      * @param cardLayout Gestionnaire de layout pour la navigation entre les différents panneaux de l'interface utilisateur.
