@@ -1,3 +1,5 @@
+package org.example;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import java.util.List;
 
 public class BaseDeDonnées {
 
-/**
+    /**
      * Lit toutes les lignes d'un fichier donné et les retourne sous forme de liste de tableaux de String.
      *
      * @param fichier Le chemin du fichier à lire.
@@ -31,7 +33,7 @@ public class BaseDeDonnées {
         return enregistrements;
     }
 
-/**
+    /**
      * Écrit une liste d'enregistrements dans un fichier.
      *
      * @param filePath Le chemin du fichier où écrire.
@@ -50,7 +52,7 @@ public class BaseDeDonnées {
         }
     }
 
-/**
+    /**
      * Écrit un tableau de String à la fin d'un fichier, chaque String étant une colonne.
      *
      * @param fichier Le chemin du fichier où écrire.
@@ -67,7 +69,7 @@ public class BaseDeDonnées {
         }
     }
 
- /**
+    /**
      * Ajoute une ligne à un fichier existant.
      *
      * @param nomFichier Le fichier où ajouter la ligne.
@@ -82,7 +84,7 @@ public class BaseDeDonnées {
             throw new RuntimeException("Erreur lors de l'ajout d'une ligne au fichier : " + nomFichier, e);
         }
     }
-/**
+    /**
      * Réécrit un fichier complet avec une nouvelle liste d'enregistrements.
      *
      * @param fichier Le chemin du fichier à réécrire.
@@ -101,7 +103,7 @@ public class BaseDeDonnées {
         }
     }
 
-/**
+    /**
      * Supprime des lignes d'un fichier en fonction d'une condition spécifiée.
      *
      * @param fichier Le fichier dont les lignes doivent être supprimées.
@@ -121,7 +123,7 @@ public class BaseDeDonnées {
         réécrire(fichier, enregistrementsMisAJour);
     }
 
-/**
+    /**
      * Interface fonctionnelle pour définir des conditions de suppression d'enregistrements dans un fichier.
      */
 
