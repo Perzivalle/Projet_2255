@@ -5,6 +5,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * La classe PlanificationParticipative gère l'interface utilisateur pour la planification participative de travaux.
+ * Elle permet aux utilisateurs de soumettre de nouveaux travaux et des préférences horaires pour des travaux existants.
+ */
+
 public class PlanificationParticipative {
 
     private static final String TRAVAUX_FILE = "propositionsTravaux.csv";
@@ -14,7 +19,9 @@ public class PlanificationParticipative {
     private JTable preferencesTable;
     private DefaultTableModel travauxTableModel;
     private DefaultTableModel preferencesTableModel;
-
+/**
+     * Constructeur qui initialise les composants de l'interface utilisateur et charge les données.
+     */
     public PlanificationParticipative() {
         frame = new JFrame("Planification Participative");
         frame.setSize(1000, 600);
