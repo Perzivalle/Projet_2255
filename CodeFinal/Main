@@ -8,7 +8,10 @@ import java.util.Arrays;
 import java.util.List;
 
 
-
+**
+ * Classe principale de l'application qui gère le menu principal et les pages associées.
+ * Elle utilise un CardLayout pour naviguer entre les différentes sections.
+ */
 public class Main {
     private static JFrame frame;
     private static CardLayout cardLayout;
@@ -19,7 +22,10 @@ public class Main {
 
     private static final List<String[]> comptesResident = new ArrayList<>();
     private static final List<String[]> comptesIntervenant = new ArrayList<>();
-
+ /**
+     * Constructeur principal de la classe qui initialise l'interface graphique
+     * et charge les données des comptes depuis les fichiers CSV.
+     */
     public Main() {
         // Charger les comptes depuis les fichiers
         comptesResident.addAll(BaseDeDonnées.lireTous(RESIDENTS_FILE));
@@ -48,7 +54,11 @@ public class Main {
         frame.add(mainPanel);
         frame.setVisible(true);
     }
-
+/**
+     * Crée la page d'accueil du menu principal.
+     *
+     * @return Un JPanel représentant la page d'accueil.
+     */
     private JPanel createPageAccueil() {
         JPanel accueilPanel = new JPanel(new BorderLayout());
         JLabel label = new JLabel("Bienvenue dans le Menu Principal", SwingConstants.CENTER);
@@ -69,6 +79,11 @@ public class Main {
         return accueilPanel;
     }
 
+    /**
+     * Crée la page d'inscription.
+     *
+     * @return Un JPanel représentant la page d'inscription.
+     */
     private JPanel createPageInscription() {
         JPanel panelMain = new JPanel(new BorderLayout());
 
