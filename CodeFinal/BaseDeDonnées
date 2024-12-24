@@ -2,7 +2,18 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Cette classe fournit des méthodes statiques pour la manipulation de fichiers qui agissent comme une simple base de données textuelle.
+ */
+
 public class BaseDeDonnées {
+
+/**
+     * Lit toutes les lignes d'un fichier donné et les retourne sous forme de liste de tableaux de String.
+     *
+     * @param fichier Le chemin du fichier à lire.
+     * @return Une liste de tableaux de String, chaque tableau représentant une ligne du fichier.
+     */
 
     public static List<String[]> lireTous(String fichier) {
         List<String[]> enregistrements = new ArrayList<>();
@@ -20,6 +31,12 @@ public class BaseDeDonnées {
         return enregistrements;
     }
 
+/**
+     * Écrit une liste d'enregistrements dans un fichier.
+     *
+     * @param filePath Le chemin du fichier où écrire.
+     * @param data Les données à écrire, où chaque tableau de String représente une ligne du fichier.
+     */
 
     public static void ecrireTous(String filePath, List<String[]> data) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
@@ -33,6 +50,13 @@ public class BaseDeDonnées {
         }
     }
 
+/**
+     * Écrit un tableau de String à la fin d'un fichier, chaque String étant une colonne.
+     *
+     * @param fichier Le chemin du fichier où écrire.
+     * @param valeurs Les valeurs à écrire dans le fichier.
+     */
+
     public static void écrire(String fichier, String[] valeurs) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier, true))) {
             writer.write(String.join(",", valeurs));
@@ -43,6 +67,13 @@ public class BaseDeDonnées {
         }
     }
 
+ /**
+     * Ajoute une ligne à un fichier existant.
+     *
+     * @param nomFichier Le fichier où ajouter la ligne.
+     * @param ligne La ligne à ajouter, où chaque élément de la liste est une colonne dans la ligne du fichier.
+     */
+
     public static void ajouterLigne(String nomFichier, List<String> ligne) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(nomFichier, true))) {
             writer.write(String.join(",", ligne));
@@ -51,7 +82,12 @@ public class BaseDeDonnées {
             throw new RuntimeException("Erreur lors de l'ajout d'une ligne au fichier : " + nomFichier, e);
         }
     }
-
+/**
+     * Réécrit un fichier complet avec une nouvelle liste d'enregistrements.
+     *
+     * @param fichier Le chemin du fichier à réécrire.
+     * @param enregistrements Les nouveaux enregistrements à écrire dans le fichier.
+     */
 
     public static void réécrire(String fichier, List<String[]> enregistrements) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fichier))) {
@@ -65,6 +101,12 @@ public class BaseDeDonnées {
         }
     }
 
+/**
+     * Supprime des lignes d'un fichier en fonction d'une condition spécifiée.
+     *
+     * @param fichier Le fichier dont les lignes doivent être supprimées.
+     * @param condition La condition à tester pour chaque ligne pour déterminer si elle doit être supprimée.
+     */
 
     public static void supprimer(String fichier, ConditionSuppression condition) {
         List<String[]> enregistrements = lireTous(fichier);
@@ -78,6 +120,10 @@ public class BaseDeDonnées {
 
         réécrire(fichier, enregistrementsMisAJour);
     }
+
+/**
+     * Interface fonctionnelle pour définir des conditions de suppression d'enregistrements dans un fichier.
+     */
 
     @FunctionalInterface
     public interface ConditionSuppression {
