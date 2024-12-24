@@ -1,4 +1,6 @@
-import code.App;
+package org.example;
+
+import org.example.code.App;
 import com.google.gson.*;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -14,7 +16,7 @@ import java.time.format.DateTimeParseException;
  * Elle permet aux utilisateurs de visualiser, filtrer et interagir avec les demandes de travaux en utilisant une interface graphique.
  */
 public class ConsulterTravaux {
- /**
+    /**
      * Méthode pour initialiser et afficher les demandes de travaux si l'appel API est réussi.
      */
     public static void ConsulterTravaux() {
