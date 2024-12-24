@@ -3,7 +3,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
+/**
+ * La classe SuiviCandidature gère l'interface pour le suivi des candidatures soumises par les utilisateurs.
+ * Elle permet d'afficher les candidatures et leurs statuts actuels, et de gérer les actions sur ces candidatures.
+ */
 public class SuiviCandidature {
 
     private static final String CANDIDATURES_FILE = "candidatures.csv"; // Fichier des candidatures
@@ -11,7 +14,9 @@ public class SuiviCandidature {
     private JFrame frame;
     private JTable table;
     private DefaultTableModel tableModel;
-
+ /**
+     * Constructeur qui initialise l'interface graphique pour le suivi des candidatures.
+     */
     public SuiviCandidature() {
         frame = new JFrame("Suivi des Candidatures");
         frame.setSize(900, 600);
@@ -48,7 +53,9 @@ public class SuiviCandidature {
 
         frame.setVisible(true);
     }
-
+ /**
+     * Charge et affiche les candidatures avec leurs statuts depuis les fichiers CSV.
+     */
     private void chargerCandidatures() {
         try {
             // Charger les candidatures depuis la base de données
@@ -88,7 +95,10 @@ public class SuiviCandidature {
             e.printStackTrace();
         }
     }
-
+ /**
+     * Gère les interactions avec les candidatures sélectionnées, permettant de modifier le statut de la candidature.
+     * @param selectedRow l'indice de la ligne sélectionnée dans la table.
+     */
     private void gererCandidature(int selectedRow) {
         String requete = table.getValueAt(selectedRow, 0).toString();
         String statut = table.getValueAt(selectedRow, 1).toString();
@@ -113,7 +123,12 @@ public class SuiviCandidature {
             modifierStatutCandidature(requete, "annulée", "Votre candidature a été annulée par vous.");
         }
     }
-
+ /**
+     * Modifie le statut d'une candidature et enregistre le changement dans le fichier CSV.
+     * @param requete le titre de la candidature à modifier.
+     * @param nouveauStatut le nouveau statut de la candidature.
+     * @param message le message à associer avec le changement de statut.
+     */
     private void modifierStatutCandidature(String requete, String nouveauStatut, String message) {
         try {
             // Charger les statuts existants
