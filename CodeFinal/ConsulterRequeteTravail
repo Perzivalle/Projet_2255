@@ -1,3 +1,5 @@
+package org.example;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -19,7 +21,7 @@ public class consulterRequeteTravail {
     private List<String[]> allTravaux;
     private List<String[]> candidatures;
 
-/**
+    /**
      * Constructeur qui initialise l'interface utilisateur pour la consultation des requêtes de travaux.
      */
     public consulterRequeteTravail() {
@@ -85,7 +87,7 @@ public class consulterRequeteTravail {
 
         updateTable();
     }
-/**
+    /**
      * Met à jour la table des travaux en rechargeant les données depuis les fichiers CSV.
      */
     private void updateTable() {
@@ -93,7 +95,7 @@ public class consulterRequeteTravail {
         candidatures = BaseDeDonnées.lireTous(CANDIDATURES_FILE);
         resetTable();
     }
-/**
+    /**
      * Réinitialise et met à jour les données affichées dans la table en fonction des travaux et des candidatures existantes.
      */
     private void resetTable() {
@@ -103,7 +105,7 @@ public class consulterRequeteTravail {
             tableModel.addRow(new String[]{travail[0], travail[1], travail[2], travail[3], travail[4], travail[5], statut});
         }
     }
- /**
+    /**
      * Applique un filtre aux travaux affichés en fonction du type, du quartier ou de la date de début.
      *
      * @param criteria La valeur du critère de filtrage.
@@ -137,7 +139,7 @@ public class consulterRequeteTravail {
         }
     }
 
-/**
+    /**
      * Permet à l'utilisateur de soumettre une candidature pour un travail sélectionné.
      */
     private void soumettreCandidature() {
@@ -170,7 +172,7 @@ public class consulterRequeteTravail {
             updateTable();
         }
     }
- /**
+    /**
      * Permet à l'utilisateur de retirer une candidature précédemment soumise pour un travail sélectionné.
      */
     private void retirerCandidature() {
